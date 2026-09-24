@@ -15,11 +15,8 @@
 </head>
 <body>
   <div class="app">
+    <!-- Clean Minimalist Header with Subtle Date -->
     <header class="app-header">
-      <div class="header-brand">
-        <span class="logo-icon">🔥</span>
-        <h1>Kcal Tracker</h1>
-      </div>
       <p class="date" id="today-date"></p>
     </header>
 
@@ -207,17 +204,40 @@
     <!-- VIEW 3: ANALYTICS -->
     <section id="view-analytics" class="tab-view" hidden>
       <div class="card-panel">
-        <h2>Macro Distribution</h2>
-        <p class="panel-subtitle">Today's Calorie & Macro breakdown</p>
-        <div class="macro-breakdown-bar">
-          <div class="macro-part p-part" id="macro-part-p"></div>
-          <div class="macro-part c-part" id="macro-part-c"></div>
-          <div class="macro-part f-part" id="macro-part-f"></div>
+        <h2>Macro Breakdown</h2>
+        <p class="panel-subtitle">Today's macronutrient distribution</p>
+
+        <div class="macro-stacked-track">
+          <div class="macro-stacked-fill p-part" id="macro-part-p"></div>
+          <div class="macro-stacked-fill c-part" id="macro-part-c"></div>
+          <div class="macro-stacked-fill f-part" id="macro-part-f"></div>
         </div>
-        <div class="macro-legend-row">
-          <div class="legend-item"><span class="legend-color p-color"></span><span id="legend-p-text">Protein 0%</span></div>
-          <div class="legend-item"><span class="legend-color c-color"></span><span id="legend-c-text">Carbs 0%</span></div>
-          <div class="legend-item"><span class="legend-color f-color"></span><span id="legend-f-text">Fat 0%</span></div>
+
+        <div class="macro-cards-row">
+          <div class="macro-card-item">
+            <div class="macro-card-header">
+              <span class="macro-badge p-color"></span>
+              <span class="macro-card-title">Protein</span>
+            </div>
+            <strong class="macro-card-val" id="analytics-protein-val">0g</strong>
+            <span class="macro-card-pct" id="legend-p-text">0%</span>
+          </div>
+          <div class="macro-card-item">
+            <div class="macro-card-header">
+              <span class="macro-badge c-color"></span>
+              <span class="macro-card-title">Carbs</span>
+            </div>
+            <strong class="macro-card-val" id="analytics-carbs-val">0g</strong>
+            <span class="macro-card-pct" id="legend-c-text">0%</span>
+          </div>
+          <div class="macro-card-item">
+            <div class="macro-card-header">
+              <span class="macro-badge f-color"></span>
+              <span class="macro-card-title">Fat</span>
+            </div>
+            <strong class="macro-card-val" id="analytics-fat-val">0g</strong>
+            <span class="macro-card-pct" id="legend-f-text">0%</span>
+          </div>
         </div>
       </div>
 
@@ -555,23 +575,41 @@
     <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav">
       <button type="button" class="nav-item active" id="nav-today">
-        <span class="nav-icon">📊</span>
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <path d="M8 17v-5" />
+          <path d="M12 17v-8" />
+          <path d="M16 17v-3" />
+        </svg>
         <span class="nav-label">Today</span>
       </button>
       <button type="button" class="nav-item" id="nav-log">
-        <span class="nav-icon">➕</span>
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <line x1="12" y1="8" x2="12" y2="16" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
         <span class="nav-label">Log & Scan</span>
       </button>
       <button type="button" class="nav-item" id="nav-analytics">
-        <span class="nav-icon">📈</span>
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18" />
+          <path d="M18 9l-5 5-4-4-5 5" />
+        </svg>
         <span class="nav-label">Analytics</span>
       </button>
       <button type="button" class="nav-item" id="nav-swap">
-        <span class="nav-icon">💡</span>
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18l6-6-6-6" />
+          <circle cx="12" cy="12" r="9" />
+        </svg>
         <span class="nav-label">Swap</span>
       </button>
       <button type="button" class="nav-item" id="nav-settings">
-        <span class="nav-icon">⚙️</span>
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
         <span class="nav-label">Settings</span>
       </button>
     </nav>

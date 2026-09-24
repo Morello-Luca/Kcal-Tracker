@@ -158,38 +158,22 @@ body {
   overflow-x: hidden;
 }
 
-/* iOS Header Title Bar */
+/* iOS Header Date Bar */
 .app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  justify-content: flex-start;
+  margin-bottom: 12px;
   padding: 8px 4px 0;
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.logo-icon {
-  font-size: 1.5rem;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text);
 }
 
 .app-header .date {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-dim);
+  text-transform: capitalize;
 }
 
 /* Theme Selector Grid in Settings */
@@ -820,37 +804,72 @@ body {
 }
 
 /* Analytics */
-.macro-breakdown-bar {
+.macro-stacked-track {
   display: flex;
-  height: 12px;
+  height: 14px;
   border-radius: 999px;
   overflow: hidden;
   background: var(--surface-alt);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  gap: 2px;
 }
 
-.macro-part { height: 100%; transition: width 0.3s ease; }
+.macro-stacked-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
 .p-part, .p-color { background: var(--ios-green); }
 .c-part, .c-color { background: var(--ios-blue); }
 .f-part, .f-color { background: var(--ios-orange); }
 
-.macro-legend-row {
-  display: flex;
-  justify-content: space-around;
-  font-size: 0.78rem;
-  color: var(--text-dim);
+.macro-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
-.legend-item {
+.macro-card-item {
+  background: var(--surface-alt);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.macro-card-header {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.legend-color {
-  width: 10px;
-  height: 10px;
+.macro-badge {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.macro-card-title {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.macro-card-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.macro-card-pct {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 500;
 }
 
 .trend-chart {
@@ -1007,17 +1026,17 @@ body {
 }
 
 .history-day {
-  background: var(--surface);
+  background: var(--surface-alt);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: var(--card-shadow);
+  transition: background 0.15s ease;
 }
 
 .history-day-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 14px 16px;
   cursor: pointer;
   background: none;
@@ -1029,13 +1048,13 @@ body {
 }
 
 .history-day-date {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .history-day-summary {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
@@ -1043,13 +1062,20 @@ body {
 .history-day-cals {
   font-weight: 700;
   color: var(--accent);
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .history-day-macros {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-dim);
   white-space: nowrap;
+}
+
+.history-chevron {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 2px;
 }
 
 .history-entries {
@@ -1356,7 +1382,16 @@ body {
 
 .nav-item:active { transform: scale(0.92); }
 
-.nav-icon { font-size: 1.35rem; }
+.nav-svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--text-dim);
+  transition: stroke 0.15s ease, transform 0.1s ease;
+}
+
+.nav-item.active .nav-svg {
+  stroke: var(--ios-blue);
+}
 
 .nav-label {
   font-size: 0.65rem;
