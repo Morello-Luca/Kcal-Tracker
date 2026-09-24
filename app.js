@@ -1641,24 +1641,43 @@ photoAnalyzeBtn.addEventListener("click", async () => {
   try {
     const quantity = photoQuantityInput.value.trim();
 
-    const res = await fetch("/api/vision-lookup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: capturedPhotoDataUrl, quantity, mode: activePhotoMode }),
-    });
+    let result;
 
-    if (!res.ok) {
-      let message = "Photo analysis failed. Try again, or add this food by typing instead.";
-      try {
-        const data = await res.json();
-        if (data?.error) message = data.error;
-      } catch {
-        // ignore parse errors
+    // Zero-token client-side OCR for Nutrition Facts Label mode if Tesseract is available
+    if (activePhotoMode === "label" && typeof Tesseract !== "undefined") {
+      photoStatusEl.textContent = "Performing client-side OCR (0 token usage)...";
+      const ocrResult = await Tesseract.recognize(capturedPhotoDataUrl, 'eng');
+      const rawText = ocrResult?.data?.text || "";
+      const parsed = typeof parseNutritionLabelText === "function" ? parseNutritionLabelText(rawText) : { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+
+      result = {
+        description: parsed.description || "Label OCR Product",
+        calories: parsed.calories,
+        protein_g: parsed.protein_g,
+        carbs_g: parsed.carbs_g,
+        fat_g: parsed.fat_g
+      };
+    } else {
+      const res = await fetch("/api/vision-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: capturedPhotoDataUrl, quantity, mode: activePhotoMode }),
+      });
+
+      if (!res.ok) {
+        let message = "Photo analysis failed. Try again, or add this food by typing instead.";
+        try {
+          const data = await res.json();
+          if (data?.error) message = data.error;
+        } catch {
+          // ignore parse errors
+        }
+        throw new Error(message);
       }
-      throw new Error(message);
+
+      result = await res.json();
     }
 
-    const result = await res.json();
     currentPhotoResult = result;
 
     if (photoEditDesc) photoEditDesc.value = result.description || "";
