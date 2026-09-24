@@ -1646,8 +1646,17 @@ photoAnalyzeBtn.addEventListener("click", async () => {
     // Zero-token client-side OCR for Nutrition Facts Label mode if Tesseract is available
     if (activePhotoMode === "label" && typeof Tesseract !== "undefined") {
       photoStatusEl.textContent = "Performing client-side OCR (0 token usage)...";
-      const ocrResult = await Tesseract.recognize(capturedPhotoDataUrl, 'eng');
-      const rawText = ocrResult?.data?.text || "";
+      let rawText = "";
+      try {
+        // Try multilingual recognition (Japanese + English)
+        const ocrResult = await Tesseract.recognize(capturedPhotoDataUrl, 'jpn+eng');
+        rawText = ocrResult?.data?.text || "";
+      } catch (ocrErr) {
+        console.warn("Tesseract jpn+eng failed, falling back to eng:", ocrErr);
+        const ocrResult = await Tesseract.recognize(capturedPhotoDataUrl, 'eng');
+        rawText = ocrResult?.data?.text || "";
+      }
+
       const parsed = typeof parseNutritionLabelText === "function" ? parseNutritionLabelText(rawText) : { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
 
       result = {

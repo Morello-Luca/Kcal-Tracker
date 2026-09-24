@@ -70,13 +70,6 @@ body {
   color: var(--text);
 }
 
-.privacy-text strong {
-  display: block;
-  font-size: 0.88rem;
-  color: var(--accent-neon);
-  margin-bottom: 4px;
-}
-
 .privacy-text p {
   margin: 0;
   font-size: 0.78rem;

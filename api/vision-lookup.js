@@ -13,17 +13,17 @@ Respond with ONLY a JSON object in this exact shape, with numbers (not strings) 
 
 "description" should be a short human-readable name for what you identified, including the quantity, e.g. "Nutella (30g)". Do not include any explanation beyond the JSON object.`;
 
-const SYSTEM_PROMPT_LABEL = `You are an expert OCR and nutrition facts label parser. You are shown a photo that contains a Nutrition Facts / Values table or label.
+const SYSTEM_PROMPT_LABEL = `You are an expert OCR and nutrition facts label parser supporting English, Japanese (栄養成分表示), and other languages. You are shown a photo that contains a Nutrition Facts / Values table or label.
 
 Your task:
-1. Carefully read the numbers printed on the nutrition label (e.g. Energy / Calories, Protein, Carbohydrates / Sugars, Fat / Saturated Fat, and Serving Size / Per 100g).
+1. Carefully read the numbers printed on the nutrition label (e.g. Energy / Calories / 熱量 / エネルギー, Protein / たんぱく質, Carbohydrates / 炭水化物 / 糖質, Fat / 脂質, and Serving Size / 1包装あたり / Per 100g).
 2. If the user specified a quantity (e.g. "150g" or "2 servings"), scale the values directly to that requested quantity.
 3. If no quantity is specified, calculate for 1 serving or 100g as stated on the label.
 
 Respond with ONLY a JSON object in this exact shape, with numbers (not strings) except "description":
 {"description": string, "calories": number, "protein_g": number, "carbs_g": number, "fat_g": number}
 
-"description" should be a short product name or label identification with quantity, e.g. "Greek Yogurt (150g)". Do not include any text outside the JSON object.`;
+"description" should be a short product name or label identification with quantity, e.g. "Greek Yogurt (150g)" or "おにぎり (1個)". Do not include any text outside the JSON object.`;
 
 function extractJson(text) {
   if (!text) return null;
