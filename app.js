@@ -37,6 +37,8 @@ const waterPlusBtn = document.getElementById("water-plus-btn");
 const manualAddBtn = document.getElementById("manual-add-btn");
 const manualAddModal = document.getElementById("manual-add-modal");
 const manualAddClose = document.getElementById("manual-add-close");
+const manualModalTitle = document.getElementById("manual-modal-title");
+const manualSubmitBtn = document.getElementById("manual-submit-btn");
 const manualAddForm = document.getElementById("manual-add-form");
 const manualDescInput = document.getElementById("manual-desc");
 const manualCaloriesInput = document.getElementById("manual-calories");
@@ -44,6 +46,7 @@ const manualProteinInput = document.getElementById("manual-protein");
 const manualCarbsInput = document.getElementById("manual-carbs");
 const manualFatInput = document.getElementById("manual-fat");
 const manualCancelBtn = document.getElementById("manual-cancel-btn");
+let manualModalMode = "log"; // "log" or "favorite"
 
 // Edit Log Entry Modal
 const editEntryModal = document.getElementById("edit-entry-modal");
@@ -59,6 +62,7 @@ let currentEditingEntryId = null;
 
 // Favorites / Frequent
 const favoritesList = document.getElementById("favorites-list");
+const addFavBtn = document.getElementById("add-fav-btn");
 
 // Analytics
 const macroPartP = document.getElementById("macro-part-p");
@@ -553,12 +557,12 @@ function renderFavorites() {
   if (favs.length === 0) {
     const empty = document.createElement("li");
     empty.className = "empty-state";
-    empty.textContent = "No saved favorites yet.";
+    empty.textContent = "No saved favorites yet. Tap '+ Add Fav' above to save quick items.";
     favoritesList.appendChild(empty);
     return;
   }
 
-  favs.forEach((fav) => {
+  favs.forEach((fav, index) => {
     const li = document.createElement("li");
     li.className = "fav-item";
 
@@ -578,17 +582,42 @@ function renderFavorites() {
     info.appendChild(title);
     info.appendChild(macros);
 
-    const btn = document.createElement("button");
-    btn.className = "fav-add-btn";
-    btn.textContent = "+ Log";
-    btn.addEventListener("click", () => {
+    const actions = document.createElement("div");
+    actions.style.display = "flex";
+    actions.style.alignItems = "center";
+    actions.style.gap = "6px";
+
+    const logBtn = document.createElement("button");
+    logBtn.className = "fav-add-btn";
+    logBtn.textContent = "+ Log";
+    logBtn.addEventListener("click", () => {
       addEntryFromResult(fav.description, fav);
       switchNavTab("today");
     });
 
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "remove-btn";
+    deleteBtn.textContent = "×";
+    deleteBtn.setAttribute("aria-label", "Remove favorite");
+    deleteBtn.addEventListener("click", () => {
+      const currentFavs = loadFavorites();
+      currentFavs.splice(index, 1);
+      saveFavorites(currentFavs);
+      renderFavorites();
+    });
+
+    actions.appendChild(logBtn);
+    actions.appendChild(deleteBtn);
+
     li.appendChild(info);
-    li.appendChild(btn);
+    li.appendChild(actions);
     favoritesList.appendChild(li);
+  });
+}
+
+if (addFavBtn) {
+  addFavBtn.addEventListener("click", () => {
+    openManualAddModal();
   });
 }
 
@@ -921,9 +950,13 @@ if (quickLogNavBtn) {
   });
 }
 
-// Manual Quick Add Modal logic
-function openManualAddModal() {
+// Manual Quick Add / Favorite Modal logic
+function openManualAddModal(mode = "log") {
   if (!manualAddModal) return;
+  manualModalMode = mode;
+  if (manualModalTitle) manualModalTitle.textContent = mode === "favorite" ? "Add New Favorite" : "Manual Quick-Add";
+  if (manualSubmitBtn) manualSubmitBtn.textContent = mode === "favorite" ? "Save Favorite" : "Save to Log";
+
   manualDescInput.value = "";
   manualCaloriesInput.value = "";
   manualProteinInput.value = "0";
@@ -937,7 +970,7 @@ function closeManualAddModal() {
   if (manualAddModal) manualAddModal.hidden = true;
 }
 
-if (manualAddBtn) manualAddBtn.addEventListener("click", openManualAddModal);
+if (manualAddBtn) manualAddBtn.addEventListener("click", () => openManualAddModal("log"));
 if (manualAddClose) manualAddClose.addEventListener("click", closeManualAddModal);
 if (manualCancelBtn) manualCancelBtn.addEventListener("click", closeManualAddModal);
 
@@ -947,14 +980,24 @@ if (manualAddForm) {
     const description = manualDescInput.value.trim();
     if (!description) return;
 
-    addEntryFromResult(description, {
+    const item = {
+      description,
       calories: Number(manualCaloriesInput.value) || 0,
       protein_g: Number(manualProteinInput.value) || 0,
       carbs_g: Number(manualCarbsInput.value) || 0,
       fat_g: Number(manualFatInput.value) || 0,
-    });
+    };
+
+    if (manualModalMode === "favorite") {
+      const currentFavs = loadFavorites();
+      currentFavs.push(item);
+      saveFavorites(currentFavs);
+      renderFavorites();
+    } else {
+      addEntryFromResult(description, item);
+      switchNavTab("today");
+    }
     closeManualAddModal();
-    switchNavTab("today");
   });
 }
 
