@@ -139,6 +139,7 @@ const WATER_KEY_PREFIX = "kcal-water-";
 const GOAL_KEY = "kcal-goal";
 const BODY_PROFILE_KEY = "kcal-body-profile";
 const FAVORITES_KEY = "kcal-favorites";
+const THEME_KEY = "kcal-theme";
 
 const DEFAULT_WATER_GOAL = 8;
 
@@ -1730,6 +1731,32 @@ photoRetryBtn.addEventListener("click", () => {
   photoStatusEl.textContent = "";
 });
 
+// Theme switching handler
+function applyTheme(themeName) {
+  if (!themeName) return;
+  document.documentElement.setAttribute("data-theme", themeName);
+  localStorage.setItem(THEME_KEY, themeName);
+
+  const themeCards = document.querySelectorAll(".theme-card");
+  themeCards.forEach((card) => {
+    card.classList.toggle("active", card.getAttribute("data-theme") === themeName);
+  });
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY) || "oled";
+  applyTheme(savedTheme);
+
+  const themeCards = document.querySelectorAll(".theme-card");
+  themeCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const selectedTheme = card.getAttribute("data-theme");
+      applyTheme(selectedTheme);
+    });
+  });
+}
+
+initTheme();
 renderDate();
 render();
 
