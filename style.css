@@ -1,5 +1,6 @@
-/* iOS Human Interface Guidelines Style Theme */
+/* iOS Human Interface Guidelines Style Theme with Refined Color Palettes */
 :root {
+  /* Default Theme: OLED Midnight */
   --bg: #000000;
   --surface: #1c1c1e;
   --surface-alt: #2c2c2e;
@@ -8,7 +9,6 @@
   --text-dim: #8e8e93;
   --text-secondary: #aeaeb2;
 
-  /* iOS System Colors */
   --ios-blue: #0a84ff;
   --ios-green: #30d158;
   --ios-orange: #ff9f0a;
@@ -18,38 +18,153 @@
 
   --accent: var(--ios-green);
   --danger: var(--ios-red);
-  --border: rgba(255, 255, 255, 0.12);
-  --hairline: rgba(255, 255, 255, 0.18);
+  --border: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --nav-bg: rgba(28, 28, 30, 0.82);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-* {
+/* Theme: Forest Pastel */
+[data-theme="forest"] {
+  --bg: #0d1b12;
+  --surface: #162a1e;
+  --surface-alt: #223c2c;
+  --surface-elevated: #2f4e3c;
+  --text: #f0f7f2;
+  --text-dim: #7a9c84;
+  --text-secondary: #a3c4ad;
+
+  --ios-blue: #52b788;
+  --ios-green: #74c69d;
+  --ios-orange: #e9d8a6;
+  --ios-red: #e63946;
+  --ios-purple: #95d5b2;
+  --ios-teal: #b7e4c7;
+
+  --accent: var(--ios-green);
+  --danger: var(--ios-red);
+  --border: rgba(183, 228, 199, 0.1);
+  --hairline: rgba(183, 228, 199, 0.15);
+  --nav-bg: rgba(22, 42, 30, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Theme: Slate Blue */
+[data-theme="slate"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-alt: #334155;
+  --surface-elevated: #475569;
+  --text: #f8fafc;
+  --text-dim: #94a3b8;
+  --text-secondary: #cbd5e1;
+
+  --ios-blue: #38bdf8;
+  --ios-green: #34d399;
+  --ios-orange: #fbbf24;
+  --ios-red: #f87171;
+  --ios-purple: #c084fc;
+  --ios-teal: #22d3ee;
+
+  --accent: var(--ios-blue);
+  --danger: var(--ios-red);
+  --border: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --nav-bg: rgba(30, 41, 59, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+
+/* Theme: Sunset Rose */
+[data-theme="sunset"] {
+  --bg: #1a0f18;
+  --surface: #2a1827;
+  --surface-alt: #3d243a;
+  --surface-elevated: #52314e;
+  --text: #fdf2f8;
+  --text-dim: #b082a5;
+  --text-secondary: #d4a5cb;
+
+  --ios-blue: #f472b6;
+  --ios-green: #fb7185;
+  --ios-orange: #f97316;
+  --ios-red: #ef4444;
+  --ios-purple: #e879f9;
+  --ios-teal: #38bdf8;
+
+  --accent: var(--ios-blue);
+  --danger: var(--ios-red);
+  --border: rgba(244, 114, 182, 0.12);
+  --hairline: rgba(244, 114, 182, 0.18);
+  --nav-bg: rgba(42, 24, 39, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme: Sage Clean */
+[data-theme="sage"] {
+  --bg: #121816;
+  --surface: #1d2623;
+  --surface-alt: #2a3733;
+  --surface-elevated: #394a45;
+  --text: #f2f7f5;
+  --text-dim: #889e96;
+  --text-secondary: #b1c7bf;
+
+  --ios-blue: #4ade80;
+  --ios-green: #2dd4bf;
+  --ios-orange: #fb923c;
+  --ios-red: #f87171;
+  --ios-purple: #a78bfa;
+  --ios-teal: #38bdf8;
+
+  --accent: var(--ios-green);
+  --danger: var(--ios-red);
+  --border: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --nav-bg: rgba(29, 38, 35, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
   box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
+  width: 100%;
   max-width: 430px;
   margin: 0 auto;
-  padding: 16px 16px 120px;
+  padding: 16px 16px 100px;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* Header - iOS Navigation Bar Title */
+/* iOS Header Title Bar */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
-  padding: 4px 4px;
+  margin-bottom: 20px;
+  padding: 8px 4px 0;
 }
 
 .header-brand {
@@ -59,36 +174,80 @@ body {
 }
 
 .logo-icon {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 
 .app-header h1 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text);
 }
 
-.privacy-text p {
+.app-header .date {
   margin: 0;
-  font-size: 0.78rem;
-  color: var(--text-dim);
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--text-dim);
 }
 
-/* Install Banner - iOS Toast/Banner */
+/* Theme Selector Grid in Settings */
+.theme-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.theme-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.theme-card.active {
+  border-color: var(--ios-blue);
+  background: var(--surface-elevated);
+}
+
+.theme-preview {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.oled-preview { background: linear-gradient(135deg, #000000 50%, #30d158 50%); }
+.forest-preview { background: linear-gradient(135deg, #0d1b12 50%, #74c69d 50%); }
+.slate-preview { background: linear-gradient(135deg, #0f172a 50%, #38bdf8 50%); }
+.sunset-preview { background: linear-gradient(135deg, #1a0f18 50%, #f472b6 50%); }
+.sage-preview { background: linear-gradient(135deg, #121816 50%, #2dd4bf 50%); }
+
+.theme-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Install Banner */
 .install-banner {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 18px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  box-shadow: var(--card-shadow);
 }
 
 .install-banner[hidden] {
@@ -102,9 +261,7 @@ body {
   flex: 1;
 }
 
-.banner-icon {
-  font-size: 1.5rem;
-}
+.banner-icon { font-size: 1.5rem; }
 
 .banner-content strong {
   display: block;
@@ -138,15 +295,15 @@ body {
   padding: 0 4px;
 }
 
-/* Hero Section / iOS Fitness Card */
+/* iOS Fitness Hero Card */
 .totals {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 24px 20px 20px;
+  border-radius: 24px;
+  padding: 22px 20px 18px;
   text-align: center;
   margin-bottom: 18px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
 }
 
 .total-card {
@@ -158,22 +315,22 @@ body {
 }
 
 .total-value {
-  font-size: 3.6rem;
+  font-size: 3.8rem;
   font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--ios-green);
+  letter-spacing: -0.05em;
+  color: var(--accent);
   line-height: 1;
 }
 
 .total-label {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--text-dim);
 }
 
-/* iOS Goal Bar */
+/* iOS Progress Track */
 .goal-section {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .goal-bar-track {
@@ -188,13 +345,13 @@ body {
 .goal-bar-fill {
   height: 100%;
   width: 0%;
-  background: var(--ios-green);
+  background: var(--accent);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
 
 .goal-bar-fill.over {
-  background: var(--ios-red);
+  background: var(--danger);
 }
 
 .goal-row {
@@ -228,7 +385,7 @@ body {
   margin-bottom: 16px;
   background: var(--surface-alt);
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 18px;
 }
 
 .goal-form[hidden] {
@@ -247,16 +404,17 @@ body {
   grid-column: 1 / -1;
 }
 
-.goal-form input {
+.goal-form input, select {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   font-size: 0.95rem;
+  width: 100%;
 }
 
-.goal-form input:focus {
+.goal-form input:focus, select:focus {
   outline: none;
   border-color: var(--ios-blue);
 }
@@ -287,11 +445,11 @@ body {
   color: var(--text);
 }
 
-/* Macro Rings / Columns */
+/* Macro Rows */
 .macro-row {
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--hairline);
   padding-top: 16px;
 }
 
@@ -309,9 +467,9 @@ body {
 }
 
 .macro-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -325,9 +483,7 @@ body {
   margin-top: 4px;
 }
 
-.macro-bar-track[hidden] {
-  display: none;
-}
+.macro-bar-track[hidden] { display: none; }
 
 .macro-bar-fill {
   height: 100%;
@@ -337,9 +493,7 @@ body {
   transition: width 0.3s ease;
 }
 
-.macro-bar-fill.over {
-  background: var(--ios-red);
-}
+.macro-bar-fill.over { background: var(--danger); }
 
 .macro-goal-label {
   display: block;
@@ -348,16 +502,15 @@ body {
   margin-top: 2px;
 }
 
-.macro-goal-label[hidden] {
-  display: none;
-}
+.macro-goal-label[hidden] { display: none; }
 
-/* iOS Grouped Cards / Panels */
+/* Inset Grouped Card Panels */
 .card-panel {
   background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 18px 20px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
 }
 
 .card-panel h2 {
@@ -373,13 +526,8 @@ body {
   color: var(--text-dim);
 }
 
-.margin-top {
-  margin-top: 18px;
-}
-
-.margin-top-sm {
-  margin-top: 10px;
-}
+.margin-top { margin-top: 18px; }
+.margin-top-sm { margin-top: 10px; }
 
 .section-title-row {
   display: flex;
@@ -404,7 +552,7 @@ body {
   cursor: pointer;
 }
 
-/* Quick Action Grid */
+/* Action Cards */
 .action-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -420,7 +568,7 @@ body {
   gap: 6px;
   padding: 14px 8px;
   background: var(--surface-alt);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 16px;
   color: var(--text);
   font-size: 0.78rem;
@@ -434,17 +582,16 @@ body {
   background: var(--surface-elevated);
 }
 
-.action-icon {
-  font-size: 1.4rem;
-}
+.action-icon { font-size: 1.4rem; }
 
-/* Water Widget iOS Style */
+/* Water Widget */
 .water-card {
   background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 16px 18px;
   margin-bottom: 18px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
 }
 
 .water-header {
@@ -490,9 +637,7 @@ body {
   justify-content: center;
 }
 
-.water-btn:active {
-  background: var(--surface-elevated);
-}
+.water-btn:active { background: var(--surface-elevated); }
 
 .water-glasses-row {
   display: flex;
@@ -519,8 +664,7 @@ body {
   margin-bottom: 12px;
 }
 
-#food-input,
-#swap-input {
+#food-input, #swap-input {
   flex: 1;
   padding: 12px 16px;
   border-radius: 14px;
@@ -528,18 +672,17 @@ body {
   background: var(--surface-alt);
   color: var(--text);
   font-size: 0.95rem;
+  width: 100%;
 }
 
-#food-input:focus,
-#swap-input:focus {
+#food-input:focus, #swap-input:focus {
   outline: none;
   border-color: var(--ios-blue);
   background: var(--surface);
 }
 
-#add-button,
-#swap-button {
-  padding: 12px 20px;
+#add-button, #swap-button {
+  padding: 12px 18px;
   border-radius: 14px;
   border: none;
   background: var(--ios-blue);
@@ -548,22 +691,14 @@ body {
   font-size: 0.95rem;
   cursor: pointer;
   transition: opacity 0.15s;
+  flex-shrink: 0;
 }
 
-#add-button:active,
-#swap-button:active {
-  opacity: 0.8;
-}
-
-#add-button:disabled,
-#swap-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
+#add-button:active, #swap-button:active { opacity: 0.8; }
+#add-button:disabled, #swap-button:disabled { opacity: 0.5; cursor: default; }
 
 .clarify-panel {
   background: var(--surface-alt);
-  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 14px;
   margin-bottom: 12px;
@@ -572,9 +707,7 @@ body {
   gap: 10px;
 }
 
-.clarify-panel[hidden] {
-  display: none;
-}
+.clarify-panel[hidden] { display: none; }
 
 #clarify-submit-btn {
   background: var(--ios-blue);
@@ -603,11 +736,9 @@ body {
   margin: 4px 2px 14px;
 }
 
-.status.error {
-  color: var(--ios-red);
-}
+.status.error { color: var(--ios-red); }
 
-/* Inset Grouped Food Log List */
+/* iOS Inset Food Log List */
 .log {
   list-style: none;
   margin: 0;
@@ -615,15 +746,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  background: var(--border);
-  border-radius: 16px;
+  background: var(--hairline);
+  border-radius: 18px;
   overflow: hidden;
-  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
 }
 
-.log:empty {
-  display: none;
-}
+.log:empty { display: none; }
 
 .log-entry {
   background: var(--surface);
@@ -639,6 +768,7 @@ body {
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  flex: 1;
 }
 
 .entry-desc {
@@ -657,7 +787,7 @@ body {
 .entry-cals {
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--ios-green);
+  color: var(--accent);
   white-space: nowrap;
 }
 
@@ -684,11 +814,12 @@ body {
 .empty-state {
   text-align: center;
   color: var(--text-dim);
-  padding: 36px 16px;
-  font-size: 0.9rem;
+  padding: 32px 16px;
+  font-size: 0.88rem;
+  background: var(--surface);
 }
 
-/* Analytics Macro Breakdown & Trend Chart */
+/* Analytics */
 .macro-breakdown-bar {
   display: flex;
   height: 12px;
@@ -698,11 +829,7 @@ body {
   margin-bottom: 12px;
 }
 
-.macro-part {
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
+.macro-part { height: 100%; transition: width 0.3s ease; }
 .p-part, .p-color { background: var(--ios-green); }
 .c-part, .c-color { background: var(--ios-blue); }
 .f-part, .f-color { background: var(--ios-orange); }
@@ -753,13 +880,8 @@ body {
   transition: height 0.3s ease;
 }
 
-.bar-col-fill.active-day {
-  background: var(--ios-green);
-}
-
-.bar-col-fill.over-goal {
-  background: var(--ios-red);
-}
+.bar-col-fill.active-day { background: var(--accent); }
+.bar-col-fill.over-goal { background: var(--danger); }
 
 .bar-col-label {
   font-size: 0.7rem;
@@ -789,7 +911,6 @@ body {
   align-items: center;
   padding: 12px 14px;
   background: var(--surface-alt);
-  border: 1px solid var(--border);
   border-radius: 14px;
   font-size: 0.88rem;
 }
@@ -798,16 +919,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
-.fav-title {
-  font-weight: 600;
-}
-
-.fav-macros {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-}
+.fav-title { font-weight: 600; }
+.fav-macros { font-size: 0.78rem; color: var(--text-dim); }
 
 .fav-add-btn {
   background: var(--ios-blue);
@@ -827,13 +943,10 @@ body {
   align-items: flex-start;
   padding: 14px 16px;
   background: var(--surface-alt);
-  border: 1px solid var(--border);
   border-radius: 16px;
 }
 
-.privacy-icon {
-  font-size: 1.5rem;
-}
+.privacy-icon { font-size: 1.5rem; }
 
 .privacy-text strong {
   display: block;
@@ -854,7 +967,6 @@ body {
   margin-top: 14px;
   padding: 14px 16px;
   background: var(--surface-alt);
-  border: 1px solid var(--border);
   border-radius: 16px;
 }
 
@@ -896,9 +1008,9 @@ body {
 
 .history-day {
   background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
 }
 
 .history-day-header {
@@ -930,7 +1042,7 @@ body {
 
 .history-day-cals {
   font-weight: 700;
-  color: var(--ios-green);
+  color: var(--accent);
   font-size: 1.05rem;
 }
 
@@ -951,9 +1063,7 @@ body {
   padding-top: 10px;
 }
 
-.history-entries[hidden] {
-  display: none;
-}
+.history-entries[hidden] { display: none; }
 
 .history-entry {
   display: flex;
@@ -990,51 +1100,50 @@ body {
 
 .swap-result {
   background: var(--surface-alt);
-  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 16px;
   margin-top: 10px;
   font-size: 0.92rem;
   line-height: 1.5;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.swap-result[hidden] {
-  display: none;
-}
+.swap-result[hidden] { display: none; }
 
-/* Modals - iOS Bottom Sheet Style */
+/* Modals - iOS Bottom Sheet Style with strict bounds */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   z-index: 200;
   padding: 0;
+  overflow-x: hidden;
+  width: 100vw;
 }
 
-.modal-overlay[hidden] {
-  display: none;
-}
+.modal-overlay[hidden] { display: none; }
 
 .modal-panel {
   width: 100%;
-  max-width: 440px;
-  max-height: 90vh;
+  max-width: 430px;
+  max-height: 85vh;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--surface);
-  border-top: 1px solid var(--border);
   border-radius: 28px 28px 0 0;
   padding: 12px 20px 28px;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
   position: relative;
+  box-sizing: border-box;
 }
 
-/* Modal Grab Handle (iOS handle bar) */
+/* Modal Grab Handle */
 .modal-panel::before {
   content: "";
   display: block;
@@ -1077,6 +1186,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  width: 100%;
 }
 
 .mode-toggle-group {
@@ -1086,6 +1196,7 @@ body {
   border-radius: 12px;
   padding: 4px;
   margin-bottom: 12px;
+  width: 100%;
 }
 
 .mode-btn {
@@ -1110,7 +1221,20 @@ body {
   border-radius: 16px;
   overflow: hidden;
   background: #000;
-  min-height: 220px;
+  min-height: 200px;
+  width: 100%;
+  max-width: 100%;
+}
+
+#barcode-reader * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#barcode-reader video, #barcode-reader canvas {
+  max-width: 100% !important;
+  width: 100% !important;
+  object-fit: cover;
 }
 
 .modal-status {
@@ -1118,18 +1242,21 @@ body {
   color: var(--text-dim);
   margin: 12px 0;
   text-align: center;
+  word-break: break-word;
 }
 
 .modal-hint {
   font-size: 0.825rem;
   color: var(--text-dim);
   margin: 0 0 12px;
+  word-break: break-word;
 }
 
 .modal-result-title {
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 6px;
+  word-break: break-word;
 }
 
 #photo-start .goal-form-actions,
@@ -1137,6 +1264,7 @@ body {
 #photo-preview .goal-form-actions,
 #barcode-confirm .goal-form-actions {
   margin-top: 6px;
+  width: 100%;
 }
 
 #photo-take-btn,
@@ -1160,9 +1288,10 @@ body {
 #photo-video,
 #photo-preview-img {
   width: 100%;
+  max-width: 100%;
   border-radius: 16px;
   background: #000;
-  max-height: 45vh;
+  max-height: 35vh;
   object-fit: contain;
 }
 
@@ -1175,6 +1304,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 #photo-start[hidden],
@@ -1195,7 +1327,7 @@ body {
   width: 100%;
   max-width: 430px;
   height: 68px;
-  background: rgba(28, 28, 30, 0.88);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--hairline);
@@ -1204,6 +1336,7 @@ body {
   align-items: center;
   z-index: 100;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  box-sizing: border-box;
 }
 
 .nav-item {
@@ -1221,23 +1354,14 @@ body {
   transition: color 0.15s ease, transform 0.1s ease;
 }
 
-.nav-item:active {
-  transform: scale(0.92);
-}
+.nav-item:active { transform: scale(0.92); }
 
-.nav-icon {
-  font-size: 1.35rem;
-}
+.nav-icon { font-size: 1.35rem; }
 
 .nav-label {
   font-size: 0.65rem;
   font-weight: 500;
 }
 
-.nav-item.active {
-  color: var(--ios-blue);
-}
-
-.nav-item.active .nav-label {
-  font-weight: 600;
-}
+.nav-item.active { color: var(--ios-blue); }
+.nav-item.active .nav-label { font-weight: 600; }
