@@ -10,14 +10,87 @@ const totalProteinEl = document.getElementById("total-protein");
 const totalCarbsEl = document.getElementById("total-carbs");
 const totalFatEl = document.getElementById("total-fat");
 
-const tabTodayBtn = document.getElementById("tab-today");
-const tabHistoryBtn = document.getElementById("tab-history");
-const tabSwapBtn = document.getElementById("tab-swap");
+// Navigation elements
+const navTodayBtn = document.getElementById("nav-today");
+const navLogBtn = document.getElementById("nav-log");
+const navAnalyticsBtn = document.getElementById("nav-analytics");
+const navSwapBtn = document.getElementById("nav-swap");
+const navSettingsBtn = document.getElementById("nav-settings");
+
 const viewToday = document.getElementById("view-today");
-const viewHistory = document.getElementById("view-history");
+const viewLog = document.getElementById("view-log");
+const viewAnalytics = document.getElementById("view-analytics");
 const viewSwap = document.getElementById("view-swap");
+const viewSettings = document.getElementById("view-settings");
+
+const quickLogNavBtn = document.getElementById("quick-log-nav-btn");
 const historyList = document.getElementById("history-list");
 const exportDataBtn = document.getElementById("export-data-btn");
+
+// Water Tracker Elements
+const waterStatusEl = document.getElementById("water-status");
+const waterGlassesRow = document.getElementById("water-glasses-row");
+const waterMinusBtn = document.getElementById("water-minus-btn");
+const waterPlusBtn = document.getElementById("water-plus-btn");
+
+// Manual Quick Add Modal
+const manualAddBtn = document.getElementById("manual-add-btn");
+const manualAddModal = document.getElementById("manual-add-modal");
+const manualAddClose = document.getElementById("manual-add-close");
+const manualModalTitle = document.getElementById("manual-modal-title");
+const manualSubmitBtn = document.getElementById("manual-submit-btn");
+const manualAddForm = document.getElementById("manual-add-form");
+const manualDescInput = document.getElementById("manual-desc");
+const manualCaloriesInput = document.getElementById("manual-calories");
+const manualProteinInput = document.getElementById("manual-protein");
+const manualCarbsInput = document.getElementById("manual-carbs");
+const manualFatInput = document.getElementById("manual-fat");
+const manualCancelBtn = document.getElementById("manual-cancel-btn");
+let manualModalMode = "log"; // "log" or "favorite"
+
+// Edit Log Entry Modal
+const editEntryModal = document.getElementById("edit-entry-modal");
+const editEntryClose = document.getElementById("edit-entry-close");
+const editEntryForm = document.getElementById("edit-entry-form");
+const editDescInput = document.getElementById("edit-desc");
+const editCaloriesInput = document.getElementById("edit-calories");
+const editProteinInput = document.getElementById("edit-protein");
+const editCarbsInput = document.getElementById("edit-carbs");
+const editFatInput = document.getElementById("edit-fat");
+const editCancelBtn = document.getElementById("edit-cancel-btn");
+let currentEditingEntryId = null;
+
+// Favorites / Frequent
+const favoritesList = document.getElementById("favorites-list");
+const addFavBtn = document.getElementById("add-fav-btn");
+
+// Analytics
+const macroPartP = document.getElementById("macro-part-p");
+const macroPartC = document.getElementById("macro-part-c");
+const macroPartF = document.getElementById("macro-part-f");
+const legendPText = document.getElementById("legend-p-text");
+const legendCText = document.getElementById("legend-c-text");
+const legendFText = document.getElementById("legend-f-text");
+const weeklyChart = document.getElementById("weekly-chart");
+
+// Body Profile & BMR
+const bodyProfileForm = document.getElementById("body-profile-form");
+const bodyAgeInput = document.getElementById("body-age");
+const bodyGenderSelect = document.getElementById("body-gender");
+const bodyWeightInput = document.getElementById("body-weight");
+const bodyHeightInput = document.getElementById("body-height");
+const bodyActivitySelect = document.getElementById("body-activity");
+const bodyFatInput = document.getElementById("body-fat");
+const bmrResultBox = document.getElementById("bmr-result-box");
+const bmrValEl = document.getElementById("bmr-val");
+const tdeeValEl = document.getElementById("tdee-val");
+const applyTdeeBtn = document.getElementById("apply-tdee-btn");
+
+// PWA Banner
+const installBanner = document.getElementById("install-banner");
+const installPwaBtn = document.getElementById("install-pwa-btn");
+const dismissInstallBtn = document.getElementById("dismiss-install-btn");
+let deferredPrompt = null;
 
 const swapForm = document.getElementById("swap-form");
 const swapInput = document.getElementById("swap-input");
@@ -62,7 +135,12 @@ const burnedCancelBtn = document.getElementById("burned-cancel-btn");
 
 const LOG_KEY_PREFIX = "kcal-log-";
 const BURNED_KEY_PREFIX = "kcal-burned-";
+const WATER_KEY_PREFIX = "kcal-water-";
 const GOAL_KEY = "kcal-goal";
+const BODY_PROFILE_KEY = "kcal-body-profile";
+const FAVORITES_KEY = "kcal-favorites";
+
+const DEFAULT_WATER_GOAL = 8;
 
 function dateSuffix(date) {
   const y = date.getFullYear();
@@ -85,6 +163,27 @@ function burnedKeyFor(date) {
 
 function todayBurnedKey() {
   return burnedKeyFor(new Date());
+}
+
+function waterKeyFor(date) {
+  return `${WATER_KEY_PREFIX}${dateSuffix(date)}`;
+}
+
+function todayWaterKey() {
+  return waterKeyFor(new Date());
+}
+
+function loadWater() {
+  const value = Number(localStorage.getItem(todayWaterKey()));
+  return value > 0 ? value : 0;
+}
+
+function saveWater(glasses) {
+  if (glasses > 0) {
+    localStorage.setItem(todayWaterKey(), String(glasses));
+  } else {
+    localStorage.removeItem(todayWaterKey());
+  }
 }
 
 function loadBurned() {
@@ -257,13 +356,47 @@ function renderGoal() {
   goalEditBtn.textContent = anyGoalSet ? "Edit goal" : "Set goal";
 }
 
+function renderWater() {
+  if (!waterGlassesRow || !waterStatusEl) return;
+  const count = loadWater();
+  waterStatusEl.textContent = `${count} / ${DEFAULT_WATER_GOAL} glasses`;
+  waterGlassesRow.innerHTML = "";
+
+  for (let i = 1; i <= DEFAULT_WATER_GOAL; i++) {
+    const span = document.createElement("span");
+    span.className = `water-glass ${i <= count ? "filled" : ""}`;
+    span.textContent = "🥛";
+    span.addEventListener("click", () => {
+      saveWater(i === count ? i - 1 : i);
+      renderWater();
+    });
+    waterGlassesRow.appendChild(span);
+  }
+}
+
+if (waterMinusBtn) {
+  waterMinusBtn.addEventListener("click", () => {
+    const count = Math.max(0, loadWater() - 1);
+    saveWater(count);
+    renderWater();
+  });
+}
+
+if (waterPlusBtn) {
+  waterPlusBtn.addEventListener("click", () => {
+    const count = loadWater() + 1;
+    saveWater(count);
+    renderWater();
+  });
+}
+
 function renderLog() {
   logList.innerHTML = "";
 
   if (entries.length === 0) {
     const empty = document.createElement("li");
     empty.className = "empty-state";
-    empty.textContent = "No entries yet today. Add what you ate above.";
+    empty.textContent = "No entries yet today. Tap '+ Log Food' above to add what you ate.";
     logList.appendChild(empty);
     return;
   }
@@ -275,6 +408,8 @@ function renderLog() {
 
     const main = document.createElement("div");
     main.className = "entry-main";
+    main.style.cursor = "pointer";
+    main.addEventListener("click", () => openEditEntryModal(entry.id));
 
     const desc = document.createElement("span");
     desc.className = "entry-desc";
@@ -289,27 +424,242 @@ function renderLog() {
     main.appendChild(desc);
     main.appendChild(macros);
 
+    const rightGroup = document.createElement("div");
+    rightGroup.style.display = "flex";
+    rightGroup.style.alignItems = "center";
+    rightGroup.style.gap = "8px";
+
     const cals = document.createElement("span");
     cals.className = "entry-cals";
     cals.textContent = Math.round(entry.calories);
+
+    const favs = loadFavorites();
+    const isFav = favs.some((f) => f.description === entry.description);
+
+    const starBtn = document.createElement("button");
+    starBtn.className = "remove-btn";
+    starBtn.textContent = isFav ? "⭐" : "☆";
+    starBtn.style.fontSize = "0.9rem";
+    starBtn.setAttribute("aria-label", "Toggle favorite");
+    starBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavoriteEntry(entry);
+      render();
+    });
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "remove-btn";
+    editBtn.textContent = "✏️";
+    editBtn.style.fontSize = "0.8rem";
+    editBtn.setAttribute("aria-label", "Edit entry");
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openEditEntryModal(entry.id);
+    });
 
     const removeBtn = document.createElement("button");
     removeBtn.className = "remove-btn";
     removeBtn.textContent = "×";
     removeBtn.setAttribute("aria-label", "Remove entry");
-    removeBtn.addEventListener("click", () => removeEntry(entry.id));
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeEntry(entry.id);
+    });
+
+    rightGroup.appendChild(cals);
+    rightGroup.appendChild(starBtn);
+    rightGroup.appendChild(editBtn);
+    rightGroup.appendChild(removeBtn);
 
     li.appendChild(main);
-    li.appendChild(cals);
-    li.appendChild(removeBtn);
+    li.appendChild(rightGroup);
     logList.appendChild(li);
+  });
+}
+
+function renderAnalytics() {
+  const totals = computeTotals(entries);
+  const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
+
+  if (totalMacroGrams > 0) {
+    const pctP = Math.round((totals.protein / totalMacroGrams) * 100);
+    const pctC = Math.round((totals.carbs / totalMacroGrams) * 100);
+    const pctF = Math.round((totals.fat / totalMacroGrams) * 100);
+
+    if (macroPartP) macroPartP.style.width = `${pctP}%`;
+    if (macroPartC) macroPartC.style.width = `${pctC}%`;
+    if (macroPartF) macroPartF.style.width = `${pctF}%`;
+
+    if (legendPText) legendPText.textContent = `Protein ${pctP}% (${round(totals.protein)}g)`;
+    if (legendCText) legendCText.textContent = `Carbs ${pctC}% (${round(totals.carbs)}g)`;
+    if (legendFText) legendFText.textContent = `Fat ${pctF}% (${round(totals.fat)}g)`;
+  } else {
+    if (macroPartP) macroPartP.style.width = "0%";
+    if (macroPartC) macroPartC.style.width = "0%";
+    if (macroPartF) macroPartF.style.width = "0%";
+    if (legendPText) legendPText.textContent = "Protein 0%";
+    if (legendCText) legendCText.textContent = "Carbs 0%";
+    if (legendFText) legendFText.textContent = "Fat 0%";
+  }
+
+  // 7-day trend chart
+  if (!weeklyChart) return;
+  weeklyChart.innerHTML = "";
+  const goal = loadGoal();
+  const goalCals = goal.calories || 2000;
+
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const k = dateKey(d);
+    const dayEntries = loadEntriesForKey(k);
+    const dayTotals = computeTotals(dayEntries);
+    const cals = Math.round(dayTotals.calories);
+
+    const heightPct = Math.min(100, Math.round((cals / (goalCals * 1.3)) * 100));
+
+    const barCol = document.createElement("div");
+    barCol.className = "bar-col";
+
+    const valLabel = document.createElement("span");
+    valLabel.className = "bar-col-val";
+    valLabel.textContent = cals > 0 ? cals : "";
+
+    const fill = document.createElement("div");
+    fill.className = `bar-col-fill ${i === 0 ? "active-day" : ""} ${
+      cals > goalCals ? "over-goal" : ""
+    }`;
+    fill.style.height = `${Math.max(4, heightPct)}%`;
+
+    const dayName = d.toLocaleDateString(undefined, { weekday: "short" });
+    const dayLabel = document.createElement("span");
+    dayLabel.className = "bar-col-label";
+    dayLabel.textContent = i === 0 ? "Today" : dayName;
+
+    barCol.appendChild(valLabel);
+    barCol.appendChild(fill);
+    barCol.appendChild(dayLabel);
+    weeklyChart.appendChild(barCol);
+  }
+}
+
+function loadFavorites() {
+  const raw = localStorage.getItem(FAVORITES_KEY);
+  if (!raw) {
+    return [
+      { description: "2 Eggs & Toast", calories: 280, protein_g: 14, carbs_g: 22, fat_g: 12 },
+      { description: "Protein Shake (30g)", calories: 160, protein_g: 30, carbs_g: 3, fat_g: 2 },
+      { description: "Medium Banana", calories: 105, protein_g: 1.3, carbs_g: 27, fat_g: 0.3 },
+    ];
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveFavorites(favs) {
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+
+function toggleFavoriteEntry(entry) {
+  let favs = loadFavorites();
+  const index = favs.findIndex((f) => f.description === entry.description);
+  if (index !== -1) {
+    favs.splice(index, 1);
+  } else {
+    favs.push({
+      description: entry.description,
+      calories: Math.round(entry.calories),
+      protein_g: round(entry.protein_g),
+      carbs_g: round(entry.carbs_g),
+      fat_g: round(entry.fat_g),
+    });
+  }
+  saveFavorites(favs);
+}
+
+function renderFavorites() {
+  if (!favoritesList) return;
+  favoritesList.innerHTML = "";
+  const favs = loadFavorites();
+
+  if (favs.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "empty-state";
+    empty.textContent = "No saved favorites yet. Tap '+ Add Fav' above to save quick items.";
+    favoritesList.appendChild(empty);
+    return;
+  }
+
+  favs.forEach((fav, index) => {
+    const li = document.createElement("li");
+    li.className = "fav-item";
+
+    const info = document.createElement("div");
+    info.className = "fav-info";
+
+    const title = document.createElement("span");
+    title.className = "fav-title";
+    title.textContent = fav.description;
+
+    const macros = document.createElement("span");
+    macros.className = "fav-macros";
+    macros.textContent = `${Math.round(fav.calories)} kcal · P ${round(
+      fav.protein_g
+    )}g · C ${round(fav.carbs_g)}g · F ${round(fav.fat_g)}g`;
+
+    info.appendChild(title);
+    info.appendChild(macros);
+
+    const actions = document.createElement("div");
+    actions.style.display = "flex";
+    actions.style.alignItems = "center";
+    actions.style.gap = "6px";
+
+    const logBtn = document.createElement("button");
+    logBtn.className = "fav-add-btn";
+    logBtn.textContent = "+ Log";
+    logBtn.addEventListener("click", () => {
+      addEntryFromResult(fav.description, fav);
+      switchNavTab("today");
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "remove-btn";
+    deleteBtn.textContent = "×";
+    deleteBtn.setAttribute("aria-label", "Remove favorite");
+    deleteBtn.addEventListener("click", () => {
+      const currentFavs = loadFavorites();
+      currentFavs.splice(index, 1);
+      saveFavorites(currentFavs);
+      renderFavorites();
+    });
+
+    actions.appendChild(logBtn);
+    actions.appendChild(deleteBtn);
+
+    li.appendChild(info);
+    li.appendChild(actions);
+    favoritesList.appendChild(li);
+  });
+}
+
+if (addFavBtn) {
+  addFavBtn.addEventListener("click", () => {
+    openManualAddModal();
   });
 }
 
 function render() {
   renderTotals();
   renderGoal();
+  renderWater();
   renderLog();
+  renderAnalytics();
+  renderFavorites();
 }
 
 function removeEntry(id) {
@@ -589,37 +939,247 @@ exportDataBtn.addEventListener("click", () => {
   downloadJSON(data, `kcal-tracker-export-${dateSuffix(new Date())}.json`);
 });
 
-function showTodayView() {
-  viewToday.hidden = false;
-  viewHistory.hidden = true;
-  viewSwap.hidden = true;
-  tabTodayBtn.classList.add("active");
-  tabHistoryBtn.classList.remove("active");
-  tabSwapBtn.classList.remove("active");
+function switchNavTab(targetTab) {
+  const views = {
+    today: viewToday,
+    log: viewLog,
+    analytics: viewAnalytics,
+    swap: viewSwap,
+    settings: viewSettings,
+  };
+  const btns = {
+    today: navTodayBtn,
+    log: navLogBtn,
+    analytics: navAnalyticsBtn,
+    swap: navSwapBtn,
+    settings: navSettingsBtn,
+  };
+
+  Object.keys(views).forEach((key) => {
+    if (views[key]) views[key].hidden = key !== targetTab;
+    if (btns[key]) btns[key].classList.toggle("active", key === targetTab);
+  });
+
+  if (targetTab === "analytics") {
+    renderAnalytics();
+    renderHistory();
+  }
+  if (targetTab === "log") {
+    renderFavorites();
+  }
 }
 
-function showHistoryView() {
-  viewToday.hidden = true;
-  viewHistory.hidden = false;
-  viewSwap.hidden = true;
-  tabTodayBtn.classList.remove("active");
-  tabHistoryBtn.classList.add("active");
-  tabSwapBtn.classList.remove("active");
-  renderHistory();
+if (navTodayBtn) navTodayBtn.addEventListener("click", () => switchNavTab("today"));
+if (navLogBtn) navLogBtn.addEventListener("click", () => switchNavTab("log"));
+if (navAnalyticsBtn) navAnalyticsBtn.addEventListener("click", () => switchNavTab("analytics"));
+if (navSwapBtn) navSwapBtn.addEventListener("click", () => switchNavTab("swap"));
+if (navSettingsBtn) navSettingsBtn.addEventListener("click", () => switchNavTab("settings"));
+
+if (quickLogNavBtn) {
+  quickLogNavBtn.addEventListener("click", () => {
+    switchNavTab("log");
+    if (input) input.focus();
+  });
 }
 
-function showSwapView() {
-  viewToday.hidden = true;
-  viewHistory.hidden = true;
-  viewSwap.hidden = false;
-  tabTodayBtn.classList.remove("active");
-  tabHistoryBtn.classList.remove("active");
-  tabSwapBtn.classList.add("active");
+// Manual Quick Add / Favorite Modal logic
+function openManualAddModal(mode = "log") {
+  if (!manualAddModal) return;
+  manualModalMode = mode;
+  if (manualModalTitle) manualModalTitle.textContent = mode === "favorite" ? "Add New Favorite" : "Manual Quick-Add";
+  if (manualSubmitBtn) manualSubmitBtn.textContent = mode === "favorite" ? "Save Favorite" : "Save to Log";
+
+  manualDescInput.value = "";
+  manualCaloriesInput.value = "";
+  manualProteinInput.value = "0";
+  manualCarbsInput.value = "0";
+  manualFatInput.value = "0";
+  manualAddModal.hidden = false;
+  manualDescInput.focus();
 }
 
-tabTodayBtn.addEventListener("click", showTodayView);
-tabHistoryBtn.addEventListener("click", showHistoryView);
-tabSwapBtn.addEventListener("click", showSwapView);
+function closeManualAddModal() {
+  if (manualAddModal) manualAddModal.hidden = true;
+}
+
+if (manualAddBtn) manualAddBtn.addEventListener("click", () => openManualAddModal("log"));
+if (manualAddClose) manualAddClose.addEventListener("click", closeManualAddModal);
+if (manualCancelBtn) manualCancelBtn.addEventListener("click", closeManualAddModal);
+
+if (manualAddForm) {
+  manualAddForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const description = manualDescInput.value.trim();
+    if (!description) return;
+
+    const item = {
+      description,
+      calories: Number(manualCaloriesInput.value) || 0,
+      protein_g: Number(manualProteinInput.value) || 0,
+      carbs_g: Number(manualCarbsInput.value) || 0,
+      fat_g: Number(manualFatInput.value) || 0,
+    };
+
+    if (manualModalMode === "favorite") {
+      const currentFavs = loadFavorites();
+      currentFavs.push(item);
+      saveFavorites(currentFavs);
+      renderFavorites();
+    } else {
+      addEntryFromResult(description, item);
+      switchNavTab("today");
+    }
+    closeManualAddModal();
+  });
+}
+
+// Edit Entry Modal logic
+function openEditEntryModal(id) {
+  const entry = entries.find((e) => e.id === id);
+  if (!entry || !editEntryModal) return;
+
+  currentEditingEntryId = id;
+  editDescInput.value = entry.description;
+  editCaloriesInput.value = Math.round(entry.calories);
+  editProteinInput.value = round(entry.protein_g);
+  editCarbsInput.value = round(entry.carbs_g);
+  editFatInput.value = round(entry.fat_g);
+  editEntryModal.hidden = false;
+  editDescInput.focus();
+}
+
+function closeEditEntryModal() {
+  currentEditingEntryId = null;
+  if (editEntryModal) editEntryModal.hidden = true;
+}
+
+if (editEntryClose) editEntryClose.addEventListener("click", closeEditEntryModal);
+if (editCancelBtn) editCancelBtn.addEventListener("click", closeEditEntryModal);
+
+if (editEntryForm) {
+  editEntryForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!currentEditingEntryId) return;
+
+    const index = entries.findIndex((e) => e.id === currentEditingEntryId);
+    if (index !== -1) {
+      entries[index] = {
+        ...entries[index],
+        description: editDescInput.value.trim(),
+        calories: Number(editCaloriesInput.value) || 0,
+        protein_g: Number(editProteinInput.value) || 0,
+        carbs_g: Number(editCarbsInput.value) || 0,
+        fat_g: Number(editFatInput.value) || 0,
+      };
+      saveEntries(entries);
+      render();
+    }
+    closeEditEntryModal();
+  });
+}
+
+// BMR & TDEE Calculator logic
+function loadBodyProfile() {
+  const raw = localStorage.getItem(BODY_PROFILE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveBodyProfile(prof) {
+  localStorage.setItem(BODY_PROFILE_KEY, JSON.stringify(prof));
+}
+
+function calculateBMRandTDEE(profile) {
+  const { age, gender, weight, height, activity, bodyFat } = profile;
+  let bmr = 0;
+
+  if (bodyFat && bodyFat > 0 && bodyFat < 60) {
+    // Katch-McArdle Formula (based on lean body mass)
+    const lbm = weight * (1 - bodyFat / 100);
+    bmr = 370 + 21.6 * lbm;
+  } else {
+    // Mifflin-St Jeor Formula
+    bmr = 10 * weight + 6.25 * height - 5 * age;
+    bmr += gender === "female" ? -161 : 5;
+  }
+
+  const tdee = bmr * (activity || 1.2);
+  return { bmr: Math.round(bmr), tdee: Math.round(tdee) };
+}
+
+function renderBodyProfile() {
+  const prof = loadBodyProfile();
+  if (!prof) return;
+
+  if (bodyAgeInput) bodyAgeInput.value = prof.age || "";
+  if (bodyGenderSelect) bodyGenderSelect.value = prof.gender || "male";
+  if (bodyWeightInput) bodyWeightInput.value = prof.weight || "";
+  if (bodyHeightInput) bodyHeightInput.value = prof.height || "";
+  if (bodyActivitySelect) bodyActivitySelect.value = prof.activity || "1.2";
+  if (bodyFatInput) bodyFatInput.value = prof.bodyFat || "";
+
+  const { bmr, tdee } = calculateBMRandTDEE(prof);
+  if (bmrValEl) bmrValEl.textContent = `${bmr} kcal`;
+  if (tdeeValEl) tdeeValEl.textContent = `${tdee} kcal`;
+  if (bmrResultBox) bmrResultBox.hidden = false;
+}
+
+if (bodyProfileForm) {
+  bodyProfileForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const prof = {
+      age: Number(bodyAgeInput.value) || 28,
+      gender: bodyGenderSelect.value,
+      weight: Number(bodyWeightInput.value) || 70,
+      height: Number(bodyHeightInput.value) || 170,
+      activity: Number(bodyActivitySelect.value) || 1.2,
+      bodyFat: Number(bodyFatInput.value) || null,
+    };
+    saveBodyProfile(prof);
+    renderBodyProfile();
+  });
+}
+
+if (applyTdeeBtn) {
+  applyTdeeBtn.addEventListener("click", () => {
+    const prof = loadBodyProfile();
+    if (!prof) return;
+    const { tdee } = calculateBMRandTDEE(prof);
+    const currentGoal = loadGoal();
+    saveGoal({ ...currentGoal, calories: tdee });
+    renderGoal();
+    alert(`Daily Calorie Goal set to ${tdee} kcal based on your TDEE!`);
+  });
+}
+
+// PWA Install prompt handling
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installBanner) installBanner.hidden = false;
+});
+
+if (installPwaBtn) {
+  installPwaBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      if (installBanner) installBanner.hidden = true;
+    }
+    deferredPrompt = null;
+  });
+}
+
+if (dismissInstallBtn) {
+  dismissInstallBtn.addEventListener("click", () => {
+    if (installBanner) installBanner.hidden = true;
+  });
+}
 
 swapForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -894,14 +1454,34 @@ const photoRetakeBtn = document.getElementById("photo-retake-btn");
 const photoTipEl = document.getElementById("photo-tip");
 const photoStatusEl = document.getElementById("photo-status");
 const photoConfirmEl = document.getElementById("photo-confirm");
-const photoResultDescEl = document.getElementById("photo-result-desc");
-const photoResultMacrosEl = document.getElementById("photo-result-macros");
-const photoAddBtn = document.getElementById("photo-add-btn");
+const photoConfirmForm = document.getElementById("photo-confirm-form");
+const photoEditDesc = document.getElementById("photo-edit-desc");
+const photoEditCalories = document.getElementById("photo-edit-calories");
+const photoEditProtein = document.getElementById("photo-edit-protein");
+const photoEditCarbs = document.getElementById("photo-edit-carbs");
+const photoEditFat = document.getElementById("photo-edit-fat");
 const photoRetryBtn = document.getElementById("photo-retry-btn");
 
+const photoModeAutoBtn = document.getElementById("photo-mode-auto");
+const photoModeLabelBtn = document.getElementById("photo-mode-label");
+
+let activePhotoMode = "auto"; // "auto" or "label"
 let currentPhotoResult = null;
 let capturedPhotoDataUrl = null;
 let photoCameraStream = null;
+
+if (photoModeAutoBtn && photoModeLabelBtn) {
+  photoModeAutoBtn.addEventListener("click", () => {
+    activePhotoMode = "auto";
+    photoModeAutoBtn.classList.add("active");
+    photoModeLabelBtn.classList.remove("active");
+  });
+  photoModeLabelBtn.addEventListener("click", () => {
+    activePhotoMode = "label";
+    photoModeLabelBtn.classList.add("active");
+    photoModeAutoBtn.classList.remove("active");
+  });
+}
 
 function showPhotoPanel(panel) {
   photoStartEl.hidden = panel !== photoStartEl;
@@ -1064,7 +1644,7 @@ photoAnalyzeBtn.addEventListener("click", async () => {
     const res = await fetch("/api/vision-lookup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: capturedPhotoDataUrl, quantity }),
+      body: JSON.stringify({ image: capturedPhotoDataUrl, quantity, mode: activePhotoMode }),
     });
 
     if (!res.ok) {
@@ -1081,12 +1661,14 @@ photoAnalyzeBtn.addEventListener("click", async () => {
     const result = await res.json();
     currentPhotoResult = result;
 
-    photoResultDescEl.textContent = result.description;
-    photoResultMacrosEl.textContent = `${Math.round(result.calories)} kcal · P ${round(
-      result.protein_g
-    )}g · C ${round(result.carbs_g)}g · F ${round(result.fat_g)}g`;
+    if (photoEditDesc) photoEditDesc.value = result.description || "";
+    if (photoEditCalories) photoEditCalories.value = Math.round(result.calories) || 0;
+    if (photoEditProtein) photoEditProtein.value = round(result.protein_g) || 0;
+    if (photoEditCarbs) photoEditCarbs.value = round(result.carbs_g) || 0;
+    if (photoEditFat) photoEditFat.value = round(result.fat_g) || 0;
+
     showPhotoPanel(null);
-    photoTipEl.hidden = true;
+    if (photoTipEl) photoTipEl.hidden = true;
     photoStatusEl.textContent = "";
     photoConfirmEl.hidden = false;
   } catch (err) {
@@ -1097,11 +1679,21 @@ photoAnalyzeBtn.addEventListener("click", async () => {
   }
 });
 
-photoAddBtn.addEventListener("click", () => {
-  if (!currentPhotoResult) return;
-  addEntryFromResult(currentPhotoResult.description, currentPhotoResult);
-  closePhotoModal();
-});
+if (photoConfirmForm) {
+  photoConfirmForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const description = photoEditDesc.value.trim();
+    if (!description) return;
+
+    addEntryFromResult(description, {
+      calories: Number(photoEditCalories.value) || 0,
+      protein_g: Number(photoEditProtein.value) || 0,
+      carbs_g: Number(photoEditCarbs.value) || 0,
+      fat_g: Number(photoEditFat.value) || 0,
+    });
+    closePhotoModal();
+  });
+}
 
 photoRetryBtn.addEventListener("click", () => {
   photoConfirmEl.hidden = true;

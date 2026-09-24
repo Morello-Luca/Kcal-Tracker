@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f1115" />
   <title>Kcal Tracker</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2.0" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,18 +15,29 @@
 </head>
 <body>
   <div class="app">
-    <header>
-      <h1>Kcal Tracker</h1>
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="logo-icon">🔥</span>
+        <h1>Kcal Tracker</h1>
+      </div>
       <p class="date" id="today-date"></p>
     </header>
 
-    <nav class="tabs">
-      <button type="button" class="tab-button active" id="tab-today">Today</button>
-      <button type="button" class="tab-button" id="tab-history">History</button>
-      <button type="button" class="tab-button" id="tab-swap">Swap</button>
-    </nav>
+    <!-- PWA Install Banner -->
+    <div class="install-banner" id="install-banner" hidden>
+      <div class="banner-content">
+        <span class="banner-icon">📱</span>
+        <div>
+          <strong>Install Kcal Tracker</strong>
+          <p>Add to Home Screen for fast mobile access</p>
+        </div>
+      </div>
+      <button type="button" id="install-pwa-btn" class="banner-btn">Install</button>
+      <button type="button" id="dismiss-install-btn" class="banner-close">&times;</button>
+    </div>
 
-    <section id="view-today">
+    <!-- VIEW 1: TODAY -->
+    <section id="view-today" class="tab-view">
       <section class="totals" id="totals">
         <div class="total-card">
           <span class="total-value" id="total-calories">0</span>
@@ -112,55 +123,291 @@
         </div>
       </section>
 
-      <form id="entry-form" class="entry-form">
-        <input
-          type="text"
-          id="food-input"
-          placeholder="What did you eat? e.g. 2 slices of pizza"
-          autocomplete="off"
-          required
-        />
-        <button type="submit" id="add-button">Add</button>
-      </form>
-
-      <div class="clarify-panel" id="clarify-panel" hidden>
-        <p class="modal-hint" id="clarify-question"></p>
-        <form id="clarify-form" class="entry-form">
-          <input type="text" id="clarify-input" placeholder="Add detail..." autocomplete="off" />
-          <button type="submit" id="clarify-submit-btn">Submit</button>
-        </form>
-        <div class="goal-form-actions">
-          <button type="button" id="clarify-skip-btn">Estimate anyway</button>
-          <button type="button" id="clarify-cancel-btn">Cancel</button>
+      <!-- Water Tracker Card Widget -->
+      <div class="water-card">
+        <div class="water-header">
+          <div class="water-title">
+            <span class="water-icon">💧</span>
+            <span>Water Intake</span>
+          </div>
+          <span class="water-status" id="water-status">0 / 8 glasses</span>
+        </div>
+        <div class="water-controls">
+          <button type="button" class="water-btn" id="water-minus-btn" aria-label="Decrease water">-</button>
+          <div class="water-glasses-row" id="water-glasses-row"></div>
+          <button type="button" class="water-btn" id="water-plus-btn" aria-label="Increase water">+</button>
         </div>
       </div>
 
-      <div class="alt-entry-methods">
-        <button type="button" class="alt-method-btn" id="scan-barcode-btn">📷 Scan barcode</button>
-        <button type="button" class="alt-method-btn" id="add-photo-btn">🖼️ Add from photo</button>
+      <div class="section-title-row">
+        <h2>Today's Food Log</h2>
+        <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
       </div>
-
-      <p class="status" id="status"></p>
 
       <ul class="log" id="log-list"></ul>
     </section>
 
-    <section id="view-history" hidden>
-      <ul class="history-list" id="history-list"></ul>
-      <button type="button" class="export-btn" id="export-data-btn">⬇️ Export my data</button>
+    <!-- VIEW 2: LOG & SCAN -->
+    <section id="view-log" class="tab-view" hidden>
+      <div class="card-panel">
+        <h2>Log Food or Exercise</h2>
+        <p class="panel-subtitle">Type, scan a barcode, snap a photo, or manual entry</p>
+
+        <form id="entry-form" class="entry-form">
+          <input
+            type="text"
+            id="food-input"
+            placeholder="What did you eat? e.g. 2 slices of pizza"
+            autocomplete="off"
+            required
+          />
+          <button type="submit" id="add-button">Add</button>
+        </form>
+
+        <div class="clarify-panel" id="clarify-panel" hidden>
+          <p class="modal-hint" id="clarify-question"></p>
+          <form id="clarify-form" class="entry-form">
+            <input type="text" id="clarify-input" placeholder="Add detail..." autocomplete="off" />
+            <button type="submit" id="clarify-submit-btn">Submit</button>
+          </form>
+          <div class="goal-form-actions">
+            <button type="button" id="clarify-skip-btn">Estimate anyway</button>
+            <button type="button" id="clarify-cancel-btn">Cancel</button>
+          </div>
+        </div>
+
+        <p class="status" id="status"></p>
+
+        <div class="action-grid">
+          <button type="button" class="action-card" id="scan-barcode-btn">
+            <span class="action-icon">📷</span>
+            <span>Scan Barcode</span>
+          </button>
+          <button type="button" class="action-card" id="add-photo-btn">
+            <span class="action-icon">🖼️</span>
+            <span>Take Photo</span>
+          </button>
+          <button type="button" class="action-card" id="manual-add-btn">
+            <span class="action-icon">✏️</span>
+            <span>Manual Quick-Add</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Favorites / Frequent Items -->
+      <div class="card-panel margin-top">
+        <div class="section-title-row">
+          <h2>Favorites & Frequent</h2>
+          <button type="button" class="quick-add-link" id="add-fav-btn">+ Add Fav</button>
+        </div>
+        <ul class="favorites-list" id="favorites-list"></ul>
+      </div>
     </section>
 
-    <section id="view-swap" hidden>
-      <p class="modal-hint">
-        Name a food you're considering, and get a healthier swap suggested from foods already in your own log.
-      </p>
-      <form id="swap-form" class="entry-form">
-        <input type="text" id="swap-input" placeholder="e.g. Big Mac, pancakes, sushi" autocomplete="off" required />
-        <button type="submit" id="swap-button">Suggest</button>
-      </form>
-      <p class="status" id="swap-status"></p>
-      <div class="swap-result" id="swap-result" hidden></div>
+    <!-- VIEW 3: ANALYTICS -->
+    <section id="view-analytics" class="tab-view" hidden>
+      <div class="card-panel">
+        <h2>Macro Distribution</h2>
+        <p class="panel-subtitle">Today's Calorie & Macro breakdown</p>
+        <div class="macro-breakdown-bar">
+          <div class="macro-part p-part" id="macro-part-p"></div>
+          <div class="macro-part c-part" id="macro-part-c"></div>
+          <div class="macro-part f-part" id="macro-part-f"></div>
+        </div>
+        <div class="macro-legend-row">
+          <div class="legend-item"><span class="legend-color p-color"></span><span id="legend-p-text">Protein 0%</span></div>
+          <div class="legend-item"><span class="legend-color c-color"></span><span id="legend-c-text">Carbs 0%</span></div>
+          <div class="legend-item"><span class="legend-color f-color"></span><span id="legend-f-text">Fat 0%</span></div>
+        </div>
+      </div>
+
+      <div class="card-panel margin-top">
+        <h2>7-Day History Trend</h2>
+        <div class="trend-chart" id="weekly-chart"></div>
+      </div>
+
+      <div class="card-panel margin-top">
+        <div class="section-title-row">
+          <h2>Past Days</h2>
+        </div>
+        <ul class="history-list" id="history-list"></ul>
+      </div>
     </section>
+
+    <!-- VIEW 4: SWAP -->
+    <section id="view-swap" class="tab-view" hidden>
+      <div class="card-panel">
+        <h2>Healthy Swap Suggestions</h2>
+        <p class="modal-hint">
+          Name a food you're considering, and get a healthier alternative suggested exclusively from foods already in your personal log history.
+        </p>
+        <form id="swap-form" class="entry-form">
+          <input type="text" id="swap-input" placeholder="e.g. Big Mac, pancakes, sushi" autocomplete="off" required />
+          <button type="submit" id="swap-button">Suggest</button>
+        </form>
+        <p class="status" id="swap-status"></p>
+        <div class="swap-result" id="swap-result" hidden></div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: SETTINGS & PROFILE -->
+    <section id="view-settings" class="tab-view" hidden>
+      <div class="card-panel">
+        <h2>Body Profile & BMR/TDEE</h2>
+        <p class="panel-subtitle">Calculate daily energy expenditure as reference</p>
+
+        <form id="body-profile-form" class="goal-form">
+          <label class="goal-field">
+            Age
+            <input type="number" id="body-age" min="10" max="120" placeholder="e.g. 28" />
+          </label>
+          <label class="goal-field">
+            Gender
+            <select id="body-gender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </label>
+          <label class="goal-field">
+            Weight (kg)
+            <input type="number" id="body-weight" min="20" max="300" step="0.1" placeholder="e.g. 75" />
+          </label>
+          <label class="goal-field">
+            Height (cm)
+            <input type="number" id="body-height" min="80" max="250" placeholder="e.g. 175" />
+          </label>
+          <label class="goal-field goal-field-full">
+            Activity Level
+            <select id="body-activity">
+              <option value="1.2">Sedentary (desk job, little exercise)</option>
+              <option value="1.375">Lightly Active (light exercise 1-3 days/wk)</option>
+              <option value="1.55">Moderately Active (moderate exercise 3-5 days/wk)</option>
+              <option value="1.725">Very Active (hard exercise 6-7 days/wk)</option>
+              <option value="1.9">Extra Active (physical job or 2x training)</option>
+            </select>
+          </label>
+          <label class="goal-field goal-field-full">
+            Body Fat % (Optional, Katch-McArdle formula)
+            <input type="number" id="body-fat" min="3" max="60" step="0.1" placeholder="optional e.g. 18" />
+          </label>
+          <div class="goal-form-actions">
+            <button type="submit" id="body-save-btn">Calculate BMR & TDEE</button>
+          </div>
+        </form>
+
+        <div class="bmr-result-box" id="bmr-result-box" hidden>
+          <div class="bmr-stat-row">
+            <span>BMR (Basal Metabolic Rate):</span>
+            <strong id="bmr-val">0 kcal</strong>
+          </div>
+          <div class="bmr-stat-row">
+            <span>TDEE (Daily Energy Burned):</span>
+            <strong id="tdee-val">0 kcal</strong>
+          </div>
+          <p class="panel-subtitle margin-top-sm">
+            Use TDEE as your energy baseline reference. Add exercises under "Log burned" on Today's view to expand your daily allowance!
+          </p>
+          <button type="button" class="apply-tdee-btn" id="apply-tdee-btn">Set TDEE as Daily Calorie Goal</button>
+        </div>
+      </div>
+
+      <div class="card-panel margin-top">
+        <h2>Privacy & Security</h2>
+        <p class="panel-subtitle">100% Client-Side Local Data Storage</p>
+        <div class="privacy-box">
+          <span class="privacy-icon">🔒</span>
+          <div class="privacy-text">
+            <strong>Private to Your Device</strong>
+            <p>
+              Your nutrition log, body measurements, and settings are stored strictly in your browser's local storage (<code>localStorage</code>).
+              If someone else opens this URL on their own phone or laptop, they see their own fresh data — your data never leaves your device!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel margin-top">
+        <h2>Data Export & Backup</h2>
+        <p class="panel-subtitle">Export or backup your local nutrition logs anytime</p>
+        <button type="button" class="export-btn" id="export-data-btn">⬇️ Export my data (JSON)</button>
+      </div>
+    </section>
+
+    <!-- MANUAL QUICK-ADD / ADD FAVORITE MODAL -->
+    <div class="modal-overlay" id="manual-add-modal" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="manual-modal-title">Manual Quick-Add</h2>
+          <button type="button" class="modal-close-btn" id="manual-add-close">&times;</button>
+        </div>
+        <form id="manual-add-form" class="goal-form">
+          <label class="goal-field goal-field-full">
+            Description
+            <input type="text" id="manual-desc" placeholder="e.g. Custom Smoothie" required />
+          </label>
+          <div class="macro-edit-grid">
+            <label class="goal-field">
+              Calories
+              <input type="number" id="manual-calories" min="0" step="1" required />
+            </label>
+            <label class="goal-field">
+              Protein (g)
+              <input type="number" id="manual-protein" min="0" step="0.1" value="0" />
+            </label>
+            <label class="goal-field">
+              Carbs (g)
+              <input type="number" id="manual-carbs" min="0" step="0.1" value="0" />
+            </label>
+            <label class="goal-field">
+              Fat (g)
+              <input type="number" id="manual-fat" min="0" step="0.1" value="0" />
+            </label>
+          </div>
+          <div class="goal-form-actions">
+            <button type="submit" id="manual-submit-btn">Save to Log</button>
+            <button type="button" id="manual-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- EDIT ENTRY MODAL -->
+    <div class="modal-overlay" id="edit-entry-modal" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2>Edit Log Entry</h2>
+          <button type="button" class="modal-close-btn" id="edit-entry-close">&times;</button>
+        </div>
+        <form id="edit-entry-form" class="goal-form">
+          <label class="goal-field goal-field-full">
+            Description
+            <input type="text" id="edit-desc" required />
+          </label>
+          <div class="macro-edit-grid">
+            <label class="goal-field">
+              Calories
+              <input type="number" id="edit-calories" min="0" step="1" required />
+            </label>
+            <label class="goal-field">
+              Protein (g)
+              <input type="number" id="edit-protein" min="0" step="0.1" required />
+            </label>
+            <label class="goal-field">
+              Carbs (g)
+              <input type="number" id="edit-carbs" min="0" step="0.1" required />
+            </label>
+            <label class="goal-field">
+              Fat (g)
+              <input type="number" id="edit-fat" min="0" step="0.1" required />
+            </label>
+          </div>
+          <div class="goal-form-actions">
+            <button type="submit">Save Changes</button>
+            <button type="button" id="edit-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <div class="modal-overlay" id="barcode-modal" hidden>
       <div class="modal-panel">
@@ -225,9 +472,15 @@
 
         <div id="photo-preview" hidden>
           <img id="photo-preview-img" alt="Photo to analyze" />
+
+          <div class="mode-toggle-group">
+            <button type="button" class="mode-btn active" id="photo-mode-auto">Auto / Meal</button>
+            <button type="button" class="mode-btn" id="photo-mode-label">Nutrition Facts Label</button>
+          </div>
+
           <label class="goal-field goal-field-full">
-            Quantity
-            <input type="text" id="photo-quantity-input" placeholder="e.g. half the packet, 150g" autocomplete="off" />
+            Quantity / Portion
+            <input type="text" id="photo-quantity-input" placeholder="e.g. 150g, 1 slice, 2 cookies" autocomplete="off" />
           </label>
           <div class="goal-form-actions">
             <button type="button" id="photo-analyze-btn">Analyze photo</button>
@@ -238,23 +491,66 @@
         <p class="modal-status" id="photo-status"></p>
 
         <div id="photo-confirm" hidden>
-          <p class="modal-result-title" id="photo-result-desc"></p>
-          <p class="modal-hint" id="photo-result-macros"></p>
-          <div class="goal-form-actions">
-            <button type="button" id="photo-add-btn">Add to log</button>
-            <button type="button" id="photo-retry-btn">Retry</button>
-          </div>
+          <p class="modal-result-title">Review & Edit Detected Values</p>
+          <form id="photo-confirm-form" class="goal-form">
+            <label class="goal-field goal-field-full">
+              Description
+              <input type="text" id="photo-edit-desc" required />
+            </label>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Calories
+                <input type="number" id="photo-edit-calories" min="0" step="1" required />
+              </label>
+              <label class="goal-field">
+                Protein (g)
+                <input type="number" id="photo-edit-protein" min="0" step="0.1" required />
+              </label>
+              <label class="goal-field">
+                Carbs (g)
+                <input type="number" id="photo-edit-carbs" min="0" step="0.1" required />
+              </label>
+              <label class="goal-field">
+                Fat (g)
+                <input type="number" id="photo-edit-fat" min="0" step="0.1" required />
+              </label>
+            </div>
+            <div class="goal-form-actions">
+              <button type="submit" id="photo-add-btn">Add to log</button>
+              <button type="button" id="photo-retry-btn">Retry</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <footer class="app-footer">
-      <p>Created by Luke AI Developments</p>
-      <a href="https://github.com/Luke-AI-Developments" target="_blank" rel="noopener noreferrer">Please explore my GitHub</a>
-    </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav">
+      <button type="button" class="nav-item active" id="nav-today">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Today</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-log">
+        <span class="nav-icon">➕</span>
+        <span class="nav-label">Log & Scan</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-analytics">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">Analytics</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-swap">
+        <span class="nav-icon">💡</span>
+        <span class="nav-label">Swap</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Settings</span>
+      </button>
+    </nav>
   </div>
 
   <script src="vendor/html5-qrcode.min.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0"></script>
 </body>
 </html>
