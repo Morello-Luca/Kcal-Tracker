@@ -71,6 +71,9 @@ const macroPartF = document.getElementById("macro-part-f");
 const legendPText = document.getElementById("legend-p-text");
 const legendCText = document.getElementById("legend-c-text");
 const legendFText = document.getElementById("legend-f-text");
+const analyticsProteinVal = document.getElementById("analytics-protein-val");
+const analyticsCarbsVal = document.getElementById("analytics-carbs-val");
+const analyticsFatVal = document.getElementById("analytics-fat-val");
 const weeklyChart = document.getElementById("weekly-chart");
 
 // Body Profile & BMR
@@ -139,6 +142,7 @@ const WATER_KEY_PREFIX = "kcal-water-";
 const GOAL_KEY = "kcal-goal";
 const BODY_PROFILE_KEY = "kcal-body-profile";
 const FAVORITES_KEY = "kcal-favorites";
+const THEME_KEY = "kcal-theme";
 
 const DEFAULT_WATER_GOAL = 8;
 
@@ -481,6 +485,10 @@ function renderAnalytics() {
   const totals = computeTotals(entries);
   const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
 
+  if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;
+  if (analyticsCarbsVal) analyticsCarbsVal.textContent = `${round(totals.carbs)}g`;
+  if (analyticsFatVal) analyticsFatVal.textContent = `${round(totals.fat)}g`;
+
   if (totalMacroGrams > 0) {
     const pctP = Math.round((totals.protein / totalMacroGrams) * 100);
     const pctC = Math.round((totals.carbs / totalMacroGrams) * 100);
@@ -490,16 +498,16 @@ function renderAnalytics() {
     if (macroPartC) macroPartC.style.width = `${pctC}%`;
     if (macroPartF) macroPartF.style.width = `${pctF}%`;
 
-    if (legendPText) legendPText.textContent = `Protein ${pctP}% (${round(totals.protein)}g)`;
-    if (legendCText) legendCText.textContent = `Carbs ${pctC}% (${round(totals.carbs)}g)`;
-    if (legendFText) legendFText.textContent = `Fat ${pctF}% (${round(totals.fat)}g)`;
+    if (legendPText) legendPText.textContent = `${pctP}%`;
+    if (legendCText) legendCText.textContent = `${pctC}%`;
+    if (legendFText) legendFText.textContent = `${pctF}%`;
   } else {
     if (macroPartP) macroPartP.style.width = "0%";
     if (macroPartC) macroPartC.style.width = "0%";
     if (macroPartF) macroPartF.style.width = "0%";
-    if (legendPText) legendPText.textContent = "Protein 0%";
-    if (legendCText) legendCText.textContent = "Carbs 0%";
-    if (legendFText) legendFText.textContent = "Fat 0%";
+    if (legendPText) legendPText.textContent = "0%";
+    if (legendCText) legendCText.textContent = "0%";
+    if (legendFText) legendFText.textContent = "0%";
   }
 
   // 7-day trend chart
@@ -848,16 +856,16 @@ function renderHistory() {
     dateSpan.className = "history-day-date";
     dateSpan.textContent = formatDayLabel(key);
 
-    const summary = document.createElement("span");
-    summary.className = "history-day-summary";
-    summary.innerHTML = `<span class="history-day-cals">${Math.round(
+    const rightSide = document.createElement("div");
+    rightSide.className = "history-day-summary";
+    rightSide.innerHTML = `<span class="history-day-cals">${Math.round(
       totals.calories
     )} kcal</span><span class="history-day-macros">P ${round(
       totals.protein
-    )}g · C ${round(totals.carbs)}g · F ${round(totals.fat)}g</span>`;
+    )}g · C ${round(totals.carbs)}g · F ${round(totals.fat)}g</span><span class="history-chevron">›</span>`;
 
     header.appendChild(dateSpan);
-    header.appendChild(summary);
+    header.appendChild(rightSide);
 
     const entriesList = document.createElement("ul");
     entriesList.className = "history-entries";
@@ -1730,6 +1738,32 @@ photoRetryBtn.addEventListener("click", () => {
   photoStatusEl.textContent = "";
 });
 
+// Theme switching handler
+function applyTheme(themeName) {
+  if (!themeName) return;
+  document.documentElement.setAttribute("data-theme", themeName);
+  localStorage.setItem(THEME_KEY, themeName);
+
+  const themeCards = document.querySelectorAll(".theme-card");
+  themeCards.forEach((card) => {
+    card.classList.toggle("active", card.getAttribute("data-theme") === themeName);
+  });
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY) || "oled";
+  applyTheme(savedTheme);
+
+  const themeCards = document.querySelectorAll(".theme-card");
+  themeCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const selectedTheme = card.getAttribute("data-theme");
+      applyTheme(selectedTheme);
+    });
+  });
+}
+
+initTheme();
 renderDate();
 render();
 
