@@ -70,8 +70,9 @@ body {
   color: var(--text);
 }
 
-.date {
+.privacy-text p {
   margin: 0;
+  font-size: 0.78rem;
   color: var(--text-dim);
   font-size: 0.85rem;
   font-weight: 500;
