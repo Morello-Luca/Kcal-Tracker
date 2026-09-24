@@ -1,5 +1,10 @@
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+function getEndpointUrl() {
+  const baseUrl = process.env.LLM_BASE_URL || "https://api.groq.com/openai/v1";
+  if (baseUrl.endsWith("/chat/completions")) return baseUrl;
+  return baseUrl.replace(/\/+$/, "") + "/chat/completions";
+}
+
+const MODEL = process.env.LLM_MODEL || process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 const SCALING_RULES = `Follow these steps:
 1. Identify the food item(s) and any quantity, weight, volume, or size word mentioned (e.g. "2 slices", "200g", "a large bowl").
@@ -60,16 +65,17 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = process.env.LLM_API_KEY || process.env.GROQ_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "Server is missing GROQ_API_KEY." });
+    res.status(500).json({ error: "Server is missing LLM_API_KEY or GROQ_API_KEY environment variable." });
     return;
   }
 
   const systemPrompt = isFinal ? FINAL_SYSTEM_PROMPT : INITIAL_SYSTEM_PROMPT;
 
   try {
-    const groqRes = await fetch(GROQ_URL, {
+    const endpointUrl = getEndpointUrl();
+    const groqRes = await fetch(endpointUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +94,7 @@ module.exports = async (req, res) => {
 
     if (!groqRes.ok) {
       const errText = await groqRes.text();
-      console.error("Groq API error:", groqRes.status, errText);
+      console.error("LLM API error:", groqRes.status, errText);
       res.status(502).json({ error: "Nutrition lookup service failed." });
       return;
     }
