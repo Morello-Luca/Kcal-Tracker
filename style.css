@@ -1,15 +1,17 @@
 :root {
-  --bg: #0b0d12;
-  --surface: #131720;
-  --surface-alt: #1c2230;
-  --surface-elevated: #242c3d;
+  --bg: #07090e;
+  --surface: #111520;
+  --surface-alt: #182030;
+  --surface-elevated: #222c40;
   --text: #f8fafc;
-  --text-dim: #94a3b8;
+  --text-dim: #8493a8;
   --accent: #10b981;
-  --accent-glow: rgba(16, 185, 129, 0.25);
+  --accent-neon: #00ffaa;
+  --accent-glow: rgba(0, 255, 170, 0.2);
   --accent-blue: #3b82f6;
-  --danger: #ef4444;
-  --border: #1e293b;
+  --accent-orange: #f59e0b;
+  --danger: #ff4d4d;
+  --border: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -26,9 +28,61 @@ body {
 }
 
 .app {
-  max-width: 480px;
+  max-width: 440px;
   margin: 0 auto;
-  padding: 16px 16px 90px;
+  padding: 16px 16px 100px;
+}
+
+.totals {
+  background: linear-gradient(160deg, #111827 0%, #161f33 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.total-value {
+  font-size: 3.25rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent-neon) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px var(--accent-glow));
+}
+
+.card-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  height: 68px;
+  background: rgba(13, 17, 26, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 90;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.nav-item.active {
+  color: var(--accent-neon);
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 
 .app-header {
@@ -464,6 +518,35 @@ body {
   font-weight: 700;
   font-size: 0.75rem;
   cursor: pointer;
+}
+
+/* Privacy Box */
+.privacy-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.privacy-icon {
+  font-size: 1.5rem;
+}
+
+.privacy-text strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--accent-neon);
+  margin-bottom: 4px;
+}
+
+.privacy-text p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.45;
 }
 
 /* BMR Box */

@@ -433,6 +433,20 @@ function renderLog() {
     cals.className = "entry-cals";
     cals.textContent = Math.round(entry.calories);
 
+    const favs = loadFavorites();
+    const isFav = favs.some((f) => f.description === entry.description);
+
+    const starBtn = document.createElement("button");
+    starBtn.className = "remove-btn";
+    starBtn.textContent = isFav ? "⭐" : "☆";
+    starBtn.style.fontSize = "0.9rem";
+    starBtn.setAttribute("aria-label", "Toggle favorite");
+    starBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavoriteEntry(entry);
+      render();
+    });
+
     const editBtn = document.createElement("button");
     editBtn.className = "remove-btn";
     editBtn.textContent = "✏️";
@@ -453,6 +467,7 @@ function renderLog() {
     });
 
     rightGroup.appendChild(cals);
+    rightGroup.appendChild(starBtn);
     rightGroup.appendChild(editBtn);
     rightGroup.appendChild(removeBtn);
 
@@ -547,6 +562,23 @@ function loadFavorites() {
 
 function saveFavorites(favs) {
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+
+function toggleFavoriteEntry(entry) {
+  let favs = loadFavorites();
+  const index = favs.findIndex((f) => f.description === entry.description);
+  if (index !== -1) {
+    favs.splice(index, 1);
+  } else {
+    favs.push({
+      description: entry.description,
+      calories: Math.round(entry.calories),
+      protein_g: round(entry.protein_g),
+      carbs_g: round(entry.carbs_g),
+      fat_g: round(entry.fat_g),
+    });
+  }
+  saveFavorites(favs);
 }
 
 function renderFavorites() {
