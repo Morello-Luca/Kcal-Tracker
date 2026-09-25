@@ -102,20 +102,20 @@
 
 /* Theme Selector Grid in Settings */
 .theme-selector-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 10px;
 }
 
 .theme-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 8px 12px;
   background: var(--surface-alt);
   border: 1.5px solid transparent;
-  border-radius: 14px;
+  border-radius: 999px;
   cursor: pointer;
   color: var(--text);
   transition: all 0.2s ease;
@@ -127,8 +127,8 @@
 }
 
 .theme-preview {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   flex-shrink: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);

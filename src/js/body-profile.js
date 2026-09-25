@@ -128,6 +128,20 @@ export function initBodyProfile(renderGoal) {
     const { bmr, tdee } = calculateBMRandTDEE(prof);
     if (bmrValEl) bmrValEl.textContent = `${bmr} kcal`;
     if (tdeeValEl) tdeeValEl.textContent = `${tdee} kcal`;
+
+    const adaptiveRes = calculateAdaptiveTDEE();
+    const settingsAdaptiveValEl = document.getElementById("settings-adaptive-tdee-val");
+    const settingsAdaptiveSubtitleEl = document.getElementById("settings-adaptive-tdee-subtitle");
+
+    if (settingsAdaptiveValEl) settingsAdaptiveValEl.textContent = `${adaptiveRes.adaptiveTDEE} kcal`;
+    if (settingsAdaptiveSubtitleEl) {
+      if (adaptiveRes.isEstimate) {
+        settingsAdaptiveSubtitleEl.textContent = `Formula baseline (Log ${3 - adaptiveRes.loggedDays} more days and 2 weight entries for dynamic TDEE)`;
+      } else {
+        settingsAdaptiveSubtitleEl.textContent = `Based on ${adaptiveRes.loggedDays} log days & ${adaptiveRes.weightChangeKg >= 0 ? "+" : ""}${adaptiveRes.weightChangeKg} kg weight trend`;
+      }
+    }
+
     if (bmrResultBox) bmrResultBox.hidden = false;
   }
 
@@ -157,7 +171,18 @@ export function initBodyProfile(renderGoal) {
       const currentGoal = loadGoal();
       saveGoal({ ...currentGoal, calories: tdee });
       if (typeof renderGoal === "function") renderGoal();
-      alert(`Daily Calorie Goal set to ${tdee} kcal based on your TDEE!`);
+      alert(`Daily Calorie Goal set to ${tdee} kcal based on Formula TDEE!`);
+    });
+  }
+
+  const applyAdaptiveTdeeBtn = document.getElementById("apply-adaptive-tdee-btn");
+  if (applyAdaptiveTdeeBtn) {
+    applyAdaptiveTdeeBtn.addEventListener("click", () => {
+      const adaptiveRes = calculateAdaptiveTDEE();
+      const currentGoal = loadGoal();
+      saveGoal({ ...currentGoal, calories: adaptiveRes.adaptiveTDEE });
+      if (typeof renderGoal === "function") renderGoal();
+      alert(`Daily Calorie Goal synced to Adaptive TDEE: ${adaptiveRes.adaptiveTDEE} kcal!`);
     });
   }
 

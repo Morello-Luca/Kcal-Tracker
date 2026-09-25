@@ -809,6 +809,29 @@ if (dismissInstallBtn) {
   });
 }
 
+// Today View Mode Toggle: Daily vs Weekly
+const todayModeDailyBtn = document.getElementById("today-mode-daily");
+const todayModeWeeklyBtn = document.getElementById("today-mode-weekly");
+const todayDailyContainer = document.getElementById("today-daily-container");
+const todayWeeklyContainer = document.getElementById("today-weekly-container");
+
+if (todayModeDailyBtn && todayModeWeeklyBtn) {
+  todayModeDailyBtn.addEventListener("click", () => {
+    todayModeDailyBtn.classList.add("active");
+    todayModeWeeklyBtn.classList.remove("active");
+    if (todayDailyContainer) todayDailyContainer.hidden = false;
+    if (todayWeeklyContainer) todayWeeklyContainer.hidden = true;
+  });
+
+  todayModeWeeklyBtn.addEventListener("click", () => {
+    todayModeWeeklyBtn.classList.add("active");
+    todayModeDailyBtn.classList.remove("active");
+    if (todayDailyContainer) todayDailyContainer.hidden = true;
+    if (todayWeeklyContainer) todayWeeklyContainer.hidden = false;
+    renderAnalytics(entries);
+  });
+}
+
 // Module Initializations
 initTheme();
 initBodyProfile(renderGoal);

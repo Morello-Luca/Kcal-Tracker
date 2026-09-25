@@ -2,6 +2,8 @@
 import { computeTotals, round, loadGoal, saveGoal, dateKey, loadEntriesForKey, LOG_KEY_PREFIX, todayKey, loadSettings } from "./storage.js";
 import { calculateAdaptiveTDEE } from "./body-profile.js";
 
+let selectedDayIndex = 0; // 0 = Today, 1 = Yesterday, etc.
+
 export function renderWeeklyBudget() {
   const weeklyCalsConsumedEl = document.getElementById("weekly-cals-consumed");
   const weeklyCalsBudgetEl = document.getElementById("weekly-cals-budget");
@@ -141,7 +143,6 @@ export function renderAdaptiveTDEECard() {
 
 export function renderAnalytics(entries) {
   renderWeeklyBudget();
-  renderAdaptiveTDEECard();
 
   const macroPartP = document.getElementById("macro-part-p");
   const macroPartC = document.getElementById("macro-part-c");
@@ -153,9 +154,20 @@ export function renderAnalytics(entries) {
   const analyticsCarbsVal = document.getElementById("analytics-carbs-val");
   const analyticsFatVal = document.getElementById("analytics-fat-val");
   const weeklyChart = document.getElementById("weekly-chart");
+  const selectedDayTitle = document.getElementById("analytics-selected-day-title");
 
-  const totals = computeTotals(entries);
+  const today = new Date();
+  const selectedDate = new Date(today);
+  selectedDate.setDate(today.getDate() - selectedDayIndex);
+
+  const key = dateKey(selectedDate);
+  const dayEntries = selectedDayIndex === 0 ? entries : loadEntriesForKey(key);
+  const totals = computeTotals(dayEntries);
   const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
+
+  if (selectedDayTitle) {
+    selectedDayTitle.textContent = selectedDayIndex === 0 ? "Today's Macro Breakdown" : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
+  }
 
   if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;
   if (analyticsCarbsVal) analyticsCarbsVal.textContent = `${round(totals.carbs)}g`;
@@ -182,19 +194,18 @@ export function renderAnalytics(entries) {
     if (legendFText) legendFText.textContent = "0%";
   }
 
-  // 7-day trend chart
+  // Interactive 7-day macro-stacked trend chart
   if (!weeklyChart) return;
   weeklyChart.innerHTML = "";
   const goal = loadGoal();
   const goalCals = goal.calories || 2000;
 
-  const today = new Date();
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const k = dateKey(d);
-    const dayEntries = loadEntriesForKey(k);
-    const dayTotals = computeTotals(dayEntries);
+    const items = i === 0 ? entries : loadEntriesForKey(k);
+    const dayTotals = computeTotals(items);
     const cals = Math.round(dayTotals.calories);
 
     const heightPct = Math.min(100, Math.round((cals / (goalCals * 1.3)) * 100));
@@ -207,10 +218,33 @@ export function renderAnalytics(entries) {
     valLabel.textContent = cals > 0 ? cals : "";
 
     const fill = document.createElement("div");
-    fill.className = `bar-col-fill ${i === 0 ? "active-day" : ""} ${
-      cals > goalCals ? "over-goal" : ""
-    }`;
-    fill.style.height = `${Math.max(4, heightPct)}%`;
+    fill.className = `bar-col-fill ${i === selectedDayIndex ? "active-day" : ""}`;
+    fill.style.height = `${Math.max(6, heightPct)}%`;
+
+    // Stacked Macro segments inside bar
+    const dayMacroGrams = dayTotals.protein + dayTotals.carbs + dayTotals.fat;
+    if (dayMacroGrams > 0) {
+      const pSegment = document.createElement("div");
+      pSegment.className = "macro-stack-p";
+      pSegment.style.height = `${(dayTotals.protein / dayMacroGrams) * 100}%`;
+
+      const cSegment = document.createElement("div");
+      cSegment.className = "macro-stack-c";
+      cSegment.style.height = `${(dayTotals.carbs / dayMacroGrams) * 100}%`;
+
+      const fSegment = document.createElement("div");
+      fSegment.className = "macro-stack-f";
+      fSegment.style.height = `${(dayTotals.fat / dayMacroGrams) * 100}%`;
+
+      fill.appendChild(pSegment);
+      fill.appendChild(cSegment);
+      fill.appendChild(fSegment);
+    }
+
+    fill.addEventListener("click", () => {
+      selectedDayIndex = i;
+      renderAnalytics(entries);
+    });
 
     const dayName = d.toLocaleDateString(undefined, { weekday: "short" });
     const dayLabel = document.createElement("span");
