@@ -5,7 +5,7 @@
   "description": "Log food by typing it, scanning a barcode, or snapping a photo, and track daily calories/macros against a goal.",
   "license": "MIT",
   "scripts": {
-    "dev": "node --env-file=.env scripts/dev-server.js"
+    "dev": "node --env-file=.env dev-server.js"
   },
   "engines": {
     "node": ">=18"
