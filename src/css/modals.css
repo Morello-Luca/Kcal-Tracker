@@ -1,0 +1,207 @@
+/* Modals & Camera/Barcode Scanner Styles */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100vw;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.modal-panel {
+  width: 100%;
+  max-width: 430px;
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--surface);
+  border-radius: 28px 28px 0 0;
+  padding: 12px 20px 28px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Modal Grab Handle */
+.modal-panel::before {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 5px;
+  background: var(--text-dim);
+  opacity: 0.4;
+  border-radius: 999px;
+  margin: 4px auto 16px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: var(--surface-alt);
+  border: none;
+  color: var(--text-dim);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.macro-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.mode-toggle-group {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-alt);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  background: var(--surface-elevated);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+#barcode-reader {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  min-height: 200px;
+  width: 100%;
+  max-width: 100%;
+}
+
+#barcode-reader * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#barcode-reader video, #barcode-reader canvas {
+  max-width: 100% !important;
+  width: 100% !important;
+  object-fit: cover;
+}
+
+.modal-status {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 12px 0;
+  text-align: center;
+  word-break: break-word;
+}
+
+.modal-hint {
+  font-size: 0.825rem;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+  word-break: break-word;
+}
+
+.modal-result-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+  word-break: break-word;
+}
+
+#photo-start .goal-form-actions,
+#photo-camera .goal-form-actions,
+#photo-preview .goal-form-actions,
+#barcode-confirm .goal-form-actions {
+  margin-top: 6px;
+  width: 100%;
+}
+
+#photo-take-btn,
+#photo-capture-btn,
+#photo-analyze-btn,
+#barcode-add-btn,
+#photo-add-btn {
+  background: var(--ios-blue);
+  color: #ffffff;
+}
+
+#photo-upload-btn,
+#photo-camera-cancel-btn,
+#photo-retake-btn,
+#barcode-cancel-confirm-btn,
+#photo-retry-btn {
+  background: var(--surface-alt);
+  color: var(--text-dim);
+}
+
+#photo-video,
+#photo-preview-img {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 16px;
+  background: #000;
+  max-height: 35vh;
+  object-fit: contain;
+}
+
+#photo-start,
+#photo-camera,
+#photo-preview,
+#photo-confirm,
+#barcode-confirm,
+#barcode-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#photo-start[hidden],
+#photo-camera[hidden],
+#photo-preview[hidden],
+#photo-confirm[hidden],
+#barcode-confirm[hidden],
+#barcode-fallback[hidden] {
+  display: none;
+}
