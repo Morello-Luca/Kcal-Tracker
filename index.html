@@ -20,6 +20,9 @@
       <p class="date" id="today-date"></p>
     </header>
 
+    <!-- Toast Notification Container for Undo -->
+    <div id="toast-container" class="toast-container"></div>
+
     <!-- PWA Install Banner -->
     <div class="install-banner" id="install-banner" hidden>
       <div class="banner-content">
@@ -138,7 +141,10 @@
 
       <div class="section-title-row">
         <h2>Today's Food Log</h2>
-        <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="quick-add-link" id="clear-day-btn">Clear All</button>
+          <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        </div>
       </div>
 
       <ul class="log" id="log-list"></ul>
@@ -203,7 +209,58 @@
 
     <!-- VIEW 3: ANALYTICS -->
     <section id="view-analytics" class="tab-view" hidden>
+      <!-- Weekly Calorie Budget & Roll-over Card -->
       <div class="card-panel">
+        <div class="section-title-row">
+          <h2>Weekly Budget & Roll-over</h2>
+          <span class="badge-pill" id="weekly-budget-badge">Flexible</span>
+        </div>
+        <p class="panel-subtitle" id="weekly-budget-range-subtitle">Current week overview</p>
+
+        <div class="weekly-summary-grid">
+          <div class="weekly-stat-item">
+            <span class="weekly-stat-val" id="weekly-cals-consumed">0</span>
+            <span class="weekly-stat-lbl">Consumed</span>
+          </div>
+          <div class="weekly-stat-item">
+            <span class="weekly-stat-val" id="weekly-cals-budget">0</span>
+            <span class="weekly-stat-lbl">7-Day Budget</span>
+          </div>
+          <div class="weekly-stat-item">
+            <span class="weekly-stat-val" id="weekly-cals-remaining">0</span>
+            <span class="weekly-stat-lbl">Remaining</span>
+          </div>
+        </div>
+
+        <div class="goal-bar-track margin-top-sm">
+          <div class="goal-bar-fill" id="weekly-budget-bar-fill"></div>
+        </div>
+
+        <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status">
+          <!-- Dynamic rollover message -->
+        </div>
+
+        <div class="trend-chart margin-top" id="flexible-weekly-chart"></div>
+      </div>
+
+      <!-- Adaptive TDEE Expenditure Card -->
+      <div class="card-panel margin-top">
+        <div class="section-title-row">
+          <h2>Adaptive Expenditure (TDEE)</h2>
+          <span class="badge-pill">Adherence-Neutral</span>
+        </div>
+        <p class="panel-subtitle">Calculated real energy burn from weight trends & calorie logs</p>
+
+        <div class="adaptive-tdee-row margin-top-sm">
+          <div class="adaptive-main-stat">
+            <span class="adaptive-val" id="adaptive-tdee-val">-- kcal</span>
+            <span class="adaptive-lbl" id="adaptive-tdee-subtitle">Estimating baseline...</span>
+          </div>
+          <button type="button" class="apply-tdee-btn" id="apply-adaptive-tdee-btn">Sync Daily Target</button>
+        </div>
+      </div>
+
+      <div class="card-panel margin-top">
         <h2>Macro Breakdown</h2>
         <p class="panel-subtitle">Today's macronutrient distribution</p>
 
@@ -355,6 +412,20 @@
             Use TDEE as your energy baseline reference. Add exercises under "Log burned" on Today's view to expand your daily allowance!
           </p>
           <button type="button" class="apply-tdee-btn" id="apply-tdee-btn">Set TDEE as Daily Calorie Goal</button>
+        </div>
+      </div>
+
+      <div class="card-panel margin-top">
+        <h2>Week Configuration</h2>
+        <p class="panel-subtitle">Customize start day for weekly budgets and rollover</p>
+        <div class="goal-form">
+          <label class="goal-field goal-field-full">
+            First Day of the Week
+            <select id="start-day-select">
+              <option value="1">Monday</option>
+              <option value="0">Sunday</option>
+            </select>
+          </label>
         </div>
       </div>
 

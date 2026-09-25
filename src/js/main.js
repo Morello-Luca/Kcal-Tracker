@@ -15,6 +15,8 @@ import {
   loadFavorites,
   saveFavorites,
   dateSuffix,
+  loadSettings,
+  saveSettings,
 } from "./storage.js";
 import { initTheme } from "./theme.js";
 import { initBodyProfile } from "./body-profile.js";
@@ -60,6 +62,9 @@ const waterPlusBtn = document.getElementById("water-plus-btn");
 // Favorites
 const favoritesList = document.getElementById("favorites-list");
 const addFavBtn = document.getElementById("add-fav-btn");
+const clearDayBtn = document.getElementById("clear-day-btn");
+const startDaySelect = document.getElementById("start-day-select");
+const toastContainer = document.getElementById("toast-container");
 
 // Goals
 const goalDisplay = document.getElementById("goal-display");
@@ -254,10 +259,76 @@ function toggleFavoriteEntry(entry) {
   saveFavorites(favs);
 }
 
+export function showToast(message, undoCallback) {
+  if (!toastContainer) return;
+  toastContainer.innerHTML = "";
+
+  const toast = document.createElement("div");
+  toast.className = "toast-message";
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = message;
+
+  toast.appendChild(textSpan);
+
+  if (undoCallback) {
+    const undoBtn = document.createElement("button");
+    undoBtn.className = "toast-undo-btn";
+    undoBtn.textContent = "Undo";
+    undoBtn.addEventListener("click", () => {
+      undoCallback();
+      toast.remove();
+    });
+    toast.appendChild(undoBtn);
+  }
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.remove();
+    }
+  }, 5000);
+}
+
 function removeEntry(id) {
+  const removedEntry = entries.find((e) => e.id === id);
+  if (!removedEntry) return;
+
   entries = entries.filter((e) => e.id !== id);
   saveEntries(entries);
   renderApp();
+
+  showToast(`Removed "${removedEntry.description}"`, () => {
+    entries.push(removedEntry);
+    saveEntries(entries);
+    renderApp();
+  });
+}
+
+if (clearDayBtn) {
+  clearDayBtn.addEventListener("click", () => {
+    if (entries.length === 0) return;
+    const backupEntries = [...entries];
+    entries = [];
+    saveEntries(entries);
+    renderApp();
+
+    showToast("Cleared all entries for today", () => {
+      entries = backupEntries;
+      saveEntries(entries);
+      renderApp();
+    });
+  });
+}
+
+if (startDaySelect) {
+  const currentSettings = loadSettings();
+  startDaySelect.value = String(currentSettings.weekStartDay);
+  startDaySelect.addEventListener("change", (e) => {
+    saveSettings({ weekStartDay: Number(e.target.value) });
+    renderAnalytics(entries);
+  });
 }
 
 function renderLog() {
