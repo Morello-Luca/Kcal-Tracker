@@ -3,11 +3,49 @@
 export const LOG_KEY_PREFIX = "kcal-log-";
 export const BURNED_KEY_PREFIX = "kcal-burned-";
 export const WATER_KEY_PREFIX = "kcal-water-";
+export const WEIGHT_KEY_PREFIX = "kcal-weight-";
 export const GOAL_KEY = "kcal-goal";
 export const BODY_PROFILE_KEY = "kcal-body-profile";
 export const FAVORITES_KEY = "kcal-favorites";
+export const SETTINGS_KEY = "kcal-settings";
 
 export const DEFAULT_WATER_GOAL = 8;
+
+export function loadSettings() {
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (!raw) return { weekStartDay: 1, adaptiveTDEEEnabled: true }; // 1 = Monday, 0 = Sunday
+  try {
+    const parsed = JSON.parse(raw);
+    return {
+      weekStartDay: typeof parsed.weekStartDay === "number" ? parsed.weekStartDay : 1,
+      adaptiveTDEEEnabled: parsed.adaptiveTDEEEnabled !== false,
+    };
+  } catch {
+    return { weekStartDay: 1, adaptiveTDEEEnabled: true };
+  }
+}
+
+export function saveSettings(settings) {
+  const current = loadSettings();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...current, ...settings }));
+}
+
+export function weightKeyFor(date) {
+  return `${WEIGHT_KEY_PREFIX}${dateSuffix(date)}`;
+}
+
+export function loadWeightForDate(date) {
+  const value = Number(localStorage.getItem(weightKeyFor(date)));
+  return value > 0 ? value : null;
+}
+
+export function saveWeightForDate(date, weight) {
+  if (weight > 0) {
+    localStorage.setItem(weightKeyFor(date), String(weight));
+  } else {
+    localStorage.removeItem(weightKeyFor(date));
+  }
+}
 
 export function dateSuffix(date = new Date()) {
   const y = date.getFullYear();

@@ -1,7 +1,75 @@
 /* Body Profile, BMR, and TDEE Calculator Module */
-import { loadGoal, saveGoal } from "./storage.js";
+import {
+  loadGoal,
+  saveGoal,
+  loadWeightForDate,
+  saveWeightForDate,
+  dateSuffix,
+  loadEntriesForKey,
+  dateKey,
+  computeTotals,
+} from "./storage.js";
 
 const BODY_PROFILE_KEY = "kcal-body-profile";
+
+/**
+ * Calculates a 14-day adherence-neutral Adaptive TDEE based on
+ * scale weight trend and actual logged calories over time.
+ * Energy expenditure = Average Daily Intake - (Weight Change in kg * 7700 kcal / Days)
+ */
+export function calculateAdaptiveTDEE() {
+  const prof = loadBodyProfile();
+  const fallback = prof ? calculateBMRandTDEE(prof).tdee : 2000;
+
+  const today = new Date();
+  const daysWindow = 14;
+  let totalCalories = 0;
+  let loggedCalorieDays = 0;
+  const weights = [];
+
+  for (let i = daysWindow - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const k = dateKey(d);
+    const entries = loadEntriesForKey(k);
+    if (entries.length > 0) {
+      const dayTotals = computeTotals(entries);
+      totalCalories += dayTotals.calories;
+      loggedCalorieDays++;
+    }
+
+    const w = loadWeightForDate(d);
+    if (w !== null) {
+      weights.push({ date: d, weight: w, dayIndex: daysWindow - 1 - i });
+    }
+  }
+
+  if (loggedCalorieDays < 3 || weights.length < 2) {
+    return { adaptiveTDEE: fallback, isEstimate: true, loggedDays: loggedCalorieDays, weightPoints: weights.length };
+  }
+
+  const avgDailyIntake = totalCalories / loggedCalorieDays;
+  const firstW = weights[0];
+  const lastW = weights[weights.length - 1];
+  const daysDiff = Math.max(1, (lastW.date.getTime() - firstW.date.getTime()) / (1000 * 3600 * 24));
+  const weightChangeKg = lastW.weight - firstW.weight;
+
+  // 1 kg of body mass ~ 7700 kcal surplus/deficit
+  const dailySurplusDeficit = (weightChangeKg * 7700) / daysDiff;
+  const calculatedTDEE = Math.round(avgDailyIntake - dailySurplusDeficit);
+
+  // Clamp within realistic bounds relative to formula TDEE (e.g. 1000 - 5000 kcal)
+  const adaptiveTDEE = Math.max(1000, Math.min(5000, calculatedTDEE));
+
+  return {
+    adaptiveTDEE,
+    isEstimate: false,
+    avgDailyIntake: Math.round(avgDailyIntake),
+    weightChangeKg: Math.round(weightChangeKg * 10) / 10,
+    loggedDays: loggedCalorieDays,
+    weightPoints: weights.length,
+  };
+}
 
 export function loadBodyProfile() {
   const raw = localStorage.getItem(BODY_PROFILE_KEY);
@@ -66,15 +134,17 @@ export function initBodyProfile(renderGoal) {
   if (bodyProfileForm) {
     bodyProfileForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const weightVal = Number(bodyWeightInput.value) || 70;
       const prof = {
         age: Number(bodyAgeInput.value) || 28,
         gender: bodyGenderSelect.value,
-        weight: Number(bodyWeightInput.value) || 70,
+        weight: weightVal,
         height: Number(bodyHeightInput.value) || 170,
         activity: Number(bodyActivitySelect.value) || 1.2,
         bodyFat: Number(bodyFatInput.value) || null,
       };
       saveBodyProfile(prof);
+      saveWeightForDate(new Date(), weightVal);
       renderBodyProfile();
     });
   }

@@ -1,7 +1,148 @@
 /* Analytics & Past History Module */
-import { computeTotals, round, loadGoal, dateKey, loadEntriesForKey, LOG_KEY_PREFIX, todayKey } from "./storage.js";
+import { computeTotals, round, loadGoal, saveGoal, dateKey, loadEntriesForKey, LOG_KEY_PREFIX, todayKey, loadSettings } from "./storage.js";
+import { calculateAdaptiveTDEE } from "./body-profile.js";
+
+export function renderWeeklyBudget() {
+  const weeklyCalsConsumedEl = document.getElementById("weekly-cals-consumed");
+  const weeklyCalsBudgetEl = document.getElementById("weekly-cals-budget");
+  const weeklyCalsRemainingEl = document.getElementById("weekly-cals-remaining");
+  const weeklyBudgetBarFill = document.getElementById("weekly-budget-bar-fill");
+  const weeklyRolloverStatus = document.getElementById("weekly-rollover-status");
+  const weeklySubtitle = document.getElementById("weekly-budget-range-subtitle");
+  const flexibleWeeklyChart = document.getElementById("flexible-weekly-chart");
+
+  const settings = loadSettings();
+  const goal = loadGoal();
+  const dailyGoal = goal.calories || 2000;
+  const weeklyBudget = dailyGoal * 7;
+
+  const today = new Date();
+  const currentDayOfWeek = today.getDay(); // 0 = Sun, 1 = Mon ...
+  const startDay = settings.weekStartDay; // 1 = Mon, 0 = Sun
+
+  let daysSinceStart = currentDayOfWeek - startDay;
+  if (daysSinceStart < 0) daysSinceStart += 7;
+
+  const weekStartDate = new Date(today);
+  weekStartDate.setDate(today.getDate() - daysSinceStart);
+
+  let weekConsumed = 0;
+  const daysData = [];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStartDate);
+    d.setDate(weekStartDate.getDate() + i);
+    const k = dateKey(d);
+    const dayEntries = loadEntriesForKey(k);
+    const dayTotals = computeTotals(dayEntries);
+    const dayCals = Math.round(dayTotals.calories);
+
+    const isPastOrToday = d <= today || d.toDateString() === today.toDateString();
+    if (isPastOrToday) {
+      weekConsumed += dayCals;
+    }
+
+    daysData.push({ date: d, calories: dayCals, isToday: d.toDateString() === today.toDateString(), isPastOrToday });
+  }
+
+  const remainingWeekly = weeklyBudget - weekConsumed;
+  const remainingDays = 7 - daysSinceStart;
+
+  if (weeklyCalsConsumedEl) weeklyCalsConsumedEl.textContent = `${weekConsumed} kcal`;
+  if (weeklyCalsBudgetEl) weeklyCalsBudgetEl.textContent = `${weeklyBudget} kcal`;
+  if (weeklyCalsRemainingEl) {
+    weeklyCalsRemainingEl.textContent = `${remainingWeekly} kcal`;
+    weeklyCalsRemainingEl.style.color = remainingWeekly < 0 ? "var(--color-over, #ff453a)" : "var(--color-primary, #007aff)";
+  }
+
+  if (weeklyBudgetBarFill) {
+    const pct = Math.min(100, (weekConsumed / weeklyBudget) * 100);
+    weeklyBudgetBarFill.style.width = `${pct}%`;
+    weeklyBudgetBarFill.classList.toggle("over", weekConsumed > weeklyBudget);
+  }
+
+  if (weeklySubtitle) {
+    const endDate = new Date(weekStartDate);
+    endDate.setDate(weekStartDate.getDate() + 6);
+    const opt = { month: "short", day: "numeric" };
+    weeklySubtitle.textContent = `${weekStartDate.toLocaleDateString(undefined, opt)} - ${endDate.toLocaleDateString(undefined, opt)}`;
+  }
+
+  if (weeklyRolloverStatus) {
+    const pastDaysCount = daysSinceStart;
+    const expectedPaceSoFar = pastDaysCount * dailyGoal;
+    const rolloverAmount = expectedPaceSoFar - (weekConsumed - (daysData.find((d) => d.isToday)?.calories || 0));
+
+    if (rolloverAmount > 0) {
+      const remainingDailyAvg = remainingDays > 0 ? Math.round(remainingWeekly / remainingDays) : dailyGoal;
+      weeklyRolloverStatus.innerHTML = `<strong>✨ ${rolloverAmount} kcal saved so far!</strong><p>Rolled over to remaining ${remainingDays} day(s). Adjusted target: <strong>${remainingDailyAvg} kcal/day</strong>.</p>`;
+    } else if (rolloverAmount < 0) {
+      const overBy = Math.abs(rolloverAmount);
+      const remainingDailyAvg = remainingDays > 0 ? Math.max(0, Math.round(remainingWeekly / remainingDays)) : dailyGoal;
+      weeklyRolloverStatus.innerHTML = `<strong>⚠️ ${overBy} kcal over baseline pace.</strong><p>To stay on weekly budget, target <strong>${remainingDailyAvg} kcal/day</strong> for remaining ${remainingDays} day(s).</p>`;
+    } else {
+      weeklyRolloverStatus.innerHTML = `<strong>🎯 Perfect daily pace!</strong><p>You are right on track with your ${dailyGoal} kcal/day budget.</p>`;
+    }
+  }
+
+  if (flexibleWeeklyChart) {
+    flexibleWeeklyChart.innerHTML = "";
+    daysData.forEach((item) => {
+      const heightPct = Math.min(100, Math.round((item.calories / (dailyGoal * 1.3)) * 100));
+      const barCol = document.createElement("div");
+      barCol.className = "bar-col";
+
+      const valLabel = document.createElement("span");
+      valLabel.className = "bar-col-val";
+      valLabel.textContent = item.calories > 0 ? item.calories : "";
+
+      const fill = document.createElement("div");
+      fill.className = `bar-col-fill ${item.isToday ? "active-day" : ""} ${item.calories > dailyGoal ? "over-goal" : ""}`;
+      fill.style.height = `${Math.max(4, heightPct)}%`;
+
+      const dayName = item.date.toLocaleDateString(undefined, { weekday: "short" });
+      const dayLabel = document.createElement("span");
+      dayLabel.className = "bar-col-label";
+      dayLabel.textContent = item.isToday ? "Today" : dayName;
+
+      barCol.appendChild(valLabel);
+      barCol.appendChild(fill);
+      barCol.appendChild(dayLabel);
+      flexibleWeeklyChart.appendChild(barCol);
+    });
+  }
+}
+
+export function renderAdaptiveTDEECard() {
+  const adaptiveTdeeVal = document.getElementById("adaptive-tdee-val");
+  const adaptiveTdeeSubtitle = document.getElementById("adaptive-tdee-subtitle");
+  const applyAdaptiveTdeeBtn = document.getElementById("apply-adaptive-tdee-btn");
+
+  const result = calculateAdaptiveTDEE();
+  if (adaptiveTdeeVal) adaptiveTdeeVal.textContent = `${result.adaptiveTDEE} kcal`;
+
+  if (adaptiveTdeeSubtitle) {
+    if (result.isEstimate) {
+      adaptiveTdeeSubtitle.textContent = `Formula baseline (Log ${3 - result.loggedDays} more days and 2 weight entries for dynamic TDEE)`;
+    } else {
+      adaptiveTdeeSubtitle.textContent = `Based on ${result.loggedDays} log days & ${result.weightChangeKg >= 0 ? "+" : ""}${result.weightChangeKg} kg weight trend`;
+    }
+  }
+
+  if (applyAdaptiveTdeeBtn) {
+    applyAdaptiveTdeeBtn.onclick = () => {
+      const currentGoal = loadGoal();
+      saveGoal({ ...currentGoal, calories: result.adaptiveTDEE });
+      alert(`Daily Calorie Goal set to Adaptive TDEE: ${result.adaptiveTDEE} kcal!`);
+      renderWeeklyBudget();
+    };
+  }
+}
 
 export function renderAnalytics(entries) {
+  renderWeeklyBudget();
+  renderAdaptiveTDEECard();
+
   const macroPartP = document.getElementById("macro-part-p");
   const macroPartC = document.getElementById("macro-part-c");
   const macroPartF = document.getElementById("macro-part-f");
