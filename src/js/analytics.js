@@ -326,6 +326,24 @@ export function renderHistory() {
     entriesList.className = "history-entries";
     entriesList.hidden = true;
 
+    const copyDayBtn = document.createElement("button");
+    copyDayBtn.type = "button";
+    copyDayBtn.className = "fav-add-btn";
+    copyDayBtn.style.marginTop = "8px";
+    copyDayBtn.style.width = "100%";
+    copyDayBtn.textContent = "📋 Copy Entire Day to Today";
+    copyDayBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const currentToday = loadEntriesForKey(todayKey());
+      const newEntries = dayEntries.map((item) => ({
+        ...item,
+        id: crypto.randomUUID(),
+      }));
+      localStorage.setItem(todayKey(), JSON.stringify([...currentToday, ...newEntries]));
+      alert(`Copied ${dayEntries.length} items to Today's log!`);
+      window.location.reload();
+    });
+
     [...dayEntries].reverse().forEach((entry) => {
       const entryLi = document.createElement("li");
       entryLi.className = "history-entry";
@@ -342,6 +360,8 @@ export function renderHistory() {
       entryLi.appendChild(cals);
       entriesList.appendChild(entryLi);
     });
+
+    entriesList.appendChild(copyDayBtn);
 
     header.addEventListener("click", () => {
       entriesList.hidden = !entriesList.hidden;
