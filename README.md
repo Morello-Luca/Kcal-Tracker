@@ -130,10 +130,16 @@ framework's magic.
 ## Project structure
 
 ```
-index.html                 page structure
-style.css                  main stylesheet importing modular CSS files
+public/                    public static web assets served by Vercel / dev server
+  index.html               page structure
+  style.css                main stylesheet importing modular CSS files
+  sw.js                    service worker for offline PWA support
+  manifest.json            PWA web app manifest
+  favicon.png              app favicon
+  icons/                   app icons (192, 512, apple-touch)
+  vendor/                  vendored html5-qrcode & tesseract.js libraries
 src/
-  css/                     modular CSS files (components, modals, nav, themes, variables)
+  css/                     modular CSS stylesheets
   js/                      ES6 modules for client-side application logic
     main.js                entry point & event listeners
     storage.js             localStorage management
@@ -148,10 +154,10 @@ api/                       serverless API routes for Vercel / server execution
   vision-lookup.js         photo + quantity -> Groq vision lookup
   swap-suggestion.js       grounded healthy swap suggestions
 rag/                       RAG pipeline scripts, embeddings, and evaluation
-vendor/                    vendored html5-qrcode & tesseract.js for offline capability
-scripts/                   utility scripts (e.g., generate-icons.js)
-manifest.json, sw.js       PWA manifest + service worker
-dev-server.js              zero-dependency local dev server
+scripts/                   utility and dev server scripts
+  dev-server.js            zero-dependency local dev server
+  generate-icons.js        script generating PNG icons
+package.json               npm scripts and configuration
 ```
 
 ## Running it locally
@@ -160,8 +166,8 @@ dev-server.js              zero-dependency local dev server
 npm run dev
 ```
 
-This starts `dev-server.js` on `http://localhost:3000` — a small
-Node server that serves the static files and mounts the same
+This starts `scripts/dev-server.js` on `http://localhost:3000` — a small
+Node server that serves static assets from `public/` and `src/` and mounts the same
 `api/lookup.js` / `api/vision-lookup.js` handlers Vercel runs in
 production, so you don't need the Vercel CLI or an account to develop
 locally.

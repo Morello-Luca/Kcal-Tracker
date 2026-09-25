@@ -1,12 +1,12 @@
 // Local-only dev server: serves the static app and mounts the /api/lookup
 // serverless function so you can test everything without the Vercel CLI.
-// Run with: node --env-file=.env dev-server.js
+// Run with: node --env-file=.env scripts/dev-server.js
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
-const lookup = require("./api/lookup.js");
-const visionLookup = require("./api/vision-lookup.js");
-const swapSuggestion = require("./api/swap-suggestion.js");
+const lookup = require("../api/lookup.js");
+const visionLookup = require("../api/vision-lookup.js");
+const swapSuggestion = require("../api/swap-suggestion.js");
 
 const PORT = process.env.PORT || 3000;
 
@@ -96,8 +96,15 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  let filePath = url.pathname === "/" ? "/index.html" : url.pathname;
-  filePath = path.join(__dirname, filePath);
+  let reqPath = url.pathname === "/" ? "/index.html" : url.pathname;
+  // If requesting /src/..., resolve relative to repo root
+  // Otherwise resolve relative to public/
+  let filePath;
+  if (reqPath.startsWith("/src/")) {
+    filePath = path.join(__dirname, "..", reqPath);
+  } else {
+    filePath = path.join(__dirname, "../public", reqPath);
+  }
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
