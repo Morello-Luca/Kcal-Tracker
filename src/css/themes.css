@@ -1,0 +1,146 @@
+/* Color Themes & Switcher Styles */
+
+/* Theme: Forest Pastel */
+[data-theme="forest"] {
+  --bg: #0d1b12;
+  --surface: #162a1e;
+  --surface-alt: #223c2c;
+  --surface-elevated: #2f4e3c;
+  --text: #f0f7f2;
+  --text-dim: #7a9c84;
+  --text-secondary: #a3c4ad;
+
+  --ios-blue: #52b788;
+  --ios-green: #74c69d;
+  --ios-orange: #e9d8a6;
+  --ios-red: #e63946;
+  --ios-purple: #95d5b2;
+  --ios-teal: #b7e4c7;
+
+  --accent: var(--ios-green);
+  --danger: var(--ios-red);
+  --border: rgba(183, 228, 199, 0.1);
+  --hairline: rgba(183, 228, 199, 0.15);
+  --nav-bg: rgba(22, 42, 30, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Theme: Slate Blue */
+[data-theme="slate"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-alt: #334155;
+  --surface-elevated: #475569;
+  --text: #f8fafc;
+  --text-dim: #94a3b8;
+  --text-secondary: #cbd5e1;
+
+  --ios-blue: #38bdf8;
+  --ios-green: #34d399;
+  --ios-orange: #fbbf24;
+  --ios-red: #f87171;
+  --ios-purple: #c084fc;
+  --ios-teal: #22d3ee;
+
+  --accent: var(--ios-blue);
+  --danger: var(--ios-red);
+  --border: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --nav-bg: rgba(30, 41, 59, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+
+/* Theme: Sunset Rose */
+[data-theme="sunset"] {
+  --bg: #1a0f18;
+  --surface: #2a1827;
+  --surface-alt: #3d243a;
+  --surface-elevated: #52314e;
+  --text: #fdf2f8;
+  --text-dim: #b082a5;
+  --text-secondary: #d4a5cb;
+
+  --ios-blue: #f472b6;
+  --ios-green: #fb7185;
+  --ios-orange: #f97316;
+  --ios-red: #ef4444;
+  --ios-purple: #e879f9;
+  --ios-teal: #38bdf8;
+
+  --accent: var(--ios-blue);
+  --danger: var(--ios-red);
+  --border: rgba(244, 114, 182, 0.12);
+  --hairline: rgba(244, 114, 182, 0.18);
+  --nav-bg: rgba(42, 24, 39, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme: Sage Clean */
+[data-theme="sage"] {
+  --bg: #121816;
+  --surface: #1d2623;
+  --surface-alt: #2a3733;
+  --surface-elevated: #394a45;
+  --text: #f2f7f5;
+  --text-dim: #889e96;
+  --text-secondary: #b1c7bf;
+
+  --ios-blue: #4ade80;
+  --ios-green: #2dd4bf;
+  --ios-orange: #fb923c;
+  --ios-red: #f87171;
+  --ios-purple: #a78bfa;
+  --ios-teal: #38bdf8;
+
+  --accent: var(--ios-green);
+  --danger: var(--ios-red);
+  --border: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --nav-bg: rgba(29, 38, 35, 0.85);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Theme Selector Grid in Settings */
+.theme-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.theme-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.theme-card.active {
+  border-color: var(--ios-blue);
+  background: var(--surface-elevated);
+}
+
+.theme-preview {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.oled-preview { background: linear-gradient(135deg, #000000 50%, #30d158 50%); }
+.forest-preview { background: linear-gradient(135deg, #0d1b12 50%, #74c69d 50%); }
+.slate-preview { background: linear-gradient(135deg, #0f172a 50%, #38bdf8 50%); }
+.sunset-preview { background: linear-gradient(135deg, #1a0f18 50%, #f472b6 50%); }
+.sage-preview { background: linear-gradient(135deg, #121816 50%, #2dd4bf 50%); }
+
+.theme-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
