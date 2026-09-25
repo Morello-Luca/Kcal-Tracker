@@ -3,11 +3,13 @@ const APP_SHELL = [
   "/",
   "/index.html",
   "/style.css",
-  "/app.js",
+  "/src/js/main.js",
+  "/src/js/label-ocr-parser.js",
   "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/vendor/html5-qrcode.min.js",
+  "/vendor/tesseract.min.js",
 ];
 
 self.addEventListener("install", (event) => {
