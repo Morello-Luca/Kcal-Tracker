@@ -202,6 +202,10 @@ export function renderAnalytics(entries) {
   const totals = computeTotals(selectedEntries);
   const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
 
+  if (selectedDayTitle) {
+    selectedDayTitle.textContent = selectedDayIndex === 0 ? "Today's Macro Breakdown" : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
+  }
+
   if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;
   if (analyticsCarbsVal) analyticsCarbsVal.textContent = `${round(totals.carbs)}g`;
   if (analyticsFatVal) analyticsFatVal.textContent = `${round(totals.fat)}g`;
