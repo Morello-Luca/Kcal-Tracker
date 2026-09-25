@@ -15,6 +15,8 @@ import {
   loadFavorites,
   saveFavorites,
   dateSuffix,
+  loadSettings,
+  saveSettings,
 } from "./storage.js";
 import { initTheme } from "./theme.js";
 import { initBodyProfile } from "./body-profile.js";
@@ -57,9 +59,21 @@ const waterGlassesRow = document.getElementById("water-glasses-row");
 const waterMinusBtn = document.getElementById("water-minus-btn");
 const waterPlusBtn = document.getElementById("water-plus-btn");
 
-// Favorites
+// Favorites & Batch Actions
 const favoritesList = document.getElementById("favorites-list");
 const addFavBtn = document.getElementById("add-fav-btn");
+const clearDayBtn = document.getElementById("clear-day-btn");
+const batchToggleBtn = document.getElementById("batch-toggle-btn");
+const batchActionsBar = document.getElementById("batch-actions-bar");
+const batchSelectedCount = document.getElementById("batch-selected-count");
+const batchCopyBtn = document.getElementById("batch-copy-btn");
+const batchDeleteBtn = document.getElementById("batch-delete-btn");
+
+const startDaySelect = document.getElementById("start-day-select");
+const toastContainer = document.getElementById("toast-container");
+
+let isBatchMode = false;
+let selectedEntryIds = new Set();
 
 // Goals
 const goalDisplay = document.getElementById("goal-display");
@@ -254,10 +268,128 @@ function toggleFavoriteEntry(entry) {
   saveFavorites(favs);
 }
 
+export function showToast(message, undoCallback) {
+  if (!toastContainer) return;
+  toastContainer.innerHTML = "";
+
+  const toast = document.createElement("div");
+  toast.className = "toast-message";
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = message;
+
+  toast.appendChild(textSpan);
+
+  if (undoCallback) {
+    const undoBtn = document.createElement("button");
+    undoBtn.className = "toast-undo-btn";
+    undoBtn.textContent = "Undo";
+    undoBtn.addEventListener("click", () => {
+      undoCallback();
+      toast.remove();
+    });
+    toast.appendChild(undoBtn);
+  }
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.remove();
+    }
+  }, 5000);
+}
+
 function removeEntry(id) {
+  const removedEntry = entries.find((e) => e.id === id);
+  if (!removedEntry) return;
+
   entries = entries.filter((e) => e.id !== id);
   saveEntries(entries);
   renderApp();
+
+  showToast(`Removed "${removedEntry.description}"`, () => {
+    entries.push(removedEntry);
+    saveEntries(entries);
+    renderApp();
+  });
+}
+
+if (batchToggleBtn) {
+  batchToggleBtn.addEventListener("click", () => {
+    isBatchMode = !isBatchMode;
+    selectedEntryIds.clear();
+    batchToggleBtn.textContent = isBatchMode ? "Done" : "Batch Select";
+    if (batchActionsBar) batchActionsBar.hidden = !isBatchMode;
+    renderLog();
+  });
+}
+
+function updateBatchCount() {
+  if (batchSelectedCount) {
+    batchSelectedCount.textContent = `${selectedEntryIds.size} items selected`;
+  }
+}
+
+if (batchCopyBtn) {
+  batchCopyBtn.addEventListener("click", () => {
+    if (selectedEntryIds.size === 0) return;
+    const selectedItems = entries.filter((e) => selectedEntryIds.has(e.id));
+    const duplicates = selectedItems.map((item) => ({ ...item, id: crypto.randomUUID() }));
+    entries.push(...duplicates);
+    saveEntries(entries);
+    isBatchMode = false;
+    if (batchActionsBar) batchActionsBar.hidden = true;
+    if (batchToggleBtn) batchToggleBtn.textContent = "Batch Select";
+    renderApp();
+    showToast(`Copied ${selectedItems.length} items`);
+  });
+}
+
+if (batchDeleteBtn) {
+  batchDeleteBtn.addEventListener("click", () => {
+    if (selectedEntryIds.size === 0) return;
+    const backupEntries = [...entries];
+    const removedCount = selectedEntryIds.size;
+    entries = entries.filter((e) => !selectedEntryIds.has(e.id));
+    saveEntries(entries);
+    isBatchMode = false;
+    selectedEntryIds.clear();
+    if (batchActionsBar) batchActionsBar.hidden = true;
+    if (batchToggleBtn) batchToggleBtn.textContent = "Batch Select";
+    renderApp();
+
+    showToast(`Deleted ${removedCount} items`, () => {
+      entries = backupEntries;
+      saveEntries(entries);
+      renderApp();
+    });
+  });
+}
+
+if (clearDayBtn) {
+  clearDayBtn.addEventListener("click", () => {
+    if (entries.length === 0) return;
+    const backupEntries = [...entries];
+    entries = [];
+    saveEntries(entries);
+    renderApp();
+
+    showToast("Cleared all entries for today", () => {
+      entries = backupEntries;
+      saveEntries(entries);
+      renderApp();
+    });
+  });
+}
+
+if (startDaySelect) {
+  const currentSettings = loadSettings();
+  startDaySelect.value = String(currentSettings.weekStartDay);
+  startDaySelect.addEventListener("change", (e) => {
+    saveSettings({ weekStartDay: Number(e.target.value) });
+    renderAnalytics(entries);
+  });
 }
 
 function renderLog() {
@@ -276,11 +408,27 @@ function renderLog() {
     const li = document.createElement("li");
     li.className = "log-entry";
 
+    if (isBatchMode) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "log-checkbox";
+      checkbox.checked = selectedEntryIds.has(entry.id);
+      checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          selectedEntryIds.add(entry.id);
+        } else {
+          selectedEntryIds.delete(entry.id);
+        }
+        updateBatchCount();
+      });
+      li.appendChild(checkbox);
+    }
+
     const main = document.createElement("div");
     main.className = "entry-main";
     main.style.cursor = "pointer";
     main.addEventListener("click", () => {
-      if (modalControllers) modalControllers.openEditEntryModal(entry.id);
+      if (!isBatchMode && modalControllers) modalControllers.openEditEntryModal(entry.id);
     });
 
     const desc = document.createElement("span");
@@ -303,43 +451,47 @@ function renderLog() {
     cals.className = "entry-cals";
     cals.textContent = Math.round(entry.calories);
 
-    const favs = loadFavorites();
-    const isFav = favs.some((f) => f.description === entry.description);
+    if (!isBatchMode) {
+      const favs = loadFavorites();
+      const isFav = favs.some((f) => f.description === entry.description);
 
-    const starBtn = document.createElement("button");
-    starBtn.className = "remove-btn";
-    starBtn.textContent = isFav ? "⭐" : "☆";
-    starBtn.style.fontSize = "0.9rem";
-    starBtn.setAttribute("aria-label", "Toggle favorite");
-    starBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleFavoriteEntry(entry);
-      renderApp();
-    });
+      const starBtn = document.createElement("button");
+      starBtn.className = "remove-btn";
+      starBtn.textContent = isFav ? "⭐" : "☆";
+      starBtn.style.fontSize = "0.9rem";
+      starBtn.setAttribute("aria-label", "Toggle favorite");
+      starBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleFavoriteEntry(entry);
+        renderApp();
+      });
 
-    const editBtn = document.createElement("button");
-    editBtn.className = "remove-btn";
-    editBtn.textContent = "✏️";
-    editBtn.style.fontSize = "0.8rem";
-    editBtn.setAttribute("aria-label", "Edit entry");
-    editBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (modalControllers) modalControllers.openEditEntryModal(entry.id);
-    });
+      const editBtn = document.createElement("button");
+      editBtn.className = "remove-btn";
+      editBtn.textContent = "✏️";
+      editBtn.style.fontSize = "0.8rem";
+      editBtn.setAttribute("aria-label", "Edit entry");
+      editBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (modalControllers) modalControllers.openEditEntryModal(entry.id);
+      });
 
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "remove-btn";
-    removeBtn.textContent = "×";
-    removeBtn.setAttribute("aria-label", "Remove entry");
-    removeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      removeEntry(entry.id);
-    });
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "remove-btn";
+      removeBtn.textContent = "×";
+      removeBtn.setAttribute("aria-label", "Remove entry");
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeEntry(entry.id);
+      });
 
-    rightGroup.appendChild(cals);
-    rightGroup.appendChild(starBtn);
-    rightGroup.appendChild(editBtn);
-    rightGroup.appendChild(removeBtn);
+      rightGroup.appendChild(cals);
+      rightGroup.appendChild(starBtn);
+      rightGroup.appendChild(editBtn);
+      rightGroup.appendChild(removeBtn);
+    } else {
+      rightGroup.appendChild(cals);
+    }
 
     li.appendChild(main);
     li.appendChild(rightGroup);
@@ -735,6 +887,29 @@ if (installPwaBtn) {
 if (dismissInstallBtn) {
   dismissInstallBtn.addEventListener("click", () => {
     if (installBanner) installBanner.hidden = true;
+  });
+}
+
+// Today View Mode Toggle: Daily vs Weekly
+const todayModeDailyBtn = document.getElementById("today-mode-daily");
+const todayModeWeeklyBtn = document.getElementById("today-mode-weekly");
+const todayDailyContainer = document.getElementById("today-daily-container");
+const todayWeeklyContainer = document.getElementById("today-weekly-container");
+
+if (todayModeDailyBtn && todayModeWeeklyBtn) {
+  todayModeDailyBtn.addEventListener("click", () => {
+    todayModeDailyBtn.classList.add("active");
+    todayModeWeeklyBtn.classList.remove("active");
+    if (todayDailyContainer) todayDailyContainer.hidden = false;
+    if (todayWeeklyContainer) todayWeeklyContainer.hidden = true;
+  });
+
+  todayModeWeeklyBtn.addEventListener("click", () => {
+    todayModeWeeklyBtn.classList.add("active");
+    todayModeDailyBtn.classList.remove("active");
+    if (todayDailyContainer) todayDailyContainer.hidden = true;
+    if (todayWeeklyContainer) todayWeeklyContainer.hidden = false;
+    renderAnalytics(entries);
   });
 }
 

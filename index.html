@@ -20,6 +20,9 @@
       <p class="date" id="today-date"></p>
     </header>
 
+    <!-- Toast Notification Container for Undo -->
+    <div id="toast-container" class="toast-container"></div>
+
     <!-- PWA Install Banner -->
     <div class="install-banner" id="install-banner" hidden>
       <div class="banner-content">
@@ -35,90 +38,133 @@
 
     <!-- VIEW 1: TODAY -->
     <section id="view-today" class="tab-view">
-      <section class="totals" id="totals">
-        <div class="total-card">
-          <span class="total-value" id="total-calories">0</span>
-          <span class="total-label">kcal</span>
-        </div>
+      <!-- Segmented View Mode Toggle: Daily vs Weekly -->
+      <div class="mode-toggle-group margin-bottom-sm">
+        <button type="button" class="mode-btn active" id="today-mode-daily">Daily Overview</button>
+        <button type="button" class="mode-btn" id="today-mode-weekly">Weekly Budget</button>
+      </div>
 
-        <div class="goal-section" id="goal-display">
-          <div class="goal-bar-track">
-            <div class="goal-bar-fill" id="goal-bar-fill"></div>
+      <!-- DAILY OVERVIEW CONTAINER -->
+      <div id="today-daily-container">
+        <section class="totals" id="totals">
+          <div class="total-card">
+            <span class="total-value" id="total-calories">0</span>
+            <span class="total-label">kcal</span>
           </div>
-          <div class="goal-row">
-            <span class="goal-status" id="goal-status">No daily goal set</span>
-            <button type="button" class="goal-edit-btn" id="goal-edit-btn">Set goal</button>
-          </div>
-        </div>
 
-        <form class="goal-form" id="goal-form" hidden>
-          <label class="goal-field">
-            Calories
-            <input type="number" id="goal-input-calories" min="1" step="1" placeholder="e.g. 2000" />
-          </label>
-          <label class="goal-field">
-            Protein (g)
-            <input type="number" id="goal-input-protein" min="1" step="1" placeholder="optional" />
-          </label>
-          <label class="goal-field">
-            Carbs (g)
-            <input type="number" id="goal-input-carbs" min="1" step="1" placeholder="optional" />
-          </label>
-          <label class="goal-field">
-            Fat (g)
-            <input type="number" id="goal-input-fat" min="1" step="1" placeholder="optional" />
-          </label>
-          <div class="goal-form-actions">
-            <button type="submit" id="goal-save-btn">Save</button>
-            <button type="button" id="goal-cancel-btn">Cancel</button>
-          </div>
-        </form>
-
-        <div class="goal-section" id="burned-display">
-          <div class="goal-row">
-            <span class="goal-status" id="burned-status">No calories burned logged</span>
-            <button type="button" class="goal-edit-btn" id="burned-edit-btn">Log burned</button>
-          </div>
-        </div>
-
-        <form class="goal-form" id="burned-form" hidden>
-          <label class="goal-field goal-field-full">
-            Calories burned today
-            <input type="number" id="burned-input" min="0" step="1" placeholder="e.g. 400" />
-          </label>
-          <div class="goal-form-actions">
-            <button type="submit" id="burned-save-btn">Save</button>
-            <button type="button" id="burned-cancel-btn">Cancel</button>
-          </div>
-        </form>
-
-        <div class="macro-row">
-          <div class="macro">
-            <span class="macro-value" id="total-protein">0g</span>
-            <span class="macro-label">protein</span>
-            <div class="macro-bar-track" id="protein-bar-track" hidden>
-              <div class="macro-bar-fill" id="protein-bar-fill"></div>
+          <div class="goal-section" id="goal-display">
+            <div class="goal-bar-track">
+              <div class="goal-bar-fill" id="goal-bar-fill"></div>
             </div>
-            <span class="macro-goal-label" id="protein-goal-label" hidden></span>
-          </div>
-          <div class="macro">
-            <span class="macro-value" id="total-carbs">0g</span>
-            <span class="macro-label">carbs</span>
-            <div class="macro-bar-track" id="carbs-bar-track" hidden>
-              <div class="macro-bar-fill" id="carbs-bar-fill"></div>
+            <div class="goal-row">
+              <span class="goal-status" id="goal-status">No daily goal set</span>
+              <button type="button" class="goal-edit-btn" id="goal-edit-btn">Set goal</button>
             </div>
-            <span class="macro-goal-label" id="carbs-goal-label" hidden></span>
           </div>
-          <div class="macro">
-            <span class="macro-value" id="total-fat">0g</span>
-            <span class="macro-label">fat</span>
-            <div class="macro-bar-track" id="fat-bar-track" hidden>
-              <div class="macro-bar-fill" id="fat-bar-fill"></div>
+
+          <form class="goal-form" id="goal-form" hidden>
+            <label class="goal-field">
+              Calories
+              <input type="number" id="goal-input-calories" min="1" step="1" placeholder="e.g. 2000" />
+            </label>
+            <label class="goal-field">
+              Protein (g)
+              <input type="number" id="goal-input-protein" min="1" step="1" placeholder="optional" />
+            </label>
+            <label class="goal-field">
+              Carbs (g)
+              <input type="number" id="goal-input-carbs" min="1" step="1" placeholder="optional" />
+            </label>
+            <label class="goal-field">
+              Fat (g)
+              <input type="number" id="goal-input-fat" min="1" step="1" placeholder="optional" />
+            </label>
+            <div class="goal-form-actions">
+              <button type="submit" id="goal-save-btn">Save</button>
+              <button type="button" id="goal-cancel-btn">Cancel</button>
             </div>
-            <span class="macro-goal-label" id="fat-goal-label" hidden></span>
+          </form>
+
+          <div class="goal-section" id="burned-display">
+            <div class="goal-row">
+              <span class="goal-status" id="burned-status">No calories burned logged</span>
+              <button type="button" class="goal-edit-btn" id="burned-edit-btn">Log burned</button>
+            </div>
           </div>
+
+          <form class="goal-form" id="burned-form" hidden>
+            <label class="goal-field goal-field-full">
+              Calories burned today
+              <input type="number" id="burned-input" min="0" step="1" placeholder="e.g. 400" />
+            </label>
+            <div class="goal-form-actions">
+              <button type="submit" id="burned-save-btn">Save</button>
+              <button type="button" id="burned-cancel-btn">Cancel</button>
+            </div>
+          </form>
+
+          <div class="macro-row">
+            <div class="macro">
+              <span class="macro-value" id="total-protein">0g</span>
+              <span class="macro-label">protein</span>
+              <div class="macro-bar-track" id="protein-bar-track" hidden>
+                <div class="macro-bar-fill" id="protein-bar-fill"></div>
+              </div>
+              <span class="macro-goal-label" id="protein-goal-label" hidden></span>
+            </div>
+            <div class="macro">
+              <span class="macro-value" id="total-carbs">0g</span>
+              <span class="macro-label">carbs</span>
+              <div class="macro-bar-track" id="carbs-bar-track" hidden>
+                <div class="macro-bar-fill" id="carbs-bar-fill"></div>
+              </div>
+              <span class="macro-goal-label" id="carbs-goal-label" hidden></span>
+            </div>
+            <div class="macro">
+              <span class="macro-value" id="total-fat">0g</span>
+              <span class="macro-label">fat</span>
+              <div class="macro-bar-track" id="fat-bar-track" hidden>
+                <div class="macro-bar-fill" id="fat-bar-fill"></div>
+              </div>
+              <span class="macro-goal-label" id="fat-goal-label" hidden></span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- WEEKLY BUDGET CONTAINER -->
+      <div id="today-weekly-container" hidden>
+        <div class="card-panel">
+          <div class="section-title-row">
+            <h2>Weekly Calorie Budget</h2>
+            <span class="badge-pill" id="weekly-budget-badge">Flexible</span>
+          </div>
+          <p class="panel-subtitle" id="weekly-budget-range-subtitle">Current week overview</p>
+
+          <div class="weekly-summary-grid">
+            <div class="weekly-stat-item">
+              <span class="weekly-stat-val" id="weekly-cals-consumed">0</span>
+              <span class="weekly-stat-lbl">Consumed</span>
+            </div>
+            <div class="weekly-stat-item">
+              <span class="weekly-stat-val" id="weekly-cals-budget">0</span>
+              <span class="weekly-stat-lbl">7-Day Budget</span>
+            </div>
+            <div class="weekly-stat-item">
+              <span class="weekly-stat-val" id="weekly-cals-remaining">0</span>
+              <span class="weekly-stat-lbl">Remaining</span>
+            </div>
+          </div>
+
+          <div class="goal-bar-track margin-top-sm">
+            <div class="goal-bar-fill" id="weekly-budget-bar-fill"></div>
+          </div>
+
+          <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status"></div>
+
+          <div class="trend-chart margin-top" id="flexible-weekly-chart"></div>
         </div>
-      </section>
+      </div>
 
       <!-- Water Tracker Card Widget -->
       <div class="water-card">
@@ -138,7 +184,21 @@
 
       <div class="section-title-row">
         <h2>Today's Food Log</h2>
-        <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="quick-add-link" id="batch-toggle-btn">Batch Select</button>
+          <button type="button" class="quick-add-link" id="clear-day-btn">Clear All</button>
+          <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        </div>
+      </div>
+
+      <!-- Batch Actions Bar -->
+      <div class="batch-actions-bar" id="batch-actions-bar" hidden>
+        <span class="batch-selected-count" id="batch-selected-count">0 items selected</span>
+        <div class="batch-btn-group">
+          <button type="button" class="batch-btn batch-copy-btn" id="batch-copy-btn">Copy Selected</button>
+
+          <button type="button" class="batch-btn batch-delete-btn" id="batch-delete-btn">Delete Selected</button>
+        </div>
       </div>
 
       <ul class="log" id="log-list"></ul>
@@ -203,9 +263,27 @@
 
     <!-- VIEW 3: ANALYTICS -->
     <section id="view-analytics" class="tab-view" hidden>
+      <!-- Dynamic Sliding Macro Trend & History Chart -->
       <div class="card-panel">
-        <h2>Macro Breakdown</h2>
-        <p class="panel-subtitle">Today's macronutrient distribution</p>
+        <div class="section-title-row">
+          <h2>Macro Trends & History</h2>
+          <div class="history-nav-controls">
+            <button type="button" class="history-nav-btn" id="history-prev-week-btn" aria-label="Previous week">‹ Prev</button>
+            <span class="history-nav-label" id="history-week-range-label">This Week</span>
+            <button type="button" class="history-nav-btn" id="history-next-week-btn" aria-label="Next week" disabled>Next ›</button>
+          </div>
+        </div>
+        <p class="panel-subtitle">Tap any day bar to view detailed macronutrient breakdown below</p>
+
+        <div class="trend-chart margin-top" id="weekly-chart"></div>
+      </div>
+
+      <div class="card-panel margin-top" id="analytics-macro-breakdown-card">
+        <div class="section-title-row">
+          <h2 id="analytics-selected-day-title">Today's Macro Breakdown</h2>
+          <button type="button" class="quick-add-link" id="copy-selected-day-btn">📋 Copy Day</button>
+        </div>
+        <p class="panel-subtitle" id="analytics-selected-day-subtitle">Macronutrient distribution and logged items</p>
 
         <div class="macro-stacked-track">
           <div class="macro-stacked-fill p-part" id="macro-part-p"></div>
@@ -239,18 +317,9 @@
             <span class="macro-card-pct" id="legend-f-text">0%</span>
           </div>
         </div>
-      </div>
 
-      <div class="card-panel margin-top">
-        <h2>7-Day History Trend</h2>
-        <div class="trend-chart" id="weekly-chart"></div>
-      </div>
-
-      <div class="card-panel margin-top">
-        <div class="section-title-row">
-          <h2>Past Days</h2>
-        </div>
-        <ul class="history-list" id="history-list"></ul>
+        <!-- Selected Day Entry Details -->
+        <ul class="history-entries margin-top-sm" id="analytics-selected-day-entries" style="display: flex; flex-direction: column;"></ul>
       </div>
     </section>
 
@@ -344,17 +413,43 @@
 
         <div class="bmr-result-box" id="bmr-result-box" hidden>
           <div class="bmr-stat-row">
-            <span>BMR (Basal Metabolic Rate):</span>
+            <span>BMR (Formula):</span>
             <strong id="bmr-val">0 kcal</strong>
           </div>
           <div class="bmr-stat-row">
-            <span>TDEE (Daily Energy Burned):</span>
+            <span>Formula TDEE:</span>
             <strong id="tdee-val">0 kcal</strong>
           </div>
-          <p class="panel-subtitle margin-top-sm">
-            Use TDEE as your energy baseline reference. Add exercises under "Log burned" on Today's view to expand your daily allowance!
+          <div class="bmr-stat-row margin-top-sm" style="border-top: 1px dashed var(--border); padding-top: 8px;">
+            <span>Adaptive TDEE (Real Burn):</span>
+            <strong id="settings-adaptive-tdee-val" style="color: var(--ios-blue);">-- kcal</strong>
+          </div>
+          <p class="panel-subtitle margin-top-sm" id="settings-adaptive-tdee-subtitle">
+            Calculated energy expenditure based on 14-day weight trend and calorie logs.
           </p>
-          <button type="button" class="apply-tdee-btn" id="apply-tdee-btn">Set TDEE as Daily Calorie Goal</button>
+          <div class="goal-form-actions margin-top-sm">
+            <button type="button" class="apply-tdee-btn" id="apply-adaptive-tdee-btn">Sync Adaptive TDEE as Goal</button>
+            <button type="button" class="apply-tdee-btn" id="apply-tdee-btn" style="background: var(--surface-elevated); color: var(--text);">Use Formula TDEE</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel margin-top">
+        <h2>Week Configuration</h2>
+        <p class="panel-subtitle">Customize start day for weekly budgets and rollover</p>
+        <div class="goal-form">
+          <label class="goal-field goal-field-full">
+            First Day of the Week
+            <select id="start-day-select">
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+              <option value="0">Sunday</option>
+            </select>
+          </label>
         </div>
       </div>
 
