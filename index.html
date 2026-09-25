@@ -184,9 +184,20 @@
 
       <div class="section-title-row">
         <h2>Today's Food Log</h2>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="quick-add-link" id="batch-toggle-btn">Batch Select</button>
           <button type="button" class="quick-add-link" id="clear-day-btn">Clear All</button>
           <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        </div>
+      </div>
+
+      <!-- Batch Actions Bar -->
+      <div class="batch-actions-bar" id="batch-actions-bar" hidden>
+        <span class="batch-selected-count" id="batch-selected-count">0 items selected</span>
+        <div class="batch-btn-group">
+          <button type="button" class="batch-btn batch-copy-btn" id="batch-copy-btn">Copy Selected</button>
+
+          <button type="button" class="batch-btn batch-delete-btn" id="batch-delete-btn">Delete Selected</button>
         </div>
       </div>
 
@@ -252,20 +263,27 @@
 
     <!-- VIEW 3: ANALYTICS -->
     <section id="view-analytics" class="tab-view" hidden>
-        <!-- Dynamic Macro Trend & History Chart -->
+      <!-- Dynamic Sliding Macro Trend & History Chart -->
       <div class="card-panel">
         <div class="section-title-row">
-            <h2>Macro Trends & History</h2>
-            <span class="badge-pill">Interactive</span>
+          <h2>Macro Trends & History</h2>
+          <div class="history-nav-controls">
+            <button type="button" class="history-nav-btn" id="history-prev-week-btn" aria-label="Previous week">‹ Prev</button>
+            <span class="history-nav-label" id="history-week-range-label">This Week</span>
+            <button type="button" class="history-nav-btn" id="history-next-week-btn" aria-label="Next week" disabled>Next ›</button>
+          </div>
         </div>
-          <p class="panel-subtitle">Tap any day bar to view detailed macronutrient breakdown</p>
+        <p class="panel-subtitle">Tap any day bar to view detailed macronutrient breakdown below</p>
 
-          <div class="trend-chart margin-top" id="weekly-chart"></div>
+        <div class="trend-chart margin-top" id="weekly-chart"></div>
       </div>
 
-        <div class="card-panel margin-top" id="analytics-macro-breakdown-card">
+      <div class="card-panel margin-top" id="analytics-macro-breakdown-card">
+        <div class="section-title-row">
           <h2 id="analytics-selected-day-title">Today's Macro Breakdown</h2>
-        <p class="panel-subtitle">Today's macronutrient distribution</p>
+          <button type="button" class="quick-add-link" id="copy-selected-day-btn">📋 Copy Day</button>
+        </div>
+        <p class="panel-subtitle" id="analytics-selected-day-subtitle">Macronutrient distribution and logged items</p>
 
         <div class="macro-stacked-track">
           <div class="macro-stacked-fill p-part" id="macro-part-p"></div>
@@ -299,14 +317,9 @@
             <span class="macro-card-pct" id="legend-f-text">0%</span>
           </div>
         </div>
-      </div>
 
-
-      <div class="card-panel margin-top">
-        <div class="section-title-row">
-          <h2>Past Days</h2>
-        </div>
-        <ul class="history-list" id="history-list"></ul>
+        <!-- Selected Day Entry Details -->
+        <ul class="history-entries margin-top-sm" id="analytics-selected-day-entries" style="display: flex; flex-direction: column;"></ul>
       </div>
     </section>
 

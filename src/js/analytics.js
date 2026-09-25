@@ -2,7 +2,8 @@
 import { computeTotals, round, loadGoal, saveGoal, dateKey, loadEntriesForKey, LOG_KEY_PREFIX, todayKey, loadSettings } from "./storage.js";
 import { calculateAdaptiveTDEE } from "./body-profile.js";
 
-let selectedDayIndex = 0; // 0 = Today, 1 = Yesterday, etc.
+let historyWeekOffset = 0; // 0 = Current Week, 1 = Previous Week, etc.
+let selectedDayInWeek = 6; // 0..6 index within the displayed 7-day week (6 = default to rightmost day)
 
 export function renderWeeklyBudget() {
   const weeklyCalsConsumedEl = document.getElementById("weekly-cals-consumed");
@@ -115,32 +116,6 @@ export function renderWeeklyBudget() {
   }
 }
 
-export function renderAdaptiveTDEECard() {
-  const adaptiveTdeeVal = document.getElementById("adaptive-tdee-val");
-  const adaptiveTdeeSubtitle = document.getElementById("adaptive-tdee-subtitle");
-  const applyAdaptiveTdeeBtn = document.getElementById("apply-adaptive-tdee-btn");
-
-  const result = calculateAdaptiveTDEE();
-  if (adaptiveTdeeVal) adaptiveTdeeVal.textContent = `${result.adaptiveTDEE} kcal`;
-
-  if (adaptiveTdeeSubtitle) {
-    if (result.isEstimate) {
-      adaptiveTdeeSubtitle.textContent = `Formula baseline (Log ${3 - result.loggedDays} more days and 2 weight entries for dynamic TDEE)`;
-    } else {
-      adaptiveTdeeSubtitle.textContent = `Based on ${result.loggedDays} log days & ${result.weightChangeKg >= 0 ? "+" : ""}${result.weightChangeKg} kg weight trend`;
-    }
-  }
-
-  if (applyAdaptiveTdeeBtn) {
-    applyAdaptiveTdeeBtn.onclick = () => {
-      const currentGoal = loadGoal();
-      saveGoal({ ...currentGoal, calories: result.adaptiveTDEE });
-      alert(`Daily Calorie Goal set to Adaptive TDEE: ${result.adaptiveTDEE} kcal!`);
-      renderWeeklyBudget();
-    };
-  }
-}
-
 export function renderAnalytics(entries) {
   renderWeeklyBudget();
 
@@ -155,14 +130,76 @@ export function renderAnalytics(entries) {
   const analyticsFatVal = document.getElementById("analytics-fat-val");
   const weeklyChart = document.getElementById("weekly-chart");
   const selectedDayTitle = document.getElementById("analytics-selected-day-title");
+  const selectedDayEntriesList = document.getElementById("analytics-selected-day-entries");
+  const copySelectedDayBtn = document.getElementById("copy-selected-day-btn");
+
+  const prevWeekBtn = document.getElementById("history-prev-week-btn");
+  const nextWeekBtn = document.getElementById("history-next-week-btn");
+  const weekRangeLabel = document.getElementById("history-week-range-label");
+
+  if (prevWeekBtn) {
+    prevWeekBtn.onclick = () => {
+      historyWeekOffset++;
+      renderAnalytics(entries);
+    };
+  }
+  if (nextWeekBtn) {
+    nextWeekBtn.disabled = historyWeekOffset <= 0;
+    nextWeekBtn.onclick = () => {
+      if (historyWeekOffset > 0) {
+        historyWeekOffset--;
+        renderAnalytics(entries);
+      }
+    };
+  }
 
   const today = new Date();
-  const selectedDate = new Date(today);
-  selectedDate.setDate(today.getDate() - selectedDayIndex);
+  const daysWindowEnd = new Date(today);
+  daysWindowEnd.setDate(today.getDate() - historyWeekOffset * 7);
 
-  const key = dateKey(selectedDate);
-  const dayEntries = selectedDayIndex === 0 ? entries : loadEntriesForKey(key);
-  const totals = computeTotals(dayEntries);
+  if (weekRangeLabel) {
+    if (historyWeekOffset === 0) {
+      weekRangeLabel.textContent = "This Week";
+    } else if (historyWeekOffset === 1) {
+      weekRangeLabel.textContent = "Last Week";
+    } else {
+      weekRangeLabel.textContent = `${historyWeekOffset} Weeks Ago`;
+    }
+  }
+
+  const days7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(daysWindowEnd);
+    d.setDate(daysWindowEnd.getDate() - i);
+    days7.push(d);
+  }
+
+  const selectedDate = days7[selectedDayInWeek] || days7[6];
+  const selectedKey = dateKey(selectedDate);
+  const isSelectedToday = selectedDate.toDateString() === today.toDateString();
+  const selectedEntries = isSelectedToday ? entries : loadEntriesForKey(selectedKey);
+
+  if (selectedDayTitle) {
+    selectedDayTitle.textContent = isSelectedToday
+      ? "Today's Macro Breakdown"
+      : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
+  }
+
+  if (copySelectedDayBtn) {
+    copySelectedDayBtn.onclick = () => {
+      if (selectedEntries.length === 0) {
+        alert("No entries to copy for this day.");
+        return;
+      }
+      const currentTodayEntries = loadEntriesForKey(todayKey());
+      const cloned = selectedEntries.map((item) => ({ ...item, id: crypto.randomUUID() }));
+      localStorage.setItem(todayKey(), JSON.stringify([...currentTodayEntries, ...cloned]));
+      alert(`Copied ${selectedEntries.length} items to Today's log!`);
+      window.location.reload();
+    };
+  }
+
+  const totals = computeTotals(selectedEntries);
   const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
 
   if (selectedDayTitle) {
@@ -194,17 +231,46 @@ export function renderAnalytics(entries) {
     if (legendFText) legendFText.textContent = "0%";
   }
 
+  // Selected Day Items List
+  if (selectedDayEntriesList) {
+    selectedDayEntriesList.innerHTML = "";
+    if (selectedEntries.length === 0) {
+      const emptyLi = document.createElement("li");
+      emptyLi.className = "empty-state";
+      emptyLi.style.padding = "12px";
+      emptyLi.textContent = "No logged items for this date.";
+      selectedDayEntriesList.appendChild(emptyLi);
+    } else {
+      [...selectedEntries].reverse().forEach((entry) => {
+        const li = document.createElement("li");
+        li.className = "history-entry";
+        li.style.padding = "6px 0";
+
+        const desc = document.createElement("span");
+        desc.className = "history-entry-desc";
+        desc.textContent = entry.description;
+
+        const cals = document.createElement("span");
+        cals.className = "history-entry-cals";
+        cals.textContent = `${Math.round(entry.calories)} kcal`;
+
+        li.appendChild(desc);
+        li.appendChild(cals);
+        selectedDayEntriesList.appendChild(li);
+      });
+    }
+  }
+
   // Interactive 7-day macro-stacked trend chart
   if (!weeklyChart) return;
   weeklyChart.innerHTML = "";
   const goal = loadGoal();
   const goalCals = goal.calories || 2000;
 
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
+  days7.forEach((d, index) => {
     const k = dateKey(d);
-    const items = i === 0 ? entries : loadEntriesForKey(k);
+    const isToday = d.toDateString() === today.toDateString();
+    const items = isToday ? entries : loadEntriesForKey(k);
     const dayTotals = computeTotals(items);
     const cals = Math.round(dayTotals.calories);
 
@@ -218,10 +284,9 @@ export function renderAnalytics(entries) {
     valLabel.textContent = cals > 0 ? cals : "";
 
     const fill = document.createElement("div");
-    fill.className = `bar-col-fill ${i === selectedDayIndex ? "active-day" : ""}`;
+    fill.className = `bar-col-fill ${index === selectedDayInWeek ? "active-day" : ""}`;
     fill.style.height = `${Math.max(6, heightPct)}%`;
 
-    // Stacked Macro segments inside bar
     const dayMacroGrams = dayTotals.protein + dayTotals.carbs + dayTotals.fat;
     if (dayMacroGrams > 0) {
       const pSegment = document.createElement("div");
@@ -242,133 +307,22 @@ export function renderAnalytics(entries) {
     }
 
     fill.addEventListener("click", () => {
-      selectedDayIndex = i;
+      selectedDayInWeek = index;
       renderAnalytics(entries);
     });
 
     const dayName = d.toLocaleDateString(undefined, { weekday: "short" });
     const dayLabel = document.createElement("span");
     dayLabel.className = "bar-col-label";
-    dayLabel.textContent = i === 0 ? "Today" : dayName;
+    dayLabel.textContent = isToday ? "Today" : dayName;
 
     barCol.appendChild(valLabel);
     barCol.appendChild(fill);
     barCol.appendChild(dayLabel);
     weeklyChart.appendChild(barCol);
-  }
-}
-
-function formatDayLabel(key) {
-  const [, y, m, d] = key.match(/^kcal-log-(\d{4})-(\d{2})-(\d{2})$/);
-  const date = new Date(Number(y), Number(m) - 1, Number(d));
-  return date.toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
   });
-}
-
-function getHistoryKeys() {
-  const keys = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith(LOG_KEY_PREFIX) && key !== todayKey()) {
-      keys.push(key);
-    }
-  }
-  return keys.sort().reverse();
 }
 
 export function renderHistory() {
-  const historyList = document.getElementById("history-list");
-  if (!historyList) return;
-
-  historyList.innerHTML = "";
-  const keys = getHistoryKeys();
-
-  if (keys.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "empty-state";
-    empty.textContent = "No past days yet.";
-    historyList.appendChild(empty);
-    return;
-  }
-
-  keys.forEach((key) => {
-    const dayEntries = loadEntriesForKey(key);
-    if (dayEntries.length === 0) return;
-
-    const totals = computeTotals(dayEntries);
-
-    const li = document.createElement("li");
-    li.className = "history-day";
-
-    const header = document.createElement("button");
-    header.className = "history-day-header";
-    header.type = "button";
-
-    const dateSpan = document.createElement("span");
-    dateSpan.className = "history-day-date";
-    dateSpan.textContent = formatDayLabel(key);
-
-    const rightSide = document.createElement("div");
-    rightSide.className = "history-day-summary";
-    rightSide.innerHTML = `<span class="history-day-cals">${Math.round(
-      totals.calories
-    )} kcal</span><span class="history-day-macros">P ${round(
-      totals.protein
-    )}g · C ${round(totals.carbs)}g · F ${round(totals.fat)}g</span><span class="history-chevron">›</span>`;
-
-    header.appendChild(dateSpan);
-    header.appendChild(rightSide);
-
-    const entriesList = document.createElement("ul");
-    entriesList.className = "history-entries";
-    entriesList.hidden = true;
-
-    const copyDayBtn = document.createElement("button");
-    copyDayBtn.type = "button";
-    copyDayBtn.className = "fav-add-btn";
-    copyDayBtn.style.marginTop = "8px";
-    copyDayBtn.style.width = "100%";
-    copyDayBtn.textContent = "📋 Copy Entire Day to Today";
-    copyDayBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const currentToday = loadEntriesForKey(todayKey());
-      const newEntries = dayEntries.map((item) => ({
-        ...item,
-        id: crypto.randomUUID(),
-      }));
-      localStorage.setItem(todayKey(), JSON.stringify([...currentToday, ...newEntries]));
-      alert(`Copied ${dayEntries.length} items to Today's log!`);
-      window.location.reload();
-    });
-
-    [...dayEntries].reverse().forEach((entry) => {
-      const entryLi = document.createElement("li");
-      entryLi.className = "history-entry";
-
-      const desc = document.createElement("span");
-      desc.className = "history-entry-desc";
-      desc.textContent = entry.description;
-
-      const cals = document.createElement("span");
-      cals.className = "history-entry-cals";
-      cals.textContent = Math.round(entry.calories);
-
-      entryLi.appendChild(desc);
-      entryLi.appendChild(cals);
-      entriesList.appendChild(entryLi);
-    });
-
-    entriesList.appendChild(copyDayBtn);
-
-    header.addEventListener("click", () => {
-      entriesList.hidden = !entriesList.hidden;
-    });
-
-    li.appendChild(header);
-    li.appendChild(entriesList);
-    historyList.appendChild(li);
-  });
+  // History is now dynamically navigated inside the sliding Macro Trends & History card
 }

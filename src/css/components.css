@@ -844,6 +844,83 @@
 
 .swap-result[hidden] { display: none; }
 
+/* Batch Actions Bar & Checkboxes */
+.batch-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface-alt);
+  padding: 10px 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+
+.batch-selected-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.batch-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.batch-btn {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.batch-copy-btn {
+  background: var(--surface-elevated);
+  color: var(--text);
+}
+
+.batch-delete-btn {
+  background: rgba(255, 69, 58, 0.15);
+  color: var(--ios-red, #ff3b30);
+}
+
+.log-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ios-blue, #007aff);
+  cursor: pointer;
+}
+
+/* History Navigation Controls */
+.history-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.history-nav-btn {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--ios-blue, #007aff);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.history-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.history-nav-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
 /* Badge Pills */
 .badge-pill {
   display: inline-block;
