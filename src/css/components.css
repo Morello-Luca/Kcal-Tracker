@@ -597,10 +597,17 @@
   border-radius: 6px 6px 0 0;
   min-height: 4px;
   transition: height 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: hidden;
 }
 
-.bar-col-fill.active-day { background: var(--accent); }
-.bar-col-fill.over-goal { background: var(--danger); }
+.macro-stack-p { background: var(--ios-green, #34c759); }
+.macro-stack-c { background: var(--ios-blue, #007aff); }
+.macro-stack-f { background: var(--ios-orange, #ff9500); }
+
+.bar-col-fill.active-day { outline: 2px solid var(--accent); }
 
 .bar-col-label {
   font-size: 0.7rem;
