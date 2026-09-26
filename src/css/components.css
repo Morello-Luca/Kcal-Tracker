@@ -116,6 +116,255 @@
   font-weight: 500;
 }
 
+/* Neumorphic Pill Toggle Switch (Modeled After Reference Image) */
+.tdee-mode-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  padding: 4px 8px 4px 12px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-inset);
+  border: 1px solid var(--border-soft);
+}
+
+.tdee-switch-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 62px;
+}
+
+.neu-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.neu-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neu-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--bg);
+  box-shadow: var(--shadow-inset);
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.neu-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--surface);
+  box-shadow: var(--shadow-raised);
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.neu-toggle-switch input:checked + .neu-toggle-slider {
+  background-color: var(--bg);
+}
+
+.neu-toggle-switch input:checked + .neu-toggle-slider:before {
+  transform: translateX(20px);
+  background-color: var(--accent);
+}
+
+/* Weight Tracker Card & Pills */
+.weight-log-card {
+  background: var(--bg);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-raised);
+  border: 1px solid var(--border-soft);
+}
+
+.card-inline-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.icon-inline {
+  width: 18px;
+  height: 18px;
+  stroke: var(--accent);
+}
+
+.quick-weight-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* Neumorphic Reference Card Styling (Modeled verbatim after image.png) */
+.neu-reference-card {
+  padding: 20px;
+  background: var(--bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.neu-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neu-card-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.neu-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+  transition: var(--transition);
+}
+
+.neu-icon-btn:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.96);
+}
+
+.neu-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Inset Neumorphic Track & Thumb */
+.neu-slider-track {
+  width: 100%;
+  height: 28px;
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--shadow-inset);
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+}
+
+.neu-slider-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  box-shadow: var(--shadow-raised);
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 0.3s ease;
+}
+
+/* Footer Row with Input & Plus Button */
+.neu-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.neu-input-wrapper {
+  flex: 1;
+}
+
+.neu-input-wrapper input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  background: var(--bg);
+  box-shadow: var(--shadow-inset);
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.neu-plus-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: none;
+  background: var(--bg);
+  box-shadow: var(--shadow-raised);
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.neu-plus-btn:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.96);
+}
+
+.weight-trend-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.weight-trend-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 3px 8px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-inset);
+}
+
+.weight-history-pills {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.weight-pill {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: var(--shadow-inset);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.weight-pill.has-val {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .goal-edit-btn {
   background: none;
   border: none;
@@ -345,6 +594,82 @@
   transform: scale(1.08);
 }
 
+/* Enhanced Prominent AI Food Input Form */
+.ai-entry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ai-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg);
+  box-shadow: var(--shadow-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.ai-input-wrapper textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-family: inherit;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.ai-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-end;
+  background: var(--bg);
+  box-shadow: var(--shadow-raised);
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-add-btn:active {
+  box-shadow: var(--shadow-pressed);
+}
+
+.action-svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--text-dim);
+  transition: stroke 0.15s ease;
+}
+
+.action-card:hover .action-svg, .action-card:active .action-svg {
+  stroke: var(--accent);
+}
+
+.glass-svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-dim);
+}
+
+.water-glass.filled .glass-svg {
+  stroke: var(--accent);
+  fill: rgba(59, 114, 185, 0.2);
+}
+
 /* Search Forms */
 .entry-form {
   display: flex;
@@ -352,7 +677,7 @@
   margin-bottom: 12px;
 }
 
-#food-input, #swap-input {
+#swap-input {
   flex: 1;
   padding: 12px 16px;
   border-radius: 14px;
@@ -855,6 +1180,10 @@
   margin-bottom: 10px;
 }
 
+.batch-actions-bar[hidden] {
+  display: none !important;
+}
+
 .batch-selected-count {
   font-size: 0.8rem;
   font-weight: 600;
@@ -919,6 +1248,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-dim);
+  white-space: nowrap;
 }
 
 /* Badge Pills */

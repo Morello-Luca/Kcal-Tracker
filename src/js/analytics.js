@@ -13,11 +13,17 @@ export function renderWeeklyBudget() {
   const weeklyRolloverStatus = document.getElementById("weekly-rollover-status");
   const weeklySubtitle = document.getElementById("weekly-budget-range-subtitle");
   const flexibleWeeklyChart = document.getElementById("flexible-weekly-chart");
+  const weeklyBudgetBadge = document.getElementById("weekly-budget-badge");
 
   const settings = loadSettings();
   const goal = loadGoal();
   const dailyGoal = goal.calories || 2000;
   const weeklyBudget = dailyGoal * 7;
+
+  if (weeklyBudgetBadge) {
+    const mode = localStorage.getItem("kcal-tdee-mode") === "adaptive" ? "Adaptive TDEE" : "Standard TDEE";
+    weeklyBudgetBadge.textContent = `${mode} (${dailyGoal} kcal/day)`;
+  }
 
   const today = new Date();
   const currentDayOfWeek = today.getDay(); // 0 = Sun, 1 = Mon ...
@@ -203,7 +209,7 @@ export function renderAnalytics(entries) {
   const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
 
   if (selectedDayTitle) {
-    selectedDayTitle.textContent = selectedDayIndex === 0 ? "Today's Macro Breakdown" : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
+    selectedDayTitle.textContent = isSelectedToday ? "Today's Macro Breakdown" : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
   }
 
   if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;

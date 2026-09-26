@@ -41,12 +41,14 @@ const totalFatEl = document.getElementById("total-fat");
 const navTodayBtn = document.getElementById("nav-today");
 const navLogBtn = document.getElementById("nav-log");
 const navAnalyticsBtn = document.getElementById("nav-analytics");
+const navBodyBtn = document.getElementById("nav-body");
 const navSwapBtn = document.getElementById("nav-swap");
 const navSettingsBtn = document.getElementById("nav-settings");
 
 const viewToday = document.getElementById("view-today");
 const viewLog = document.getElementById("view-log");
 const viewAnalytics = document.getElementById("view-analytics");
+const viewBody = document.getElementById("view-body");
 const viewSwap = document.getElementById("view-swap");
 const viewSettings = document.getElementById("view-settings");
 
@@ -224,14 +226,19 @@ function renderWater() {
   waterGlassesRow.innerHTML = "";
 
   for (let i = 1; i <= DEFAULT_WATER_GOAL; i++) {
-    const span = document.createElement("span");
-    span.className = `water-glass ${i <= count ? "filled" : ""}`;
-    span.textContent = "🥛";
-    span.addEventListener("click", () => {
+    const glass = document.createElement("div");
+    glass.className = `water-glass ${i <= count ? "filled" : ""}`;
+    glass.innerHTML = `
+      <svg class="glass-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 2H6l1.2 18a2 2 0 0 0 2 2h5.6a2 2 0 0 0 2-2L18 2z"/>
+        <line x1="6" y1="6" x2="18" y2="6"/>
+      </svg>
+    `;
+    glass.addEventListener("click", () => {
       saveWater(i === count ? i - 1 : i);
       renderWater();
     });
-    waterGlassesRow.appendChild(span);
+    waterGlassesRow.appendChild(glass);
   }
 }
 
@@ -335,14 +342,34 @@ if (batchCopyBtn) {
   batchCopyBtn.addEventListener("click", () => {
     if (selectedEntryIds.size === 0) return;
     const selectedItems = entries.filter((e) => selectedEntryIds.has(e.id));
+
+    const targetOption = prompt(
+      "Copy selected items to:\n1 = Today\n2 = Yesterday\nOr type YYYY-MM-DD",
+      "1"
+    );
+    if (!targetOption) return;
+
+    let targetKey = todayKey();
+    if (targetOption.trim() === "2") {
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      targetKey = dateKey(y);
+    } else if (targetOption.trim().length === 10) {
+      targetKey = `kcal-log-${targetOption.trim()}`;
+    }
+
+    const existingTargetLog = loadEntriesForKey(targetKey);
     const duplicates = selectedItems.map((item) => ({ ...item, id: crypto.randomUUID() }));
-    entries.push(...duplicates);
-    saveEntries(entries);
+    localStorage.setItem(targetKey, JSON.stringify([...existingTargetLog, ...duplicates]));
+
     isBatchMode = false;
+    selectedEntryIds.clear();
     if (batchActionsBar) batchActionsBar.hidden = true;
     if (batchToggleBtn) batchToggleBtn.textContent = "Batch Select";
+
+    entries = loadEntries();
     renderApp();
-    showToast(`Copied ${selectedItems.length} items`);
+    showToast(`Copied ${selectedItems.length} items!`);
   });
 }
 
@@ -600,6 +627,7 @@ function switchNavTab(targetTab) {
     today: viewToday,
     log: viewLog,
     analytics: viewAnalytics,
+    body: viewBody,
     swap: viewSwap,
     settings: viewSettings,
   };
@@ -607,6 +635,7 @@ function switchNavTab(targetTab) {
     today: navTodayBtn,
     log: navLogBtn,
     analytics: navAnalyticsBtn,
+    body: navBodyBtn,
     swap: navSwapBtn,
     settings: navSettingsBtn,
   };
@@ -628,6 +657,7 @@ function switchNavTab(targetTab) {
 if (navTodayBtn) navTodayBtn.addEventListener("click", () => switchNavTab("today"));
 if (navLogBtn) navLogBtn.addEventListener("click", () => switchNavTab("log"));
 if (navAnalyticsBtn) navAnalyticsBtn.addEventListener("click", () => switchNavTab("analytics"));
+if (navBodyBtn) navBodyBtn.addEventListener("click", () => switchNavTab("body"));
 if (navSwapBtn) navSwapBtn.addEventListener("click", () => switchNavTab("swap"));
 if (navSettingsBtn) navSettingsBtn.addEventListener("click", () => switchNavTab("settings"));
 
