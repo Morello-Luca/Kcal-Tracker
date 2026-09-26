@@ -3,11 +3,7 @@ const THEME_KEY = "kcal-theme";
 
 export function applyTheme(themeName) {
   if (!themeName) return;
-  if (themeName === "neumorphic") {
-    document.documentElement.removeAttribute("data-theme");
-  } else {
-    document.documentElement.setAttribute("data-theme", themeName);
-  }
+  document.documentElement.setAttribute("data-theme", themeName);
   localStorage.setItem(THEME_KEY, themeName);
 
   const themeCards = document.querySelectorAll(".theme-card");
