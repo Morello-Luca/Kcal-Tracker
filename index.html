@@ -542,6 +542,48 @@
       </div>
     </section>
 
+    <!-- VERIFIED FOOD QUANTITY ADJUSTMENT CARD MODAL -->
+    <div class="modal-overlay" id="quantity-adjust-modal" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="quantity-modal-title">Verified Food Item</h2>
+          <button type="button" class="modal-close-btn" id="quantity-modal-close">&times;</button>
+        </div>
+        <p class="modal-hint" id="quantity-modal-source">Verified Database (100g standard)</p>
+
+        <form id="quantity-adjust-form" class="goal-form">
+          <label class="goal-field goal-field-full">
+            Quantity (<span id="quantity-unit-label">g</span>)
+            <input type="number" id="quantity-amount-input" min="1" max="5000" step="1" value="100" required />
+          </label>
+
+          <div class="verified-macro-preview margin-top-sm">
+            <div class="verified-macro-item">
+              <span class="verified-macro-val" id="quantity-cals-val">0</span>
+              <span class="verified-macro-lbl">kcal</span>
+            </div>
+            <div class="verified-macro-item">
+              <span class="verified-macro-val" id="quantity-protein-val">0g</span>
+              <span class="verified-macro-lbl">Protein</span>
+            </div>
+            <div class="verified-macro-item">
+              <span class="verified-macro-val" id="quantity-carbs-val">0g</span>
+              <span class="verified-macro-lbl">Carbs</span>
+            </div>
+            <div class="verified-macro-item">
+              <span class="verified-macro-val" id="quantity-fat-val">0g</span>
+              <span class="verified-macro-lbl">Fat</span>
+            </div>
+          </div>
+
+          <div class="goal-form-actions margin-top">
+            <button type="button" id="quantity-cancel-btn">Cancel</button>
+            <button type="submit" id="quantity-submit-btn" style="background:var(--ios-blue); color:#fff;">Log to Food Log</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- MANUAL QUICK-ADD / ADD FAVORITE MODAL -->
     <div class="modal-overlay" id="manual-add-modal" hidden>
       <div class="modal-panel">

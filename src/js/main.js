@@ -23,7 +23,7 @@ import { initBodyProfile } from "./body-profile.js";
 import { renderAnalytics, renderHistory } from "./analytics.js";
 import { initUIModals } from "./ui-modals.js";
 import { initVisionModule } from "./vision.js";
-import { getVerifiedFood100g, calculateMacrosForWeight } from "./verified-db.js";
+import { getVerifiedFood100g, calculateMacrosForWeight, parseAndSumVerifiedMeal } from "./verified-db.js";
 
 // Main DOM references
 const form = document.getElementById("entry-form");
@@ -593,13 +593,14 @@ if (addFavBtn) {
 }
 
 export function addEntryFromResult(description, result) {
+  const item = result.item || result;
   const entry = {
     id: crypto.randomUUID(),
-    description,
-    calories: Number(result.calories) || 0,
-    protein_g: Number(result.protein_g) || 0,
-    carbs_g: Number(result.carbs_g) || 0,
-    fat_g: Number(result.fat_g) || 0,
+    description: item.description || description,
+    calories: Number(item.calories) || 0,
+    protein_g: Number(item.protein_g) || 0,
+    carbs_g: Number(item.carbs_g) || 0,
+    fat_g: Number(item.fat_g) || 0,
   };
 
   entries.push(entry);
@@ -663,29 +664,39 @@ if (quickLogNavBtn) {
 }
 
 async function lookupFood(description, { final = false } = {}) {
-  // Check if description specifies exact grams (e.g., "150g chicken breast" or "chicken breast 150g")
-  const gramMatch = description.match(/(\d+)\s*(g|ml|gram|grams|milliliters)/i);
-  const gramAmount = gramMatch ? Number(gramMatch[1]) : null;
-  const cleanItem = description.replace(/(\d+)\s*(g|ml|gram|grams|milliliters)/i, "").trim();
+  // Check if description is a simple single food item
+  const isMultiItemOrSentence = /[,;\n]|\b(and|with|plus|\+)\b/i.test(description) || description.split(/\s+/).length > 4;
 
-  // Try verified 100g/mL local & Open Food Facts database first
-  const verified = await getVerifiedFood100g(cleanItem || description);
-  if (verified) {
-    const targetGrams = gramAmount || 100; // Default to 100g standard if weight not specified
-    const calculated = calculateMacrosForWeight(verified, targetGrams);
+  if (!isMultiItemOrSentence) {
+    const gramMatch = description.match(/(\d+)\s*(g|ml|gram|grams|milliliters)/i);
+    const gramAmount = gramMatch ? Number(gramMatch[1]) : 100;
+    const cleanItem = description.replace(/(\d+)\s*(g|ml|gram|grams|milliliters)/i, "").trim();
+
+    const singleVerified = await getVerifiedFood100g(cleanItem || description);
+    if (singleVerified) {
+      if (modalControllers && typeof modalControllers.openQuantityAdjustModal === "function") {
+        modalControllers.openQuantityAdjustModal(singleVerified, gramAmount);
+        return { type: "modal_opened" };
+      }
+    }
+  }
+
+  // Try multi-item verified local & Open Food Facts database parsing
+  const verifiedMeal = await parseAndSumVerifiedMeal(description);
+  if (verifiedMeal) {
     return {
       type: "result",
       item: {
-        description: `${verified.name} (${targetGrams}${verified.unit}) [Verified ${verified.source}]`,
-        calories: calculated.calories,
-        protein_g: calculated.protein_g,
-        carbs_g: calculated.carbs_g,
-        fat_g: calculated.fat_g,
+        description: verifiedMeal.description,
+        calories: verifiedMeal.calories,
+        protein_g: verifiedMeal.protein_g,
+        carbs_g: verifiedMeal.carbs_g,
+        fat_g: verifiedMeal.fat_g,
       },
     };
   }
 
-  // Fallback to serverless API lookup
+  // Pass multi-item meals, complex sentences, or unlisted foods to the serverless AI/LLM endpoint
   const params = new URLSearchParams({ food: description });
   if (final) params.set("final", "true");
 
@@ -748,6 +759,12 @@ if (form) {
 
     try {
       const result = await lookupFood(description);
+
+      if (result.type === "modal_opened") {
+        setStatus("");
+        input.value = "";
+        return;
+      }
 
       if (result.type === "clarify") {
         setStatus("");

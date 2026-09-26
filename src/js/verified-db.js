@@ -70,10 +70,12 @@ export function searchLocalVerifiedFood(query) {
     }
   }
 
-  // Partial match
-  for (const item of VERIFIED_LOCAL_FOODS) {
-    if (item.keywords.some(k => clean.includes(k.toLowerCase()) || k.toLowerCase().includes(clean))) {
-      return item;
+  // Only attempt strict keyword match for concise queries (up to 4 words)
+  if (clean.split(/\s+/).length <= 4) {
+    for (const item of VERIFIED_LOCAL_FOODS) {
+      if (item.keywords.some(k => new RegExp(`\\b${k}\\b`, "i").test(clean))) {
+        return item;
+      }
     }
   }
 
@@ -154,5 +156,62 @@ export function calculateMacrosForWeight(verifiedItem, gramsOrMl) {
     fat_g: Math.round(verifiedItem.per100g.fat_g * factor * 10) / 10,
     verified: true,
     unit: verifiedItem.unit,
+  };
+}
+
+/**
+ * Parse a multi-item or comma-separated food prompt and calculate total combined verified macros.
+ * e.g. "150g chicken breast", "200g cooked pasta", "10ml olive oil", "apple"
+ * @param {string} prompt
+ * @returns {Promise<object|null>}
+ */
+export async function parseAndSumVerifiedMeal(prompt) {
+  if (!prompt || typeof prompt !== "string") return null;
+
+  // Split by comma, semicolons, quotes, or newlines
+  const rawParts = prompt.split(/[,;\n"']+/).map(p => p.trim()).filter(Boolean);
+  if (rawParts.length === 0) return null;
+
+  const matchedItems = [];
+  let totalCalories = 0;
+  let totalProtein = 0;
+  let totalCarbs = 0;
+  let totalFat = 0;
+
+  for (const part of rawParts) {
+    const gramMatch = part.match(/(\d+)\s*(g|ml|gram|grams|milliliters)/i);
+    const gramAmount = gramMatch ? Number(gramMatch[1]) : null;
+    const cleanItem = part.replace(/(\d+)\s*(g|ml|gram|grams|milliliters)/i, "").trim();
+
+    const verified = await getVerifiedFood100g(cleanItem || part);
+    if (verified) {
+      const targetGrams = gramAmount || 100;
+      const macros = calculateMacrosForWeight(verified, targetGrams);
+      matchedItems.push({
+        name: verified.name,
+        grams: targetGrams,
+        unit: verified.unit,
+        macros,
+      });
+
+      totalCalories += macros.calories;
+      totalProtein += macros.protein_g;
+      totalCarbs += macros.carbs_g;
+      totalFat += macros.fat_g;
+    }
+  }
+
+  if (matchedItems.length === 0) return null;
+
+  const summaryDesc = matchedItems.map(i => `${i.name} (${i.grams}${i.unit})`).join(", ");
+
+  return {
+    description: `${summaryDesc} [Verified DB]`,
+    calories: Math.round(totalCalories),
+    protein_g: Math.round(totalProtein * 10) / 10,
+    carbs_g: Math.round(totalCarbs * 10) / 10,
+    fat_g: Math.round(totalFat * 10) / 10,
+    matchedCount: matchedItems.length,
+    totalParts: rawParts.length,
   };
 }
