@@ -1,9 +1,9 @@
-/* Modals & Camera/Barcode Scanner Styles */
+/* Neumorphic Modals & Camera/Barcode Scanner Styles */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -20,95 +20,76 @@
 .modal-panel {
   width: 100%;
   max-width: 430px;
-  max-height: 85vh;
+  max-height: 88vh;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--surface);
-  border-radius: 28px 28px 0 0;
-  padding: 12px 20px 28px;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  border-radius: 32px 32px 0 0;
+  padding: 14px 22px 32px;
+  box-shadow: var(--shadow-raised-lg);
+  border-top: 1px solid var(--border);
   position: relative;
   box-sizing: border-box;
 }
 
-/* Modal Grab Handle */
+/* Neumorphic Modal Grab Handle */
 .modal-panel::before {
   content: "";
   display: block;
-  width: 36px;
+  width: 40px;
   height: 5px;
-  background: var(--text-dim);
-  opacity: 0.4;
+  background: var(--surface);
+  box-shadow: var(--shadow-inset);
   border-radius: 999px;
-  margin: 4px auto 16px;
+  margin: 4px auto 18px;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
+  color: var(--text);
 }
 
 .modal-close-btn {
-  background: var(--surface-alt);
-  border: none;
+  background: var(--surface);
+  box-shadow: var(--shadow-raised-sm);
+  border: 1px solid var(--border);
   color: var(--text-dim);
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-close-btn:active {
+  box-shadow: var(--shadow-pressed);
 }
 
 .macro-edit-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-}
-
-.mode-toggle-group {
-  display: flex;
-  gap: 4px;
-  background: var(--surface-alt);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 12px;
-  width: 100%;
-}
-
-.mode-btn {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.mode-btn.active {
-  background: var(--surface-elevated);
-  color: var(--text);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 #barcode-reader {
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   background: #000;
+  box-shadow: var(--shadow-inset);
   min-height: 200px;
   width: 100%;
   max-width: 100%;
@@ -131,19 +112,22 @@
   margin: 12px 0;
   text-align: center;
   word-break: break-word;
+  font-weight: 500;
 }
 
 .modal-hint {
   font-size: 0.825rem;
   color: var(--text-dim);
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   word-break: break-word;
+  line-height: 1.45;
 }
 
 .modal-result-title {
   font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 6px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px;
   word-break: break-word;
 }
 
@@ -151,7 +135,7 @@
 #photo-camera .goal-form-actions,
 #photo-preview .goal-form-actions,
 #barcode-confirm .goal-form-actions {
-  margin-top: 6px;
+  margin-top: 8px;
   width: 100%;
 }
 
@@ -162,6 +146,7 @@
 #photo-add-btn {
   background: var(--ios-blue);
   color: #ffffff;
+  box-shadow: var(--shadow-raised-sm);
 }
 
 #photo-upload-btn,
@@ -169,7 +154,8 @@
 #photo-retake-btn,
 #barcode-cancel-confirm-btn,
 #photo-retry-btn {
-  background: var(--surface-alt);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised-sm);
   color: var(--text-dim);
 }
 
@@ -177,8 +163,9 @@
 #photo-preview-img {
   width: 100%;
   max-width: 100%;
-  border-radius: 16px;
+  border-radius: 20px;
   background: #000;
+  box-shadow: var(--shadow-inset);
   max-height: 35vh;
   object-fit: contain;
 }
@@ -191,7 +178,7 @@
 #barcode-fallback {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
