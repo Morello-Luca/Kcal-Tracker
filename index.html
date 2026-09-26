@@ -184,12 +184,12 @@
         </div>
       </div>
 
-      <div class="section-title-row">
+      <div class="section-title-row log-title-row">
         <h2>Today's Food Log</h2>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="quick-add-link" id="batch-toggle-btn">Batch Select</button>
-          <button type="button" class="quick-add-link" id="clear-day-btn">Clear All</button>
-          <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        <div class="log-actions-group">
+          <button type="button" class="quick-add-link" id="batch-toggle-btn">Select</button>
+          <button type="button" class="quick-add-link" id="clear-day-btn">Clear</button>
+          <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log</button>
         </div>
       </div>
 
@@ -197,8 +197,6 @@
       <div class="batch-actions-bar" id="batch-actions-bar" hidden>
         <span class="batch-selected-count" id="batch-selected-count">0 items selected</span>
         <div class="batch-btn-group">
-          <button type="button" class="batch-btn batch-copy-btn" id="batch-copy-btn">Copy Selected</button>
-
           <button type="button" class="batch-btn batch-delete-btn" id="batch-delete-btn">Delete Selected</button>
         </div>
       </div>
@@ -302,7 +300,6 @@
       <div class="card-panel margin-top" id="analytics-macro-breakdown-card">
         <div class="section-title-row">
           <h2 id="analytics-selected-day-title">Today's Macro Breakdown</h2>
-          <button type="button" class="quick-add-link" id="copy-selected-day-btn">📋 Copy Day</button>
         </div>
         <p class="panel-subtitle" id="analytics-selected-day-subtitle">Macronutrient distribution and logged items</p>
 
@@ -450,9 +447,6 @@
           <p class="panel-subtitle margin-top-sm" id="settings-adaptive-tdee-subtitle">
             Calculated energy expenditure based on weight trend and calorie logs.
           </p>
-          <div class="goal-form-actions margin-top-sm">
-            <button type="button" class="apply-tdee-btn" id="apply-adaptive-tdee-btn">Sync Goal to Active Mode</button>
-          </div>
         </div>
       </div>
     </section>
@@ -655,8 +649,21 @@
 
         <div id="photo-start">
           <div class="goal-form-actions">
-            <button type="button" id="photo-take-btn">📸 Take photo</button>
-            <button type="button" id="photo-upload-btn">🖼️ Choose from gallery</button>
+            <button type="button" id="photo-take-btn">
+              <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span>Take photo</span>
+            </button>
+            <button type="button" id="photo-upload-btn">
+              <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span>Choose from gallery</span>
+            </button>
           </div>
           <input type="file" accept="image/*" id="photo-file-input" hidden />
         </div>

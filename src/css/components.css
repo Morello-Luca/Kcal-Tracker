@@ -42,10 +42,36 @@
 .quick-add-link {
   background: none;
   border: none;
-  color: var(--ios-blue);
-  font-size: 0.88rem;
+  color: var(--accent);
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.log-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.log-title-row h2 {
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.log-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 /* iOS Fitness Hero Card */
@@ -857,24 +883,39 @@
   white-space: nowrap;
 }
 
-.remove-btn {
-  background: none;
+.neu-action-btn {
+  width: 32px;
+  height: 32px;
   border: none;
-  color: var(--text-dim);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 1.1rem;
+  background: var(--bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow-raised);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: var(--text-muted);
   flex-shrink: 0;
+  transition: var(--transition);
 }
 
-.remove-btn:hover {
-  color: var(--ios-red);
-  background: rgba(255, 69, 58, 0.15);
+.neu-action-btn:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.95);
+}
+
+.neu-action-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.neu-action-btn.is-fav {
+  color: #ffcc00;
+}
+
+.neu-action-btn.remove-action-btn:hover,
+.neu-action-btn.remove-action-btn:active {
+  color: var(--danger);
 }
 
 .empty-state {

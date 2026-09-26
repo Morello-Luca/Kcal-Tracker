@@ -322,20 +322,6 @@ export function initBodyProfile(renderGoal, renderAppCallback) {
     });
   }
 
-  const applyAdaptiveTdeeBtn = document.getElementById("apply-adaptive-tdee-btn");
-  if (applyAdaptiveTdeeBtn) {
-    applyAdaptiveTdeeBtn.addEventListener("click", () => {
-      const adaptiveRes = calculateAdaptiveTDEE();
-      const currentGoal = loadGoal();
-      saveGoal({ ...currentGoal, calories: adaptiveRes.adaptiveTDEE });
-      if (typeof renderAppCallback === "function") {
-        renderAppCallback();
-      } else if (typeof renderGoal === "function") {
-        renderGoal();
-      }
-      alert(`Daily Calorie Goal synced to Adaptive TDEE: ${adaptiveRes.adaptiveTDEE} kcal!`);
-    });
-  }
 
   renderWeightTracker();
   renderBodyProfile();
