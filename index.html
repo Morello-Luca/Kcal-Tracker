@@ -170,7 +170,9 @@
       <div class="water-card">
         <div class="water-header">
           <div class="water-title">
-            <span class="water-icon">💧</span>
+            <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
             <span>Water Intake</span>
           </div>
           <span class="water-status" id="water-status">0 / 8 glasses</span>
@@ -206,19 +208,29 @@
 
     <!-- VIEW 2: LOG & SCAN -->
     <section id="view-log" class="tab-view" hidden>
-      <div class="card-panel">
-        <h2>Log Food or Exercise</h2>
-        <p class="panel-subtitle">Type, scan a barcode, snap a photo, or manual entry</p>
+      <div class="card-panel ai-log-card">
+        <div class="section-title-row">
+          <h2>Log Food or Exercise</h2>
+          <span class="badge-pill">AI Powered</span>
+        </div>
+        <p class="panel-subtitle">Describe your meal, scan a barcode, snap a photo, or quick entry</p>
 
-        <form id="entry-form" class="entry-form">
-          <input
-            type="text"
-            id="food-input"
-            placeholder="What did you eat? e.g. 2 slices of pizza"
-            autocomplete="off"
-            required
-          />
-          <button type="submit" id="add-button">Add</button>
+        <form id="entry-form" class="entry-form ai-entry-form">
+          <div class="ai-input-wrapper">
+            <textarea
+              id="food-input"
+              rows="2"
+              placeholder="What did you eat? e.g. 2 eggs, sourdough toast, and an avocado coffee..."
+              autocomplete="off"
+              required
+            ></textarea>
+            <button type="submit" id="add-button" class="ai-add-btn">
+              <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+              <span>Log Meal</span>
+            </button>
+          </div>
         </form>
 
         <div class="clarify-panel" id="clarify-panel" hidden>
@@ -237,15 +249,24 @@
 
         <div class="action-grid">
           <button type="button" class="action-card" id="scan-barcode-btn">
-            <span class="action-icon">📷</span>
+            <svg class="action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+              <line x1="7" y1="8" x2="7" y2="16" /><line x1="10" y1="8" x2="10" y2="16" /><line x1="14" y1="8" x2="14" y2="16" /><line x1="17" y1="8" x2="17" y2="16" />
+            </svg>
             <span>Scan Barcode</span>
           </button>
           <button type="button" class="action-card" id="add-photo-btn">
-            <span class="action-icon">🖼️</span>
+            <svg class="action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
             <span>Take Photo</span>
           </button>
           <button type="button" class="action-card" id="manual-add-btn">
-            <span class="action-icon">✏️</span>
+            <svg class="action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
             <span>Manual Quick-Add</span>
           </button>
         </div>
@@ -339,40 +360,53 @@
       </div>
     </section>
 
-    <!-- VIEW 5: SETTINGS & PROFILE -->
-    <section id="view-settings" class="tab-view" hidden>
+    <!-- VIEW 5: BODY PROFILE & TDEE -->
+    <section id="view-body" class="tab-view" hidden>
       <div class="card-panel">
-        <h2>App Theme & Appearance</h2>
-        <p class="panel-subtitle">Select an elegant color palette</p>
-        <div class="theme-selector-grid">
-          <button type="button" class="theme-card active" data-theme="oled">
-            <span class="theme-preview oled-preview"></span>
-            <span class="theme-name">OLED Midnight</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="forest">
-            <span class="theme-preview forest-preview"></span>
-            <span class="theme-name">Forest Pastel</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="slate">
-            <span class="theme-preview slate-preview"></span>
-            <span class="theme-name">Slate Blue</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="sunset">
-            <span class="theme-preview sunset-preview"></span>
-            <span class="theme-name">Sunset Rose</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="sage">
-            <span class="theme-preview sage-preview"></span>
-            <span class="theme-name">Sage Clean</span>
-          </button>
+        <div class="section-title-row">
+          <h2>Body Profile & TDEE</h2>
+          <!-- Neumorphic Toggle Switch Modeled After Reference -->
+          <div class="tdee-mode-switch-wrapper">
+            <span class="tdee-switch-label" id="tdee-mode-text">Standard</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" id="tdee-mode-toggle" />
+              <span class="neu-toggle-slider"></span>
+            </label>
+          </div>
         </div>
-      </div>
+        <p class="panel-subtitle">Standard formula vs. dynamic weight-trend Adaptive TDEE</p>
 
-      <div class="card-panel margin-top">
-        <h2>Body Profile & BMR/TDEE</h2>
-        <p class="panel-subtitle">Calculate daily energy expenditure as reference</p>
+        <!-- Scale Weight Daily Logging Card (Neumorphic Card Style from Reference) -->
+        <div class="card-panel neu-reference-card margin-top-sm">
+          <div class="neu-card-header">
+            <h2>Weight Tracker</h2>
+            <button type="button" class="neu-icon-btn" id="simulate-weight-btn" aria-label="Simulate Data" title="Simulate 14-Day Weight Data">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          </div>
 
-        <form id="body-profile-form" class="goal-form">
+
+          <!-- Input Row & Scale Log -->
+          <form id="quick-weight-form" class="neu-card-footer margin-top-sm">
+            <div class="neu-input-wrapper">
+              <input type="number" id="quick-weight-input" min="20" max="300" step="0.1" placeholder="75.4" required />
+            </div>
+            <button type="submit" id="quick-weight-save-btn" class="neu-plus-btn" aria-label="Log Weight">+</button>
+          </form>
+
+          <div class="weight-summary-row margin-top-xs">
+            <span class="weight-trend-badge" id="body-weight-trend-badge">Trend: -- kg</span>
+          </div>
+
+          <!-- 7-Day Static Mini Grid (No Horizontal Scrollbar) -->
+          <div class="weight-mini-grid margin-top-sm" id="weight-history-pills"></div>
+        </div>
+
+        <form id="body-profile-form" class="goal-form margin-top">
           <label class="goal-field">
             Age
             <input type="number" id="body-age" min="10" max="120" placeholder="e.g. 28" />
@@ -422,17 +456,51 @@
           </div>
           <div class="bmr-stat-row margin-top-sm" style="border-top: 1px dashed var(--border); padding-top: 8px;">
             <span>Adaptive TDEE (Real Burn):</span>
-            <strong id="settings-adaptive-tdee-val" style="color: var(--ios-blue);">-- kcal</strong>
+            <strong id="settings-adaptive-tdee-val" style="color: var(--accent);">-- kcal</strong>
           </div>
           <p class="panel-subtitle margin-top-sm" id="settings-adaptive-tdee-subtitle">
-            Calculated energy expenditure based on 14-day weight trend and calorie logs.
+            Calculated energy expenditure based on weight trend and calorie logs.
           </p>
           <div class="goal-form-actions margin-top-sm">
-            <button type="button" class="apply-tdee-btn" id="apply-adaptive-tdee-btn">Sync Adaptive TDEE as Goal</button>
-            <button type="button" class="apply-tdee-btn" id="apply-tdee-btn" style="background: var(--surface-elevated); color: var(--text);">Use Formula TDEE</button>
+            <button type="button" class="apply-tdee-btn" id="apply-adaptive-tdee-btn">Sync Goal to Active Mode</button>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- VIEW 6: SETTINGS -->
+    <section id="view-settings" class="tab-view" hidden>
+      <div class="card-panel">
+        <h2>App Theme & Appearance</h2>
+        <p class="panel-subtitle">Select an elegant color palette</p>
+        <div class="theme-selector-grid">
+          <button type="button" class="theme-card active" data-theme="neumorphic">
+            <span class="theme-preview neumorphic-preview"></span>
+            <span class="theme-name">Soft Neumorphic</span>
+          </button>
+          <button type="button" class="theme-card" data-theme="oled">
+            <span class="theme-preview oled-preview"></span>
+            <span class="theme-name">OLED Midnight</span>
+          </button>
+          <button type="button" class="theme-card" data-theme="forest">
+            <span class="theme-preview forest-preview"></span>
+            <span class="theme-name">Forest Pastel</span>
+          </button>
+          <button type="button" class="theme-card" data-theme="slate">
+            <span class="theme-preview slate-preview"></span>
+            <span class="theme-name">Slate Blue</span>
+          </button>
+          <button type="button" class="theme-card" data-theme="sunset">
+            <span class="theme-preview sunset-preview"></span>
+            <span class="theme-name">Sunset Rose</span>
+          </button>
+          <button type="button" class="theme-card" data-theme="sage">
+            <span class="theme-preview sage-preview"></span>
+            <span class="theme-name">Sage Clean</span>
+          </button>
+        </div>
+      </div>
+
 
       <div class="card-panel margin-top">
         <h2>Week Configuration</h2>
@@ -693,12 +761,19 @@
         </svg>
         <span class="nav-label">Analytics</span>
       </button>
-      <button type="button" class="nav-item" id="nav-swap">
+      <button type="button" class="nav-item" id="nav-swap" style="display: none;">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18l6-6-6-6" />
           <circle cx="12" cy="12" r="9" />
         </svg>
         <span class="nav-label">Swap</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-body">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span class="nav-label">Body</span>
       </button>
       <button type="button" class="nav-item" id="nav-settings">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

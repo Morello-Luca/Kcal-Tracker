@@ -72,9 +72,16 @@
 
 .macro-edit-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   width: 100%;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+}
+
+.macro-edit-grid .goal-field {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .mode-toggle-group {

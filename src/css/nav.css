@@ -74,24 +74,24 @@
   padding: 0 4px;
 }
 
-/* iOS Bottom Navigation Bar */
+/* Neumorphic Floating Bottom Navigation Bar */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  max-width: 430px;
-  height: 68px;
-  background: var(--nav-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--hairline);
+  width: calc(100% - 24px);
+  max-width: 406px;
+  height: 64px;
+  background: var(--bg);
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-raised);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding: 0 6px;
   box-sizing: border-box;
 }
 
