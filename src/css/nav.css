@@ -1,18 +1,18 @@
-/* Navigation Bars: Header Date Bar & iOS Bottom Navigation Bar */
+/* Navigation Bars: Header Date Bar & Neumorphic Bottom Navigation Bar */
 
-/* iOS Header Date Bar */
+/* Header Date Bar */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 12px;
-  padding: 8px 4px 0;
+  margin-bottom: 14px;
+  padding: 10px 6px 0;
 }
 
 .app-header .date {
   margin: 0;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text-dim);
   text-transform: capitalize;
@@ -22,13 +22,13 @@
 .install-banner {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 12px 16px;
+  border-radius: 22px;
+  padding: 14px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 18px;
-  box-shadow: var(--card-shadow);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-raised);
 }
 
 .install-banner[hidden] { display: none; }
@@ -36,7 +36,7 @@
 .banner-content {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -58,39 +58,57 @@
   background: var(--ios-blue);
   color: #ffffff;
   border: none;
-  border-radius: 18px;
-  padding: 6px 14px;
+  box-shadow: var(--shadow-raised-sm);
+  border-radius: 999px;
+  padding: 8px 16px;
   font-weight: 600;
   font-size: 0.8rem;
   cursor: pointer;
 }
 
-.banner-close {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 4px;
+.banner-btn:active {
+  box-shadow: var(--shadow-pressed);
 }
 
-/* iOS Bottom Navigation Bar */
+.banner-close {
+  background: var(--surface);
+  box-shadow: var(--shadow-raised-sm);
+  border: none;
+  color: var(--text-dim);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-close:active {
+  box-shadow: var(--shadow-pressed);
+}
+
+/* Neumorphic Floating / Fixed Bottom Navigation Bar */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  max-width: 430px;
+  width: calc(100% - 32px);
+  max-width: 398px;
   height: 68px;
   background: var(--nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--hairline);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-raised-lg);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 100;
+  padding: 0 8px;
   padding-bottom: env(safe-area-inset-bottom, 0);
   box-sizing: border-box;
 }
@@ -101,32 +119,41 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  background: none;
+  gap: 4px;
+  background: transparent;
   border: none;
   color: var(--text-dim);
-  padding: 6px 0;
+  padding: 8px 0;
+  border-radius: 18px;
   cursor: pointer;
-  transition: color 0.15s ease, transform 0.1s ease;
+  transition: all 0.2s ease;
 }
 
-.nav-item:active { transform: scale(0.92); }
+.nav-item:active {
+  transform: scale(0.92);
+}
+
+.nav-item.active {
+  color: var(--ios-blue);
+}
 
 .nav-svg {
   width: 22px;
   height: 22px;
   stroke: var(--text-dim);
-  transition: stroke 0.15s ease, transform 0.1s ease;
+  transition: stroke 0.2s ease, transform 0.2s ease;
 }
 
 .nav-item.active .nav-svg {
   stroke: var(--ios-blue);
+  transform: translateY(-1px);
 }
 
 .nav-label {
   font-size: 0.65rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.nav-item.active { color: var(--ios-blue); }
-.nav-item.active .nav-label { font-weight: 600; }
+.nav-item.active .nav-label {
+  font-weight: 700;
+}

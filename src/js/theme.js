@@ -3,7 +3,11 @@ const THEME_KEY = "kcal-theme";
 
 export function applyTheme(themeName) {
   if (!themeName) return;
-  document.documentElement.setAttribute("data-theme", themeName);
+  if (themeName === "neumorphic") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", themeName);
+  }
   localStorage.setItem(THEME_KEY, themeName);
 
   const themeCards = document.querySelectorAll(".theme-card");
@@ -13,7 +17,7 @@ export function applyTheme(themeName) {
 }
 
 export function initTheme() {
-  const savedTheme = localStorage.getItem(THEME_KEY) || "oled";
+  const savedTheme = localStorage.getItem(THEME_KEY) || "neumorphic";
   applyTheme(savedTheme);
 
   const themeCards = document.querySelectorAll(".theme-card");
