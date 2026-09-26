@@ -1102,41 +1102,68 @@
 
 .fav-item {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 10px;
-  padding: 6px;
+  padding: 8px 10px;
   background: var(--bg);
   border-radius: 14px;
   box-shadow: var(--shadow-raised);
 }
 
-.fav-square-btn {
-  width: 44px;
-  min-width: 44px;
+.fav-log-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
   border: none;
   background: var(--bg);
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: var(--shadow-raised);
-  color: var(--text);
-  font-size: 1.3rem;
-  font-weight: 500;
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  transition: transform 0.3s ease, color 0.3s ease, box-shadow 0.15s ease;
+  transition: var(--transition);
   flex-shrink: 0;
 }
 
-.fav-square-btn:active {
+.fav-log-btn:active {
   box-shadow: var(--shadow-pressed);
+  transform: scale(0.95);
 }
 
-.fav-square-btn.is-deleting {
-  transform: rotate(135deg);
+.fav-log-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.fav-delete-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: none;
+  background: var(--bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow-raised);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.fav-delete-btn:hover,
+.fav-delete-btn:active {
+  box-shadow: var(--shadow-pressed);
   color: var(--danger);
+  transform: scale(0.95);
+}
+
+.fav-delete-btn svg {
+  width: 15px;
+  height: 15px;
 }
 
 .fav-info {
