@@ -68,7 +68,6 @@ const clearDayBtn = document.getElementById("clear-day-btn");
 const batchToggleBtn = document.getElementById("batch-toggle-btn");
 const batchActionsBar = document.getElementById("batch-actions-bar");
 const batchSelectedCount = document.getElementById("batch-selected-count");
-const batchCopyBtn = document.getElementById("batch-copy-btn");
 const batchDeleteBtn = document.getElementById("batch-delete-btn");
 
 const startDaySelect = document.getElementById("start-day-select");
@@ -338,40 +337,6 @@ function updateBatchCount() {
   }
 }
 
-if (batchCopyBtn) {
-  batchCopyBtn.addEventListener("click", () => {
-    if (selectedEntryIds.size === 0) return;
-    const selectedItems = entries.filter((e) => selectedEntryIds.has(e.id));
-
-    const targetOption = prompt(
-      "Copy selected items to:\n1 = Today\n2 = Yesterday\nOr type YYYY-MM-DD",
-      "1"
-    );
-    if (!targetOption) return;
-
-    let targetKey = todayKey();
-    if (targetOption.trim() === "2") {
-      const y = new Date();
-      y.setDate(y.getDate() - 1);
-      targetKey = dateKey(y);
-    } else if (targetOption.trim().length === 10) {
-      targetKey = `kcal-log-${targetOption.trim()}`;
-    }
-
-    const existingTargetLog = loadEntriesForKey(targetKey);
-    const duplicates = selectedItems.map((item) => ({ ...item, id: crypto.randomUUID() }));
-    localStorage.setItem(targetKey, JSON.stringify([...existingTargetLog, ...duplicates]));
-
-    isBatchMode = false;
-    selectedEntryIds.clear();
-    if (batchActionsBar) batchActionsBar.hidden = true;
-    if (batchToggleBtn) batchToggleBtn.textContent = "Batch Select";
-
-    entries = loadEntries();
-    renderApp();
-    showToast(`Copied ${selectedItems.length} items!`);
-  });
-}
 
 if (batchDeleteBtn) {
   batchDeleteBtn.addEventListener("click", () => {
@@ -483,10 +448,13 @@ function renderLog() {
       const isFav = favs.some((f) => f.description === entry.description);
 
       const starBtn = document.createElement("button");
-      starBtn.className = "remove-btn";
-      starBtn.textContent = isFav ? "⭐" : "☆";
-      starBtn.style.fontSize = "0.9rem";
+      starBtn.className = `neu-action-btn ${isFav ? "is-fav" : ""}`;
       starBtn.setAttribute("aria-label", "Toggle favorite");
+      starBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="${isFav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      `;
       starBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleFavoriteEntry(entry);
@@ -494,19 +462,28 @@ function renderLog() {
       });
 
       const editBtn = document.createElement("button");
-      editBtn.className = "remove-btn";
-      editBtn.textContent = "✏️";
-      editBtn.style.fontSize = "0.8rem";
+      editBtn.className = "neu-action-btn";
       editBtn.setAttribute("aria-label", "Edit entry");
+      editBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      `;
       editBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (modalControllers) modalControllers.openEditEntryModal(entry.id);
       });
 
       const removeBtn = document.createElement("button");
-      removeBtn.className = "remove-btn";
-      removeBtn.textContent = "×";
+      removeBtn.className = "neu-action-btn remove-action-btn";
       removeBtn.setAttribute("aria-label", "Remove entry");
+      removeBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      `;
       removeBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         removeEntry(entry.id);

@@ -184,12 +184,12 @@
         </div>
       </div>
 
-      <div class="section-title-row">
+      <div class="section-title-row log-title-row">
         <h2>Today's Food Log</h2>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="quick-add-link" id="batch-toggle-btn">Batch Select</button>
-          <button type="button" class="quick-add-link" id="clear-day-btn">Clear All</button>
-          <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log Food</button>
+        <div class="log-actions-group">
+          <button type="button" class="quick-add-link" id="batch-toggle-btn">Select</button>
+          <button type="button" class="quick-add-link" id="clear-day-btn">Clear</button>
+          <button type="button" class="quick-add-link" id="quick-log-nav-btn">+ Log</button>
         </div>
       </div>
 
@@ -197,8 +197,6 @@
       <div class="batch-actions-bar" id="batch-actions-bar" hidden>
         <span class="batch-selected-count" id="batch-selected-count">0 items selected</span>
         <div class="batch-btn-group">
-          <button type="button" class="batch-btn batch-copy-btn" id="batch-copy-btn">Copy Selected</button>
-
           <button type="button" class="batch-btn batch-delete-btn" id="batch-delete-btn">Delete Selected</button>
         </div>
       </div>
@@ -302,7 +300,6 @@
       <div class="card-panel margin-top" id="analytics-macro-breakdown-card">
         <div class="section-title-row">
           <h2 id="analytics-selected-day-title">Today's Macro Breakdown</h2>
-          <button type="button" class="quick-add-link" id="copy-selected-day-btn">📋 Copy Day</button>
         </div>
         <p class="panel-subtitle" id="analytics-selected-day-subtitle">Macronutrient distribution and logged items</p>
 
