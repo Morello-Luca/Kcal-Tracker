@@ -149,6 +149,8 @@ export function initBodyProfile(renderGoal) {
     const todayWeight = loadWeightForDate(today);
     if (todayWeight !== null && quickWeightInput) {
       quickWeightInput.value = todayWeight;
+    } else if (quickWeightInput && !quickWeightInput.value) {
+      quickWeightInput.value = "70.0";
     }
 
     const adaptiveRes = calculateAdaptiveTDEE();
@@ -160,18 +162,30 @@ export function initBodyProfile(renderGoal) {
       }
     }
 
-    // Render past 7 days weight pills
-    for (let i = 0; i < 7; i++) {
+    // Render past 7 days in a static mini grid (No horizontal scrollbar)
+    const daysArr = [];
+    for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const w = loadWeightForDate(d);
-
-      const pill = document.createElement("span");
-      pill.className = `weight-pill ${w !== null ? "has-val" : ""}`;
-      const dayLabel = i === 0 ? "Today" : d.toLocaleDateString(undefined, { weekday: "short" });
-      pill.textContent = `${dayLabel}: ${w !== null ? w + "kg" : "--"}`;
-      weightHistoryPills.appendChild(pill);
+      daysArr.push({ date: d, weight: loadWeightForDate(d), isToday: i === 0 });
     }
+
+    daysArr.forEach((item) => {
+      const mini = document.createElement("div");
+      mini.className = `weight-mini-item ${item.weight !== null ? "has-val" : ""}`;
+
+      const daySpan = document.createElement("span");
+      daySpan.className = "weight-mini-day";
+      daySpan.textContent = item.isToday ? "Today" : item.date.toLocaleDateString(undefined, { weekday: "narrow" });
+
+      const valSpan = document.createElement("span");
+      valSpan.className = "weight-mini-val";
+      valSpan.textContent = item.weight !== null ? item.weight : "--";
+
+      mini.appendChild(daySpan);
+      mini.appendChild(valSpan);
+      weightHistoryPills.appendChild(mini);
+    });
   }
 
   function syncCalorieGoal() {
@@ -198,7 +212,7 @@ export function initBodyProfile(renderGoal) {
       const isChecked = e.target.checked;
       localStorage.setItem("kcal-tdee-mode", isChecked ? "adaptive" : "standard");
       if (tdeeModeText) {
-        tdeeModeText.textContent = isChecked ? "Adaptive" : "Standard";
+        tdeeModeText.textContent = isChecked ? "Adaptive TDEE" : "Standard TDEE";
       }
       syncCalorieGoal();
     });
@@ -257,12 +271,12 @@ export function initBodyProfile(renderGoal) {
         tdeeModeToggle.checked = false;
         tdeeModeToggle.disabled = true;
         localStorage.setItem("kcal-tdee-mode", "standard");
-        if (tdeeModeText) tdeeModeText.textContent = `Standard (${adaptiveRes.daysRemaining}d to Adaptive)`;
+        if (tdeeModeText) tdeeModeText.textContent = "Standard TDEE";
       } else {
         tdeeModeToggle.disabled = false;
         const isAdaptive = localStorage.getItem("kcal-tdee-mode") === "adaptive";
         tdeeModeToggle.checked = isAdaptive;
-        if (tdeeModeText) tdeeModeText.textContent = isAdaptive ? "Adaptive" : "Standard";
+        if (tdeeModeText) tdeeModeText.textContent = isAdaptive ? "Adaptive TDEE" : "Standard TDEE";
       }
     }
 

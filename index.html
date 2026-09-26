@@ -389,24 +389,21 @@
             </button>
           </div>
 
-          <!-- Inset Neumorphic Progress Slider Bar -->
-          <div class="neu-slider-track margin-top-sm">
-            <div class="neu-slider-thumb" id="neu-weight-thumb" style="left: 50%;"></div>
-          </div>
 
           <!-- Input Row & Scale Log -->
           <form id="quick-weight-form" class="neu-card-footer margin-top-sm">
             <div class="neu-input-wrapper">
-              <input type="number" id="quick-weight-input" min="20" max="300" step="0.1" placeholder="Enter scale weight (kg)" required />
+              <input type="number" id="quick-weight-input" min="20" max="300" step="0.1" placeholder="75.4" required />
             </div>
             <button type="submit" id="quick-weight-save-btn" class="neu-plus-btn" aria-label="Log Weight">+</button>
           </form>
 
-          <div class="weight-trend-row margin-top-xs">
+          <div class="weight-summary-row margin-top-xs">
             <span class="weight-trend-badge" id="body-weight-trend-badge">Trend: -- kg</span>
           </div>
 
-          <div class="weight-history-pills margin-top-sm" id="weight-history-pills"></div>
+          <!-- 7-Day Static Mini Grid (No Horizontal Scrollbar) -->
+          <div class="weight-mini-grid margin-top-sm" id="weight-history-pills"></div>
         </div>
 
         <form id="body-profile-form" class="goal-form margin-top">

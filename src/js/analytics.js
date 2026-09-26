@@ -21,8 +21,8 @@ export function renderWeeklyBudget() {
   const weeklyBudget = dailyGoal * 7;
 
   if (weeklyBudgetBadge) {
-    const mode = localStorage.getItem("kcal-tdee-mode") === "adaptive" ? "Adaptive TDEE" : "Standard TDEE";
-    weeklyBudgetBadge.textContent = `${mode} (${dailyGoal} kcal/day)`;
+    const isAdaptive = localStorage.getItem("kcal-tdee-mode") === "adaptive";
+    weeklyBudgetBadge.textContent = isAdaptive ? "Adaptive TDEE" : "Standard TDEE";
   }
 
   const today = new Date();
