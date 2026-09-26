@@ -1044,7 +1044,53 @@
   margin-bottom: 4px;
 }
 
-/* Favorites List */
+/* Favorites List & Inset Neumorphic Scroll Container */
+.neu-favorites-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.neu-add-fav-btn {
+  background: var(--bg);
+  border: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-raised);
+  transition: var(--transition);
+}
+
+.neu-add-fav-btn:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.96);
+}
+
+.neu-inset-scroll-container {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: var(--shadow-inset);
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border-soft);
+}
+
+.neu-inset-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.neu-inset-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.neu-inset-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 10px;
+}
+
 .favorites-list {
   list-style: none;
   margin: 0;
@@ -1056,33 +1102,64 @@
 
 .fav-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  background: var(--surface-alt);
+  align-items: stretch;
+  gap: 10px;
+  padding: 6px;
+  background: var(--bg);
   border-radius: 14px;
-  font-size: 0.88rem;
+  box-shadow: var(--shadow-raised);
+}
+
+.fav-square-btn {
+  width: 44px;
+  min-width: 44px;
+  border: none;
+  background: var(--bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow-raised);
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.3s ease, color 0.3s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.fav-square-btn:active {
+  box-shadow: var(--shadow-pressed);
+}
+
+.fav-square-btn.is-deleting {
+  transform: rotate(135deg);
+  color: var(--danger);
 }
 
 .fav-info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 2px;
   min-width: 0;
+  flex: 1;
 }
 
-.fav-title { font-weight: 600; }
-.fav-macros { font-size: 0.78rem; color: var(--text-dim); }
-
-.fav-add-btn {
-  background: var(--ios-blue);
-  color: #ffffff;
-  border: none;
-  border-radius: 14px;
-  padding: 6px 14px;
+.fav-title {
+  font-size: 0.9rem;
   font-weight: 600;
-  font-size: 0.78rem;
-  cursor: pointer;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fav-macros {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 /* Privacy Box & BMR Box */

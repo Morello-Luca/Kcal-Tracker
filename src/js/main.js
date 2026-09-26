@@ -511,6 +511,7 @@ function renderFavorites() {
   if (favs.length === 0) {
     const empty = document.createElement("li");
     empty.className = "empty-state";
+    empty.style.borderRadius = "12px";
     empty.textContent = "No saved favorites yet. Tap '+ Add Fav' above to save quick items.";
     favoritesList.appendChild(empty);
     return;
@@ -519,6 +520,52 @@ function renderFavorites() {
   favs.forEach((fav, index) => {
     const li = document.createElement("li");
     li.className = "fav-item";
+
+    // Left Square Neumorphic Button
+    const squareBtn = document.createElement("button");
+    squareBtn.className = "fav-square-btn";
+    squareBtn.setAttribute("aria-label", "Log favorite or hold to delete");
+    squareBtn.textContent = "+";
+
+    let pressTimer = null;
+    let isLongPress = false;
+
+    const startPress = () => {
+      isLongPress = false;
+      squareBtn.classList.add("is-deleting");
+      pressTimer = setTimeout(() => {
+        isLongPress = true;
+        const currentFavs = loadFavorites();
+        const removed = currentFavs.splice(index, 1)[0];
+        saveFavorites(currentFavs);
+        renderFavorites();
+        showToast(`Removed "${removed.description}" from favorites`);
+      }, 500);
+    };
+
+    const cancelPress = () => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      squareBtn.classList.remove("is-deleting");
+    };
+
+    squareBtn.addEventListener("mousedown", startPress);
+    squareBtn.addEventListener("touchstart", startPress, { passive: true });
+
+    squareBtn.addEventListener("mouseup", cancelPress);
+    squareBtn.addEventListener("mouseleave", cancelPress);
+    squareBtn.addEventListener("touchend", cancelPress);
+
+    squareBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!isLongPress) {
+        addEntryFromResult(fav.description, fav);
+        switchNavTab("today");
+        showToast(`Logged "${fav.description}" (${Math.round(fav.calories)} kcal)`);
+      }
+    });
 
     const info = document.createElement("div");
     info.className = "fav-info";
@@ -536,35 +583,8 @@ function renderFavorites() {
     info.appendChild(title);
     info.appendChild(macros);
 
-    const actions = document.createElement("div");
-    actions.style.display = "flex";
-    actions.style.alignItems = "center";
-    actions.style.gap = "6px";
-
-    const logBtn = document.createElement("button");
-    logBtn.className = "fav-add-btn";
-    logBtn.textContent = "+ Log";
-    logBtn.addEventListener("click", () => {
-      addEntryFromResult(fav.description, fav);
-      switchNavTab("today");
-    });
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "remove-btn";
-    deleteBtn.textContent = "×";
-    deleteBtn.setAttribute("aria-label", "Remove favorite");
-    deleteBtn.addEventListener("click", () => {
-      const currentFavs = loadFavorites();
-      currentFavs.splice(index, 1);
-      saveFavorites(currentFavs);
-      renderFavorites();
-    });
-
-    actions.appendChild(logBtn);
-    actions.appendChild(deleteBtn);
-
+    li.appendChild(squareBtn);
     li.appendChild(info);
-    li.appendChild(actions);
     favoritesList.appendChild(li);
   });
 }
