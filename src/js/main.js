@@ -945,7 +945,7 @@ if (todayModeDailyBtn && todayModeWeeklyBtn) {
 
 // Module Initializations
 initTheme();
-initBodyProfile(renderGoal);
+initBodyProfile(renderGoal, renderApp);
 modalControllers = initUIModals(entries, addEntryFromResult, renderApp, switchNavTab);
 initVisionModule(addEntryFromResult);
 
