@@ -521,50 +521,21 @@ function renderFavorites() {
     const li = document.createElement("li");
     li.className = "fav-item";
 
-    // Left Square Neumorphic Button
-    const squareBtn = document.createElement("button");
-    squareBtn.className = "fav-square-btn";
-    squareBtn.setAttribute("aria-label", "Log favorite or hold to delete");
-    squareBtn.textContent = "+";
-
-    let pressTimer = null;
-    let isLongPress = false;
-
-    const startPress = () => {
-      isLongPress = false;
-      squareBtn.classList.add("is-deleting");
-      pressTimer = setTimeout(() => {
-        isLongPress = true;
-        const currentFavs = loadFavorites();
-        const removed = currentFavs.splice(index, 1)[0];
-        saveFavorites(currentFavs);
-        renderFavorites();
-        showToast(`Removed "${removed.description}" from favorites`);
-      }, 500);
-    };
-
-    const cancelPress = () => {
-      if (pressTimer) {
-        clearTimeout(pressTimer);
-        pressTimer = null;
-      }
-      squareBtn.classList.remove("is-deleting");
-    };
-
-    squareBtn.addEventListener("mousedown", startPress);
-    squareBtn.addEventListener("touchstart", startPress, { passive: true });
-
-    squareBtn.addEventListener("mouseup", cancelPress);
-    squareBtn.addEventListener("mouseleave", cancelPress);
-    squareBtn.addEventListener("touchend", cancelPress);
-
-    squareBtn.addEventListener("click", (e) => {
+    // Left Neumorphic Plus Button to Log
+    const logBtn = document.createElement("button");
+    logBtn.className = "fav-log-btn";
+    logBtn.setAttribute("aria-label", "Log favorite");
+    logBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    `;
+    logBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (!isLongPress) {
-        addEntryFromResult(fav.description, fav);
-        switchNavTab("today");
-        showToast(`Logged "${fav.description}" (${Math.round(fav.calories)} kcal)`);
-      }
+      addEntryFromResult(fav.description, fav);
+      switchNavTab("today");
+      showToast(`Logged "${fav.description}" (${Math.round(fav.calories)} kcal)`);
     });
 
     const info = document.createElement("div");
@@ -583,8 +554,33 @@ function renderFavorites() {
     info.appendChild(title);
     info.appendChild(macros);
 
-    li.appendChild(squareBtn);
+    // Right Neumorphic Trash Delete Button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "fav-delete-btn";
+    deleteBtn.setAttribute("aria-label", "Delete favorite");
+    deleteBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    `;
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const currentFavs = loadFavorites();
+      const removed = currentFavs.splice(index, 1)[0];
+      saveFavorites(currentFavs);
+      renderFavorites();
+      showToast(`Removed "${removed.description}" from favorites`, () => {
+        const restoredFavs = loadFavorites();
+        restoredFavs.splice(index, 0, removed);
+        saveFavorites(restoredFavs);
+        renderFavorites();
+      });
+    });
+
+    li.appendChild(logBtn);
     li.appendChild(info);
+    li.appendChild(deleteBtn);
     favoritesList.appendChild(li);
   });
 }
