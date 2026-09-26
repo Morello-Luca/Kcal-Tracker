@@ -23,6 +23,7 @@ import { initBodyProfile } from "./body-profile.js";
 import { renderAnalytics, renderHistory } from "./analytics.js";
 import { initUIModals } from "./ui-modals.js";
 import { initVisionModule } from "./vision.js";
+import { getVerifiedFood100g, calculateMacrosForWeight } from "./verified-db.js";
 
 // Main DOM references
 const form = document.getElementById("entry-form");
@@ -662,6 +663,29 @@ if (quickLogNavBtn) {
 }
 
 async function lookupFood(description, { final = false } = {}) {
+  // Check if description specifies exact grams (e.g., "150g chicken breast" or "chicken breast 150g")
+  const gramMatch = description.match(/(\d+)\s*(g|ml|gram|grams|milliliters)/i);
+  const gramAmount = gramMatch ? Number(gramMatch[1]) : null;
+  const cleanItem = description.replace(/(\d+)\s*(g|ml|gram|grams|milliliters)/i, "").trim();
+
+  // Try verified 100g/mL local & Open Food Facts database first
+  const verified = await getVerifiedFood100g(cleanItem || description);
+  if (verified) {
+    const targetGrams = gramAmount || 100; // Default to 100g standard if weight not specified
+    const calculated = calculateMacrosForWeight(verified, targetGrams);
+    return {
+      type: "result",
+      item: {
+        description: `${verified.name} (${targetGrams}${verified.unit}) [Verified ${verified.source}]`,
+        calories: calculated.calories,
+        protein_g: calculated.protein_g,
+        carbs_g: calculated.carbs_g,
+        fat_g: calculated.fat_g,
+      },
+    };
+  }
+
+  // Fallback to serverless API lookup
   const params = new URLSearchParams({ food: description });
   if (final) params.set("final", "true");
 
