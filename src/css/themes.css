@@ -23,6 +23,9 @@
   --hairline: rgba(183, 228, 199, 0.15);
   --nav-bg: rgba(22, 42, 30, 0.85);
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  --shadow-dark: rgba(0, 0, 0, 0.5);
+  --shadow-light: rgba(255, 255, 255, 0.05);
 }
 
 /* Theme: Slate Blue */
@@ -48,6 +51,9 @@
   --hairline: rgba(255, 255, 255, 0.12);
   --nav-bg: rgba(30, 41, 59, 0.85);
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+
+  --shadow-dark: rgba(0, 0, 0, 0.5);
+  --shadow-light: rgba(255, 255, 255, 0.06);
 }
 
 /* Theme: Sunset Rose */
@@ -73,6 +79,9 @@
   --hairline: rgba(244, 114, 182, 0.18);
   --nav-bg: rgba(42, 24, 39, 0.85);
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-light: rgba(255, 255, 255, 0.05);
 }
 
 /* Theme: Sage Clean */
@@ -98,6 +107,9 @@
   --hairline: rgba(255, 255, 255, 0.12);
   --nav-bg: rgba(29, 38, 35, 0.85);
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  --shadow-dark: rgba(0, 0, 0, 0.5);
+  --shadow-light: rgba(255, 255, 255, 0.06);
 }
 
 /* Theme Selector Grid in Settings */

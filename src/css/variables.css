@@ -1,27 +1,37 @@
 /* CSS Variables & Core System Specs */
 :root {
-  /* Default Theme: OLED Midnight */
-  --bg: #000000;
-  --surface: #1c1c1e;
-  --surface-alt: #2c2c2e;
-  --surface-elevated: #3a3a3c;
-  --text: #ffffff;
-  --text-dim: #8e8e93;
-  --text-secondary: #aeaeb2;
+  /* Default Theme: Soft Neumorphic */
+  --bg: #e2e5e9;
+  --surface: #e2e5e9;
+  --surface-alt: #d7dbf0;
+  --surface-elevated: #ebf0f5;
+  --text: #2c323b;
+  --text-dim: #6c7582;
+  --text-secondary: #525a66;
 
-  --ios-blue: #0a84ff;
-  --ios-green: #30d158;
-  --ios-orange: #ff9f0a;
-  --ios-red: #ff453a;
-  --ios-purple: #bf5af2;
-  --ios-teal: #64d2ff;
+  --shadow-dark: rgba(163, 177, 198, 0.6);
+  --shadow-light: rgba(255, 255, 255, 0.8);
 
-  --accent: var(--ios-green);
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-pressed: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+
+  --ios-blue: #3b72b9;
+  --ios-green: #3d8b5f;
+  --ios-orange: #c87a2a;
+  --ios-red: #c94a4a;
+  --ios-purple: #8b5fb9;
+  --ios-teal: #3b9ab9;
+
+  --accent: #3b72b9;
   --danger: var(--ios-red);
-  --border: rgba(255, 255, 255, 0.08);
-  --hairline: rgba(255, 255, 255, 0.12);
-  --nav-bg: rgba(28, 28, 30, 0.82);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --border: rgba(255, 255, 255, 0.6);
+  --border-soft: rgba(0, 0, 0, 0.04);
+  --hairline: rgba(0, 0, 0, 0.06);
+  --nav-bg: #e2e5e9;
+  --card-shadow: var(--shadow-raised);
+  --radius-card: 16px;
+  --radius-btn: 12px;
 }
 
 html, body {

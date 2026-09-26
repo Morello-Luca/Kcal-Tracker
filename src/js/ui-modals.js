@@ -1,5 +1,6 @@
 /* UI Modals & Quick Action Form Module */
 import { loadFavorites, saveFavorites, round, saveEntries } from "./storage.js";
+import { showToast } from "./main.js";
 
 export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTab) {
   // Manual Quick Add Elements
@@ -78,8 +79,10 @@ export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTa
         currentFavs.push(item);
         saveFavorites(currentFavs);
         renderApp();
+        showToast(`Saved "${description}" to Favorites`);
       } else {
         addEntryFromResult(description, item);
+        showToast(`Logged "${description}" (${Math.round(item.calories)} kcal)`);
         switchNavTab("today");
       }
       closeManualAddModal();
