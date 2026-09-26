@@ -1,11 +1,11 @@
-/* Neumorphic Modals & Camera/Barcode Scanner Styles */
+/* Quiet Physical Modals & Camera/Barcode Scanner Styles */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -24,37 +24,37 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--surface);
-  border-radius: 32px 32px 0 0;
-  padding: 14px 22px 32px;
+  border-radius: 22px 22px 0 0;
+  padding: 12px 18px 28px;
   box-shadow: var(--shadow-raised-lg);
   border-top: 1px solid var(--border);
   position: relative;
   box-sizing: border-box;
 }
 
-/* Neumorphic Modal Grab Handle */
+/* Recessed Inset Grab Handle */
 .modal-panel::before {
   content: "";
   display: block;
-  width: 40px;
-  height: 5px;
+  width: 36px;
+  height: 4px;
   background: var(--surface);
   box-shadow: var(--shadow-inset);
   border-radius: 999px;
-  margin: 4px auto 18px;
+  margin: 2px auto 14px;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 600;
   color: var(--text);
 }
 
@@ -64,9 +64,9 @@
   border: 1px solid var(--border);
   color: var(--text-dim);
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 1.1rem;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,16 +81,16 @@
 .macro-edit-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
 #barcode-reader {
-  border-radius: 20px;
+  border-radius: 14px;
   overflow: hidden;
   background: #000;
   box-shadow: var(--shadow-inset);
-  min-height: 200px;
+  min-height: 180px;
   width: 100%;
   max-width: 100%;
 }
@@ -107,27 +107,27 @@
 }
 
 .modal-status {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-dim);
-  margin: 12px 0;
+  margin: 10px 0;
   text-align: center;
   word-break: break-word;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .modal-hint {
-  font-size: 0.825rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
   margin: 0 0 14px;
   word-break: break-word;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .modal-result-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--text);
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   word-break: break-word;
 }
 
@@ -144,9 +144,11 @@
 #photo-analyze-btn,
 #barcode-add-btn,
 #photo-add-btn {
-  background: var(--ios-blue);
-  color: #ffffff;
+  background: var(--surface);
+  color: var(--ios-blue);
   box-shadow: var(--shadow-raised-sm);
+  border: 1px solid var(--border);
+  font-weight: 600;
 }
 
 #photo-upload-btn,
@@ -156,6 +158,7 @@
 #photo-retry-btn {
   background: var(--surface);
   box-shadow: var(--shadow-raised-sm);
+  border: 1px solid var(--border);
   color: var(--text-dim);
 }
 
@@ -163,10 +166,10 @@
 #photo-preview-img {
   width: 100%;
   max-width: 100%;
-  border-radius: 20px;
+  border-radius: 14px;
   background: #000;
   box-shadow: var(--shadow-inset);
-  max-height: 35vh;
+  max-height: 32vh;
   object-fit: contain;
 }
 
@@ -178,7 +181,7 @@
 #barcode-fallback {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;

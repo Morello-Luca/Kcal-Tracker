@@ -1,37 +1,42 @@
-/* CSS Variables & Neumorphic System Specs */
+/* CSS Variables & Physical Neumorphic System Specs */
 :root {
-  /* Default Theme: Soft Light Neumorphic (Reference Image Aesthetic) */
-  --bg: #e0e5ec;
-  --surface: #e0e5ec;
-  --surface-alt: #e0e5ec;
-  --surface-elevated: #d5dbe3;
-  --text: #2d3748;
-  --text-dim: #718096;
-  --text-secondary: #4a5568;
+  /* Default Theme: Quiet Tactile Soft Neumorphic (Matching Reference Image) */
+  --bg: #e2e5e9;
+  --surface: #e2e5e9;
+  --surface-alt: #e2e5e9;
+  --surface-elevated: #d8dce2;
 
-  --ios-blue: #3b82f6;
-  --ios-green: #10b981;
-  --ios-orange: #f59e0b;
-  --ios-red: #ef4444;
-  --ios-purple: #8b5cf6;
-  --ios-teal: #06b6d4;
+  --text: #2d333c;
+  --text-dim: #6c7582;
+  --text-secondary: #4b535e;
 
-  --accent: var(--ios-blue);
-  --danger: var(--ios-red);
-  --border: rgba(255, 255, 255, 0.8);
-  --border-dark: rgba(163, 177, 198, 0.3);
-  --hairline: rgba(163, 177, 198, 0.2);
-  --nav-bg: rgba(224, 229, 236, 0.88);
+  /* Restrained, Muted Accents */
+  --ios-blue: #3b72b9;
+  --ios-green: #3d8b5f;
+  --ios-orange: #c87a2a;
+  --ios-red: #c94a4a;
+  --ios-purple: #7a5eb8;
+  --ios-teal: #338ba8;
 
-  /* Shadow Design Token Scale */
+  --accent: #3b72b9;
+  --danger: #c94a4a;
+  --border: rgba(255, 255, 255, 0.65);
+  --border-dark: rgba(160, 170, 185, 0.35);
+  --hairline: rgba(160, 170, 185, 0.25);
+  --nav-bg: rgba(226, 229, 233, 0.92);
+
+  /* Subtle, Physical Shadow Levels */
   --shadow-light: #ffffff;
-  --shadow-dark: #a3b1c6;
-  --shadow-raised: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
-  --shadow-raised-sm: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
-  --shadow-raised-lg: 10px 10px 22px var(--shadow-dark), -10px -10px 22px var(--shadow-light);
-  --shadow-inset: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-  --shadow-inset-deep: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-  --shadow-pressed: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-dark: #b6becd;
+
+  /* Tight, controlled physical depths */
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
   --card-shadow: var(--shadow-raised);
 }
 
@@ -50,20 +55,23 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .app {
   width: 100%;
   max-width: 430px;
   margin: 0 auto;
-  padding: 16px 16px 100px;
+  padding: 14px 14px 90px;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
