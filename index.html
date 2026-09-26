@@ -390,6 +390,20 @@
             <button type="submit" id="quick-weight-save-btn" class="neu-plus-btn" aria-label="Log Weight">+</button>
           </form>
 
+          <!-- Happy Scale Style Weight Trend Chart (Smooth Moving Average Curve) -->
+          <div class="weight-chart-container margin-top-sm">
+            <div class="weight-chart-header">
+              <span class="weight-chart-title">Moving Average Weight Trend</span>
+              <span class="weight-chart-legend">
+                <span class="legend-dot raw-dot"></span> Entry
+                <span class="legend-dot trend-dot"></span> Smooth
+              </span>
+            </div>
+            <div class="weight-svg-wrapper" id="weight-svg-wrapper">
+              <!-- Rendered SVG chart -->
+            </div>
+          </div>
+
           <!-- 7-Day Static Mini Grid (No Horizontal Scrollbar) -->
           <div class="weight-mini-grid margin-top-sm" id="weight-history-pills"></div>
         </div>
