@@ -40,17 +40,26 @@
 }
 
 .quick-add-link {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  border-radius: 20px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity 0.2s ease;
+  box-shadow: var(--shadow-raised);
+  transition: all 0.2s ease;
+}
+
+.quick-add-link:active {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
 }
 
 .log-title-row {
