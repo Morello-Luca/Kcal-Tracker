@@ -342,14 +342,34 @@ if (batchCopyBtn) {
   batchCopyBtn.addEventListener("click", () => {
     if (selectedEntryIds.size === 0) return;
     const selectedItems = entries.filter((e) => selectedEntryIds.has(e.id));
+
+    const targetOption = prompt(
+      "Copy selected items to:\n1 = Today\n2 = Yesterday\nOr type YYYY-MM-DD",
+      "1"
+    );
+    if (!targetOption) return;
+
+    let targetKey = todayKey();
+    if (targetOption.trim() === "2") {
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      targetKey = dateKey(y);
+    } else if (targetOption.trim().length === 10) {
+      targetKey = `kcal-log-${targetOption.trim()}`;
+    }
+
+    const existingTargetLog = loadEntriesForKey(targetKey);
     const duplicates = selectedItems.map((item) => ({ ...item, id: crypto.randomUUID() }));
-    entries.push(...duplicates);
-    saveEntries(entries);
+    localStorage.setItem(targetKey, JSON.stringify([...existingTargetLog, ...duplicates]));
+
     isBatchMode = false;
+    selectedEntryIds.clear();
     if (batchActionsBar) batchActionsBar.hidden = true;
     if (batchToggleBtn) batchToggleBtn.textContent = "Batch Select";
+
+    entries = loadEntries();
     renderApp();
-    showToast(`Copied ${selectedItems.length} items`);
+    showToast(`Copied ${selectedItems.length} items!`);
   });
 }
 

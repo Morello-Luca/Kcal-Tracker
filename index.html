@@ -376,19 +376,36 @@
         </div>
         <p class="panel-subtitle">Standard formula vs. dynamic weight-trend Adaptive TDEE</p>
 
-        <!-- Scale Weight Daily Logging Card -->
-        <div class="weight-log-card margin-top-sm">
-          <div class="section-title-row">
-            <span class="card-inline-title">
-              <svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.78.77L12 20.67l7.65-7.65.78-.77a5.4 5.4 0 0 0 0-7.65z"/></svg>
-              Daily Weight Tracker
-            </span>
+        <!-- Scale Weight Daily Logging Card (Neumorphic Card Style from Reference) -->
+        <div class="card-panel neu-reference-card margin-top-sm">
+          <div class="neu-card-header">
+            <h2>Weight Tracker</h2>
+            <button type="button" class="neu-icon-btn" id="simulate-weight-btn" aria-label="Simulate Data" title="Simulate 14-Day Weight Data">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Inset Neumorphic Progress Slider Bar -->
+          <div class="neu-slider-track margin-top-sm">
+            <div class="neu-slider-thumb" id="neu-weight-thumb" style="left: 50%;"></div>
+          </div>
+
+          <!-- Input Row & Scale Log -->
+          <form id="quick-weight-form" class="neu-card-footer margin-top-sm">
+            <div class="neu-input-wrapper">
+              <input type="number" id="quick-weight-input" min="20" max="300" step="0.1" placeholder="Enter scale weight (kg)" required />
+            </div>
+            <button type="submit" id="quick-weight-save-btn" class="neu-plus-btn" aria-label="Log Weight">+</button>
+          </form>
+
+          <div class="weight-trend-row margin-top-xs">
             <span class="weight-trend-badge" id="body-weight-trend-badge">Trend: -- kg</span>
           </div>
-          <form id="quick-weight-form" class="quick-weight-row margin-top-sm">
-            <input type="number" id="quick-weight-input" min="20" max="300" step="0.1" placeholder="Scale weight (kg)" required />
-            <button type="submit" id="quick-weight-save-btn">Log Weight</button>
-          </form>
+
           <div class="weight-history-pills margin-top-sm" id="weight-history-pills"></div>
         </div>
 
@@ -487,71 +504,6 @@
         </div>
       </div>
 
-      <div class="card-panel margin-top">
-        <h2>Body Profile & BMR/TDEE</h2>
-        <p class="panel-subtitle">Calculate daily energy expenditure as reference</p>
-
-        <form id="body-profile-form" class="goal-form">
-          <label class="goal-field">
-            Age
-            <input type="number" id="body-age" min="10" max="120" placeholder="e.g. 28" />
-          </label>
-          <label class="goal-field">
-            Gender
-            <select id="body-gender">
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </label>
-          <label class="goal-field">
-            Weight (kg)
-            <input type="number" id="body-weight" min="20" max="300" step="0.1" placeholder="e.g. 75" />
-          </label>
-          <label class="goal-field">
-            Height (cm)
-            <input type="number" id="body-height" min="80" max="250" placeholder="e.g. 175" />
-          </label>
-          <label class="goal-field goal-field-full">
-            Activity Level
-            <select id="body-activity">
-              <option value="1.2">Sedentary (desk job, little exercise)</option>
-              <option value="1.375">Lightly Active (light exercise 1-3 days/wk)</option>
-              <option value="1.55">Moderately Active (moderate exercise 3-5 days/wk)</option>
-              <option value="1.725">Very Active (hard exercise 6-7 days/wk)</option>
-              <option value="1.9">Extra Active (physical job or 2x training)</option>
-            </select>
-          </label>
-          <label class="goal-field goal-field-full">
-            Body Fat % (Optional, Katch-McArdle formula)
-            <input type="number" id="body-fat" min="3" max="60" step="0.1" placeholder="optional e.g. 18" />
-          </label>
-          <div class="goal-form-actions">
-            <button type="submit" id="body-save-btn">Calculate BMR & TDEE</button>
-          </div>
-        </form>
-
-        <div class="bmr-result-box" id="bmr-result-box" hidden>
-          <div class="bmr-stat-row">
-            <span>BMR (Formula):</span>
-            <strong id="bmr-val">0 kcal</strong>
-          </div>
-          <div class="bmr-stat-row">
-            <span>Formula TDEE:</span>
-            <strong id="tdee-val">0 kcal</strong>
-          </div>
-          <div class="bmr-stat-row margin-top-sm" style="border-top: 1px dashed var(--border); padding-top: 8px;">
-            <span>Adaptive TDEE (Real Burn):</span>
-            <strong id="settings-adaptive-tdee-val" style="color: var(--ios-blue);">-- kcal</strong>
-          </div>
-          <p class="panel-subtitle margin-top-sm" id="settings-adaptive-tdee-subtitle">
-            Calculated energy expenditure based on 14-day weight trend and calorie logs.
-          </p>
-          <div class="goal-form-actions margin-top-sm">
-            <button type="button" class="apply-tdee-btn" id="apply-adaptive-tdee-btn">Sync Adaptive TDEE as Goal</button>
-            <button type="button" class="apply-tdee-btn" id="apply-tdee-btn" style="background: var(--surface-elevated); color: var(--text);">Use Formula TDEE</button>
-          </div>
-        </div>
-      </div>
 
       <div class="card-panel margin-top">
         <h2>Week Configuration</h2>

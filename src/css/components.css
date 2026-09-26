@@ -208,31 +208,129 @@
   gap: 8px;
 }
 
-.quick-weight-row input {
+/* Neumorphic Reference Card Styling (Modeled verbatim after image.png) */
+.neu-reference-card {
+  padding: 20px;
+  background: var(--bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.neu-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neu-card-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.neu-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+  transition: var(--transition);
+}
+
+.neu-icon-btn:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.96);
+}
+
+.neu-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Inset Neumorphic Track & Thumb */
+.neu-slider-track {
+  width: 100%;
+  height: 28px;
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--shadow-inset);
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+}
+
+.neu-slider-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  box-shadow: var(--shadow-raised);
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 0.3s ease;
+}
+
+/* Footer Row with Input & Plus Button */
+.neu-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.neu-input-wrapper {
   flex: 1;
+}
+
+.neu-input-wrapper input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
   background: var(--bg);
   box-shadow: var(--shadow-inset);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 8px 12px;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  outline: none;
 }
 
-.quick-weight-row button {
+.neu-plus-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: none;
   background: var(--bg);
   box-shadow: var(--shadow-raised);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 8px 14px;
   color: var(--text);
-  font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 1.5rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: var(--transition);
 }
 
-.quick-weight-row button:active {
+.neu-plus-btn:active {
   box-shadow: var(--shadow-pressed);
+  transform: scale(0.96);
+}
+
+.weight-trend-row {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .weight-trend-badge {
@@ -1080,6 +1178,10 @@
   padding: 10px 14px;
   border-radius: 14px;
   margin-bottom: 10px;
+}
+
+.batch-actions-bar[hidden] {
+  display: none !important;
 }
 
 .batch-selected-count {

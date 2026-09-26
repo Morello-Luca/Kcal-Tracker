@@ -44,15 +44,15 @@ export function calculateAdaptiveTDEE() {
     }
   }
 
-  const daysNeeded = Math.max(0, 14 - Math.min(loggedCalorieDays, weights.length));
+  const daysNeeded = Math.max(0, 14 - weights.length);
 
-  if (loggedCalorieDays < 3 || weights.length < 2) {
+  if (loggedCalorieDays < 14 || weights.length < 14) {
     return {
       adaptiveTDEE: fallback,
       isEstimate: true,
       loggedDays: loggedCalorieDays,
       weightPoints: weights.length,
-      daysRemaining: daysNeeded > 0 ? daysNeeded : 14 - loggedCalorieDays,
+      daysRemaining: daysNeeded > 0 ? daysNeeded : (14 - loggedCalorieDays),
     };
   }
 
@@ -139,13 +139,7 @@ export function initBodyProfile(renderGoal) {
   const tdeeModeText = document.getElementById("tdee-mode-text");
 
   // Load active TDEE mode preference ("standard" or "adaptive")
-  const isAdaptive = localStorage.getItem("kcal-tdee-mode") === "adaptive";
-  if (tdeeModeToggle) {
-    tdeeModeToggle.checked = isAdaptive;
-  }
-  if (tdeeModeText) {
-    tdeeModeText.textContent = isAdaptive ? "Adaptive" : "Standard";
-  }
+  const simulateWeightBtn = document.getElementById("simulate-weight-btn");
 
   function renderWeightTracker() {
     if (!weightHistoryPills) return;
@@ -230,8 +224,7 @@ export function initBodyProfile(renderGoal) {
   }
 
   function renderBodyProfile() {
-    const prof = loadBodyProfile();
-    if (!prof) return;
+    const prof = loadBodyProfile() || { age: 28, gender: "male", weight: 70, height: 170, activity: 1.2 };
 
     if (bodyAgeInput) bodyAgeInput.value = prof.age || "";
     if (bodyGenderSelect) bodyGenderSelect.value = prof.gender || "male";
@@ -257,7 +250,54 @@ export function initBodyProfile(renderGoal) {
       }
     }
 
+    // Lock toggle switch if Adaptive TDEE is not unlocked yet
+    if (tdeeModeToggle) {
+      const isUnlocked = !adaptiveRes.isEstimate;
+      if (!isUnlocked) {
+        tdeeModeToggle.checked = false;
+        tdeeModeToggle.disabled = true;
+        localStorage.setItem("kcal-tdee-mode", "standard");
+        if (tdeeModeText) tdeeModeText.textContent = `Standard (${adaptiveRes.daysRemaining}d to Adaptive)`;
+      } else {
+        tdeeModeToggle.disabled = false;
+        const isAdaptive = localStorage.getItem("kcal-tdee-mode") === "adaptive";
+        tdeeModeToggle.checked = isAdaptive;
+        if (tdeeModeText) tdeeModeText.textContent = isAdaptive ? "Adaptive" : "Standard";
+      }
+    }
+
     if (bmrResultBox) bmrResultBox.hidden = false;
+  }
+
+  if (simulateWeightBtn) {
+    simulateWeightBtn.addEventListener("click", () => {
+      const today = new Date();
+      let baseWeight = 75.0;
+      for (let i = 14; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        // Add small smooth fluctuations
+        const w = Math.round((baseWeight - i * 0.1 + (i % 2 === 0 ? 0.2 : -0.1)) * 10) / 10;
+        saveWeightForDate(d, w);
+
+        // Also seed dummy food entries so calories are logged for those 14 days
+        const k = dateKey(d);
+        const currentLog = loadEntriesForKey(k);
+        if (currentLog.length === 0) {
+          const dummyEntries = [
+            { id: `sim-${i}-1`, description: "Simulated Balanced Meal", calories: 2100, protein_g: 140, carbs_g: 220, fat_g: 65 }
+          ];
+          localStorage.setItem(k, JSON.stringify(dummyEntries));
+        }
+      }
+
+      // Automatically unlock and switch to Adaptive
+      localStorage.setItem("kcal-tdee-mode", "adaptive");
+      renderWeightTracker();
+      renderBodyProfile();
+      syncCalorieGoal();
+      alert("Simulated 14 days of weight & calorie logs! Adaptive TDEE is now unlocked.");
+    });
   }
 
   if (bodyProfileForm) {
@@ -278,6 +318,7 @@ export function initBodyProfile(renderGoal) {
     });
   }
 
+  const applyTdeeBtn = document.getElementById("apply-tdee-btn");
   if (applyTdeeBtn) {
     applyTdeeBtn.addEventListener("click", () => {
       const prof = loadBodyProfile();
@@ -301,5 +342,6 @@ export function initBodyProfile(renderGoal) {
     });
   }
 
+  renderWeightTracker();
   renderBodyProfile();
 }
