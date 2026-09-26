@@ -140,7 +140,7 @@ export function initBodyProfile(renderGoal, renderAppCallback) {
 
   // Load active TDEE mode preference ("standard" or "adaptive")
 
-  function renderWeightTracker() {
+  function renderWeightChartAndTracker() {
     if (!weightHistoryPills) return;
     weightHistoryPills.innerHTML = "";
 
@@ -185,6 +185,86 @@ export function initBodyProfile(renderGoal, renderAppCallback) {
       mini.appendChild(valSpan);
       weightHistoryPills.appendChild(mini);
     });
+
+    // Render Happy Scale Style Smooth Moving Average SVG Chart
+    renderWeightSVGChart();
+  }
+
+  function renderWeightSVGChart() {
+    const svgWrapper = document.getElementById("weight-svg-wrapper");
+    if (!svgWrapper) return;
+    svgWrapper.innerHTML = "";
+
+    const weights = getAllWeightLogs();
+    if (weights.length < 2) {
+      svgWrapper.innerHTML = `<div style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:0.78rem;">Log at least 2 weight entries to view trend line</div>`;
+      return;
+    }
+
+    // Get past 30 days or all weight points
+    const recentWeights = weights.slice(-30);
+
+    // Calculate EMA smoothed curve for all points
+    let currentEma = recentWeights[0].weight;
+    const alpha = 0.15; // Smooth moving average alpha
+    const trendPoints = [];
+
+    recentWeights.forEach((pt) => {
+      currentEma = pt.weight * alpha + currentEma * (1 - alpha);
+      trendPoints.push({
+        date: pt.date,
+        rawWeight: pt.weight,
+        smoothWeight: Math.round(currentEma * 10) / 10,
+      });
+    });
+
+    // Determine min/max Y scale with margin
+    const allVals = trendPoints.flatMap((p) => [p.rawWeight, p.smoothWeight]);
+    let minW = Math.min(...allVals) - 0.5;
+    let maxW = Math.max(...allVals) + 0.5;
+    if (minW === maxW) {
+      minW -= 1;
+      maxW += 1;
+    }
+
+    const width = 320;
+    const height = 80;
+    const paddingX = 10;
+    const paddingY = 10;
+
+    const getX = (i) => paddingX + (i / Math.max(1, trendPoints.length - 1)) * (width - 2 * paddingX);
+    const getY = (w) => height - paddingY - ((w - minW) / (maxW - minW)) * (height - 2 * paddingY);
+
+    // Build raw point markers & smooth curve path
+    let smoothD = "";
+    const rawCircleElements = [];
+
+    trendPoints.forEach((pt, i) => {
+      const x = getX(i);
+      const yRaw = getY(pt.rawWeight);
+      const ySmooth = getY(pt.smoothWeight);
+
+      if (i === 0) {
+        smoothD += `M ${x.toFixed(1)} ${ySmooth.toFixed(1)}`;
+      } else {
+        const prevX = getX(i - 1);
+        const prevYSmooth = getY(trendPoints[i - 1].smoothWeight);
+        const cpX1 = prevX + (x - prevX) / 2;
+        const cpX2 = prevX + (x - prevX) / 2;
+        smoothD += ` C ${cpX1.toFixed(1)} ${prevYSmooth.toFixed(1)}, ${cpX2.toFixed(1)} ${ySmooth.toFixed(1)}, ${x.toFixed(1)} ${ySmooth.toFixed(1)}`;
+      }
+
+      rawCircleElements.push(`<circle cx="${x.toFixed(1)}" cy="${yRaw.toFixed(1)}" r="2.5" fill="var(--text-muted, #9ca3af)" opacity="0.6"/>`);
+    });
+
+    const svgHTML = `
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+        <path d="${smoothD}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        ${rawCircleElements.join("")}
+      </svg>
+    `;
+
+    svgWrapper.innerHTML = svgHTML;
   }
 
   function syncCalorieGoal() {
@@ -234,7 +314,7 @@ export function initBodyProfile(renderGoal, renderAppCallback) {
       prof.weight = val;
       saveBodyProfile(prof);
 
-      renderWeightTracker();
+      renderWeightChartAndTracker();
       renderBodyProfile();
       syncCalorieGoal();
     });
@@ -323,6 +403,6 @@ export function initBodyProfile(renderGoal, renderAppCallback) {
   }
 
 
-  renderWeightTracker();
+  renderWeightChartAndTracker();
   renderBodyProfile();
 }
