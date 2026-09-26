@@ -13,7 +13,7 @@ export function applyTheme(themeName) {
 }
 
 export function initTheme() {
-  const savedTheme = localStorage.getItem(THEME_KEY) || "oled";
+  const savedTheme = localStorage.getItem(THEME_KEY) || "neumorphic";
   applyTheme(savedTheme);
 
   const themeCards = document.querySelectorAll(".theme-card");

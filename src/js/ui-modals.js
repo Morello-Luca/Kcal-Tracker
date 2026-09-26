@@ -1,5 +1,7 @@
 /* UI Modals & Quick Action Form Module */
 import { loadFavorites, saveFavorites, round, saveEntries } from "./storage.js";
+import { showToast } from "./main.js";
+import { getVerifiedFood100g, calculateMacrosForWeight, parseAndSumVerifiedMeal } from "./verified-db.js";
 
 export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTab) {
   // Manual Quick Add Elements
@@ -59,6 +61,26 @@ export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTa
   if (manualAddClose) manualAddClose.addEventListener("click", closeManualAddModal);
   if (manualCancelBtn) manualCancelBtn.addEventListener("click", closeManualAddModal);
 
+  // Live verified food lookup on manual modal description input
+  if (manualDescInput) {
+    let debounceTimer = null;
+    manualDescInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (!val) return;
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        const verifiedMeal = await parseAndSumVerifiedMeal(val);
+        if (verifiedMeal) {
+          if (manualCaloriesInput) manualCaloriesInput.value = verifiedMeal.calories;
+          if (manualProteinInput) manualProteinInput.value = verifiedMeal.protein_g;
+          if (manualCarbsInput) manualCarbsInput.value = verifiedMeal.carbs_g;
+          if (manualFatInput) manualFatInput.value = verifiedMeal.fat_g;
+        }
+      }, 250);
+    });
+  }
+
   if (manualAddForm) {
     manualAddForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -78,8 +100,10 @@ export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTa
         currentFavs.push(item);
         saveFavorites(currentFavs);
         renderApp();
+        showToast(`Saved "${description}" to Favorites`);
       } else {
         addEntryFromResult(description, item);
+        showToast(`Logged "${description}" (${Math.round(item.calories)} kcal)`);
         switchNavTab("today");
       }
       closeManualAddModal();

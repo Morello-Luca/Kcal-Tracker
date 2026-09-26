@@ -23,6 +23,7 @@ import { initBodyProfile } from "./body-profile.js";
 import { renderAnalytics, renderHistory } from "./analytics.js";
 import { initUIModals } from "./ui-modals.js";
 import { initVisionModule } from "./vision.js";
+import { getVerifiedFood100g, calculateMacrosForWeight, parseAndSumVerifiedMeal } from "./verified-db.js";
 
 // Main DOM references
 const form = document.getElementById("entry-form");
@@ -41,12 +42,14 @@ const totalFatEl = document.getElementById("total-fat");
 const navTodayBtn = document.getElementById("nav-today");
 const navLogBtn = document.getElementById("nav-log");
 const navAnalyticsBtn = document.getElementById("nav-analytics");
+const navBodyBtn = document.getElementById("nav-body");
 const navSwapBtn = document.getElementById("nav-swap");
 const navSettingsBtn = document.getElementById("nav-settings");
 
 const viewToday = document.getElementById("view-today");
 const viewLog = document.getElementById("view-log");
 const viewAnalytics = document.getElementById("view-analytics");
+const viewBody = document.getElementById("view-body");
 const viewSwap = document.getElementById("view-swap");
 const viewSettings = document.getElementById("view-settings");
 
@@ -66,7 +69,6 @@ const clearDayBtn = document.getElementById("clear-day-btn");
 const batchToggleBtn = document.getElementById("batch-toggle-btn");
 const batchActionsBar = document.getElementById("batch-actions-bar");
 const batchSelectedCount = document.getElementById("batch-selected-count");
-const batchCopyBtn = document.getElementById("batch-copy-btn");
 const batchDeleteBtn = document.getElementById("batch-delete-btn");
 
 const startDaySelect = document.getElementById("start-day-select");
@@ -224,14 +226,19 @@ function renderWater() {
   waterGlassesRow.innerHTML = "";
 
   for (let i = 1; i <= DEFAULT_WATER_GOAL; i++) {
-    const span = document.createElement("span");
-    span.className = `water-glass ${i <= count ? "filled" : ""}`;
-    span.textContent = "🥛";
-    span.addEventListener("click", () => {
+    const glass = document.createElement("div");
+    glass.className = `water-glass ${i <= count ? "filled" : ""}`;
+    glass.innerHTML = `
+      <svg class="glass-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 2H6l1.2 18a2 2 0 0 0 2 2h5.6a2 2 0 0 0 2-2L18 2z"/>
+        <line x1="6" y1="6" x2="18" y2="6"/>
+      </svg>
+    `;
+    glass.addEventListener("click", () => {
       saveWater(i === count ? i - 1 : i);
       renderWater();
     });
-    waterGlassesRow.appendChild(span);
+    waterGlassesRow.appendChild(glass);
   }
 }
 
@@ -331,20 +338,6 @@ function updateBatchCount() {
   }
 }
 
-if (batchCopyBtn) {
-  batchCopyBtn.addEventListener("click", () => {
-    if (selectedEntryIds.size === 0) return;
-    const selectedItems = entries.filter((e) => selectedEntryIds.has(e.id));
-    const duplicates = selectedItems.map((item) => ({ ...item, id: crypto.randomUUID() }));
-    entries.push(...duplicates);
-    saveEntries(entries);
-    isBatchMode = false;
-    if (batchActionsBar) batchActionsBar.hidden = true;
-    if (batchToggleBtn) batchToggleBtn.textContent = "Batch Select";
-    renderApp();
-    showToast(`Copied ${selectedItems.length} items`);
-  });
-}
 
 if (batchDeleteBtn) {
   batchDeleteBtn.addEventListener("click", () => {
@@ -456,10 +449,13 @@ function renderLog() {
       const isFav = favs.some((f) => f.description === entry.description);
 
       const starBtn = document.createElement("button");
-      starBtn.className = "remove-btn";
-      starBtn.textContent = isFav ? "⭐" : "☆";
-      starBtn.style.fontSize = "0.9rem";
+      starBtn.className = `neu-action-btn ${isFav ? "is-fav" : ""}`;
       starBtn.setAttribute("aria-label", "Toggle favorite");
+      starBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="${isFav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      `;
       starBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleFavoriteEntry(entry);
@@ -467,19 +463,28 @@ function renderLog() {
       });
 
       const editBtn = document.createElement("button");
-      editBtn.className = "remove-btn";
-      editBtn.textContent = "✏️";
-      editBtn.style.fontSize = "0.8rem";
+      editBtn.className = "neu-action-btn";
       editBtn.setAttribute("aria-label", "Edit entry");
+      editBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      `;
       editBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (modalControllers) modalControllers.openEditEntryModal(entry.id);
       });
 
       const removeBtn = document.createElement("button");
-      removeBtn.className = "remove-btn";
-      removeBtn.textContent = "×";
+      removeBtn.className = "neu-action-btn remove-action-btn";
       removeBtn.setAttribute("aria-label", "Remove entry");
+      removeBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      `;
       removeBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         removeEntry(entry.id);
@@ -507,6 +512,7 @@ function renderFavorites() {
   if (favs.length === 0) {
     const empty = document.createElement("li");
     empty.className = "empty-state";
+    empty.style.borderRadius = "12px";
     empty.textContent = "No saved favorites yet. Tap '+ Add Fav' above to save quick items.";
     favoritesList.appendChild(empty);
     return;
@@ -515,6 +521,23 @@ function renderFavorites() {
   favs.forEach((fav, index) => {
     const li = document.createElement("li");
     li.className = "fav-item";
+
+    // Left Neumorphic Plus Button to Log
+    const logBtn = document.createElement("button");
+    logBtn.className = "fav-log-btn";
+    logBtn.setAttribute("aria-label", "Log favorite");
+    logBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    `;
+    logBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      addEntryFromResult(fav.description, fav);
+      switchNavTab("today");
+      showToast(`Logged "${fav.description}" (${Math.round(fav.calories)} kcal)`);
+    });
 
     const info = document.createElement("div");
     info.className = "fav-info";
@@ -532,35 +555,33 @@ function renderFavorites() {
     info.appendChild(title);
     info.appendChild(macros);
 
-    const actions = document.createElement("div");
-    actions.style.display = "flex";
-    actions.style.alignItems = "center";
-    actions.style.gap = "6px";
-
-    const logBtn = document.createElement("button");
-    logBtn.className = "fav-add-btn";
-    logBtn.textContent = "+ Log";
-    logBtn.addEventListener("click", () => {
-      addEntryFromResult(fav.description, fav);
-      switchNavTab("today");
-    });
-
+    // Right Neumorphic Trash Delete Button
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "remove-btn";
-    deleteBtn.textContent = "×";
-    deleteBtn.setAttribute("aria-label", "Remove favorite");
-    deleteBtn.addEventListener("click", () => {
+    deleteBtn.className = "fav-delete-btn";
+    deleteBtn.setAttribute("aria-label", "Delete favorite");
+    deleteBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    `;
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       const currentFavs = loadFavorites();
-      currentFavs.splice(index, 1);
+      const removed = currentFavs.splice(index, 1)[0];
       saveFavorites(currentFavs);
       renderFavorites();
+      showToast(`Removed "${removed.description}" from favorites`, () => {
+        const restoredFavs = loadFavorites();
+        restoredFavs.splice(index, 0, removed);
+        saveFavorites(restoredFavs);
+        renderFavorites();
+      });
     });
 
-    actions.appendChild(logBtn);
-    actions.appendChild(deleteBtn);
-
+    li.appendChild(logBtn);
     li.appendChild(info);
-    li.appendChild(actions);
+    li.appendChild(deleteBtn);
     favoritesList.appendChild(li);
   });
 }
@@ -572,13 +593,14 @@ if (addFavBtn) {
 }
 
 export function addEntryFromResult(description, result) {
+  const item = result.item || result;
   const entry = {
     id: crypto.randomUUID(),
-    description,
-    calories: Number(result.calories) || 0,
-    protein_g: Number(result.protein_g) || 0,
-    carbs_g: Number(result.carbs_g) || 0,
-    fat_g: Number(result.fat_g) || 0,
+    description: item.description || description,
+    calories: Number(item.calories) || 0,
+    protein_g: Number(item.protein_g) || 0,
+    carbs_g: Number(item.carbs_g) || 0,
+    fat_g: Number(item.fat_g) || 0,
   };
 
   entries.push(entry);
@@ -600,6 +622,7 @@ function switchNavTab(targetTab) {
     today: viewToday,
     log: viewLog,
     analytics: viewAnalytics,
+    body: viewBody,
     swap: viewSwap,
     settings: viewSettings,
   };
@@ -607,6 +630,7 @@ function switchNavTab(targetTab) {
     today: navTodayBtn,
     log: navLogBtn,
     analytics: navAnalyticsBtn,
+    body: navBodyBtn,
     swap: navSwapBtn,
     settings: navSettingsBtn,
   };
@@ -628,6 +652,7 @@ function switchNavTab(targetTab) {
 if (navTodayBtn) navTodayBtn.addEventListener("click", () => switchNavTab("today"));
 if (navLogBtn) navLogBtn.addEventListener("click", () => switchNavTab("log"));
 if (navAnalyticsBtn) navAnalyticsBtn.addEventListener("click", () => switchNavTab("analytics"));
+if (navBodyBtn) navBodyBtn.addEventListener("click", () => switchNavTab("body"));
 if (navSwapBtn) navSwapBtn.addEventListener("click", () => switchNavTab("swap"));
 if (navSettingsBtn) navSettingsBtn.addEventListener("click", () => switchNavTab("settings"));
 
@@ -639,6 +664,22 @@ if (quickLogNavBtn) {
 }
 
 async function lookupFood(description, { final = false } = {}) {
+  // Try multi-item or single-item verified local & Open Food Facts database parsing first
+  const verifiedMeal = await parseAndSumVerifiedMeal(description);
+  if (verifiedMeal) {
+    return {
+      type: "result",
+      item: {
+        description: verifiedMeal.description,
+        calories: verifiedMeal.calories,
+        protein_g: verifiedMeal.protein_g,
+        carbs_g: verifiedMeal.carbs_g,
+        fat_g: verifiedMeal.fat_g,
+      },
+    };
+  }
+
+  // Pass multi-item meals, complex sentences, or unlisted foods to the serverless AI/LLM endpoint
   const params = new URLSearchParams({ food: description });
   if (final) params.set("final", "true");
 
@@ -915,7 +956,7 @@ if (todayModeDailyBtn && todayModeWeeklyBtn) {
 
 // Module Initializations
 initTheme();
-initBodyProfile(renderGoal);
+initBodyProfile(renderGoal, renderApp);
 modalControllers = initUIModals(entries, addEntryFromResult, renderApp, switchNavTab);
 initVisionModule(addEntryFromResult);
 
