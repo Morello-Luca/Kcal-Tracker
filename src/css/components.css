@@ -40,17 +40,26 @@
 }
 
 .quick-add-link {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #f5f7fa, #d1d5db);
+  border: 1px solid var(--border-soft);
+  color: #1f2937;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  border-radius: 20px;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity 0.2s ease;
+  box-shadow: 3px 3px 6px rgba(163, 177, 198, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.quick-add-link:active {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
 }
 
 .log-title-row {
