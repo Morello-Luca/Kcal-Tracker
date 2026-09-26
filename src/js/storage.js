@@ -39,6 +39,21 @@ export function loadWeightForDate(date) {
   return value > 0 ? value : null;
 }
 
+export function getAllWeightLogs() {
+  const logs = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(WEIGHT_KEY_PREFIX)) {
+      const dateStr = key.replace(WEIGHT_KEY_PREFIX, "");
+      const val = Number(localStorage.getItem(key));
+      if (val > 0) {
+        logs.push({ date: new Date(`${dateStr}T00:00:00`), weight: val });
+      }
+    }
+  }
+  return logs.sort((a, b) => a.date - b.date);
+}
+
 export function saveWeightForDate(date, weight) {
   if (weight > 0) {
     localStorage.setItem(weightKeyFor(date), String(weight));

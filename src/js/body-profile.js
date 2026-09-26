@@ -4,6 +4,7 @@ import {
   saveGoal,
   loadWeightForDate,
   saveWeightForDate,
+  getAllWeightLogs,
   dateSuffix,
   loadEntriesForKey,
   dateKey,
