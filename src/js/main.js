@@ -664,7 +664,24 @@ if (quickLogNavBtn) {
 }
 
 async function lookupFood(description, { final = false } = {}) {
-  // Try multi-item or single-item verified local & Open Food Facts database parsing first
+  // Check if description is a simple single food item
+  const isMultiItemOrSentence = /[,;\n]|\b(and|with|plus|\+)\b/i.test(description) || description.split(/\s+/).length > 4;
+
+  if (!isMultiItemOrSentence) {
+    const gramMatch = description.match(/(\d+)\s*(g|ml|gram|grams|milliliters)/i);
+    const gramAmount = gramMatch ? Number(gramMatch[1]) : 100;
+    const cleanItem = description.replace(/(\d+)\s*(g|ml|gram|grams|milliliters)/i, "").trim();
+
+    const singleVerified = await getVerifiedFood100g(cleanItem || description);
+    if (singleVerified) {
+      if (modalControllers && typeof modalControllers.openQuantityAdjustModal === "function") {
+        modalControllers.openQuantityAdjustModal(singleVerified, gramAmount);
+        return { type: "modal_opened" };
+      }
+    }
+  }
+
+  // Try multi-item verified local & Open Food Facts database parsing
   const verifiedMeal = await parseAndSumVerifiedMeal(description);
   if (verifiedMeal) {
     return {
@@ -742,6 +759,12 @@ if (form) {
 
     try {
       const result = await lookupFood(description);
+
+      if (result.type === "modal_opened") {
+        setStatus("");
+        input.value = "";
+        return;
+      }
 
       if (result.type === "clarify") {
         setStatus("");

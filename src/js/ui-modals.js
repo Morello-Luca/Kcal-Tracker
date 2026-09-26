@@ -31,6 +31,83 @@ export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTa
   const editCancelBtn = document.getElementById("edit-cancel-btn");
   let currentEditingEntryId = null;
 
+  // Quantity Adjust Modal Elements
+  const quantityModal = document.getElementById("quantity-adjust-modal");
+  const quantityCloseBtn = document.getElementById("quantity-modal-close");
+  const quantityCancelBtn = document.getElementById("quantity-cancel-btn");
+  const quantityForm = document.getElementById("quantity-adjust-form");
+  const quantityTitleEl = document.getElementById("quantity-modal-title");
+  const quantitySourceEl = document.getElementById("quantity-modal-source");
+  const quantityUnitLabel = document.getElementById("quantity-unit-label");
+  const quantityAmountInput = document.getElementById("quantity-amount-input");
+
+  const quantityCalsVal = document.getElementById("quantity-cals-val");
+  const quantityProteinVal = document.getElementById("quantity-protein-val");
+  const quantityCarbsVal = document.getElementById("quantity-carbs-val");
+  const quantityFatVal = document.getElementById("quantity-fat-val");
+
+  let activeVerifiedItem = null;
+
+  function openQuantityAdjustModal(verifiedItem, initialGrams = 100) {
+    if (!quantityModal || !verifiedItem) return;
+    activeVerifiedItem = verifiedItem;
+
+    if (quantityTitleEl) quantityTitleEl.textContent = verifiedItem.name;
+    if (quantitySourceEl) quantitySourceEl.textContent = `Verified Source: ${verifiedItem.source || "Official DB"} (100${verifiedItem.unit || "g"} baseline)`;
+    if (quantityUnitLabel) quantityUnitLabel.textContent = verifiedItem.unit || "g";
+    if (quantityAmountInput) quantityAmountInput.value = initialGrams;
+
+    updateQuantityPreview(initialGrams);
+    quantityModal.hidden = false;
+    if (quantityAmountInput) quantityAmountInput.focus();
+  }
+
+  function closeQuantityAdjustModal() {
+    activeVerifiedItem = null;
+    if (quantityModal) quantityModal.hidden = true;
+  }
+
+  function updateQuantityPreview(grams) {
+    if (!activeVerifiedItem) return;
+    const calc = calculateMacrosForWeight(activeVerifiedItem, grams);
+    if (quantityCalsVal) quantityCalsVal.textContent = Math.round(calc.calories);
+    if (quantityProteinVal) quantityProteinVal.textContent = `${calc.protein_g}g`;
+    if (quantityCarbsVal) quantityCarbsVal.textContent = `${calc.carbs_g}g`;
+    if (quantityFatVal) quantityFatVal.textContent = `${calc.fat_g}g`;
+  }
+
+  if (quantityAmountInput) {
+    quantityAmountInput.addEventListener("input", (e) => {
+      const g = Number(e.target.value) || 0;
+      updateQuantityPreview(g);
+    });
+  }
+
+  if (quantityCloseBtn) quantityCloseBtn.addEventListener("click", closeQuantityAdjustModal);
+  if (quantityCancelBtn) quantityCancelBtn.addEventListener("click", closeQuantityAdjustModal);
+
+  if (quantityForm) {
+    quantityForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!activeVerifiedItem) return;
+
+      const grams = Number(quantityAmountInput.value) || 100;
+      const calc = calculateMacrosForWeight(activeVerifiedItem, grams);
+
+      const description = `${activeVerifiedItem.name} (${grams}${activeVerifiedItem.unit || "g"}) [Verified DB]`;
+      addEntryFromResult(description, {
+        calories: calc.calories,
+        protein_g: calc.protein_g,
+        carbs_g: calc.carbs_g,
+        fat_g: calc.fat_g,
+      });
+
+      showToast(`Logged "${description}" (${Math.round(calc.calories)} kcal)`);
+      closeQuantityAdjustModal();
+      if (typeof switchNavTab === "function") switchNavTab("today");
+    });
+  }
+
   // Swap Suggestion Elements
   const swapForm = document.getElementById("swap-form");
   const swapInput = document.getElementById("swap-input");
@@ -186,5 +263,5 @@ export function initUIModals(entries, addEntryFromResult, renderApp, switchNavTa
     });
   }
 
-  return { openEditEntryModal, openManualAddModal };
+  return { openEditEntryModal, openManualAddModal, openQuantityAdjustModal };
 }
