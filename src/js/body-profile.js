@@ -44,8 +44,23 @@ export function calculateAdaptiveTDEE() {
     }
   }
 
+  const daysNeeded = Math.max(0, 14 - Math.min(loggedCalorieDays, weights.length));
+
   if (loggedCalorieDays < 3 || weights.length < 2) {
-    return { adaptiveTDEE: fallback, isEstimate: true, loggedDays: loggedCalorieDays, weightPoints: weights.length };
+    return {
+      adaptiveTDEE: fallback,
+      isEstimate: true,
+      loggedDays: loggedCalorieDays,
+      weightPoints: weights.length,
+      daysRemaining: daysNeeded > 0 ? daysNeeded : 14 - loggedCalorieDays,
+    };
+  }
+
+  // Calculate Exponential Moving Average (EMA) weight trend (\alpha = 0.1)
+  let emaWeight = weights[0].weight;
+  const alpha = 0.1;
+  for (let i = 1; i < weights.length; i++) {
+    emaWeight = weights[i].weight * alpha + emaWeight * (1 - alpha);
   }
 
   const avgDailyIntake = totalCalories / loggedCalorieDays;
@@ -58,7 +73,7 @@ export function calculateAdaptiveTDEE() {
   const dailySurplusDeficit = (weightChangeKg * 7700) / daysDiff;
   const calculatedTDEE = Math.round(avgDailyIntake - dailySurplusDeficit);
 
-  // Clamp within realistic bounds relative to formula TDEE (e.g. 1000 - 5000 kcal)
+  // Clamp within realistic bounds (1000 - 5000 kcal)
   const adaptiveTDEE = Math.max(1000, Math.min(5000, calculatedTDEE));
 
   return {
@@ -68,6 +83,8 @@ export function calculateAdaptiveTDEE() {
     weightChangeKg: Math.round(weightChangeKg * 10) / 10,
     loggedDays: loggedCalorieDays,
     weightPoints: weights.length,
+    emaWeight: Math.round(emaWeight * 10) / 10,
+    daysRemaining: daysNeeded,
   };
 }
 
@@ -112,7 +129,105 @@ export function initBodyProfile(renderGoal) {
   const bmrResultBox = document.getElementById("bmr-result-box");
   const bmrValEl = document.getElementById("bmr-val");
   const tdeeValEl = document.getElementById("tdee-val");
-  const applyTdeeBtn = document.getElementById("apply-tdee-btn");
+
+  const quickWeightForm = document.getElementById("quick-weight-form");
+  const quickWeightInput = document.getElementById("quick-weight-input");
+  const weightTrendBadge = document.getElementById("body-weight-trend-badge");
+  const weightHistoryPills = document.getElementById("weight-history-pills");
+
+  const tdeeModeToggle = document.getElementById("tdee-mode-toggle");
+  const tdeeModeText = document.getElementById("tdee-mode-text");
+
+  // Load active TDEE mode preference ("standard" or "adaptive")
+  const isAdaptive = localStorage.getItem("kcal-tdee-mode") === "adaptive";
+  if (tdeeModeToggle) {
+    tdeeModeToggle.checked = isAdaptive;
+  }
+  if (tdeeModeText) {
+    tdeeModeText.textContent = isAdaptive ? "Adaptive" : "Standard";
+  }
+
+  function renderWeightTracker() {
+    if (!weightHistoryPills) return;
+    weightHistoryPills.innerHTML = "";
+
+    const today = new Date();
+    const todayWeight = loadWeightForDate(today);
+    if (todayWeight !== null && quickWeightInput) {
+      quickWeightInput.value = todayWeight;
+    }
+
+    const adaptiveRes = calculateAdaptiveTDEE();
+    if (weightTrendBadge) {
+      if (adaptiveRes.emaWeight) {
+        weightTrendBadge.textContent = `Trend: ${adaptiveRes.emaWeight} kg`;
+      } else {
+        weightTrendBadge.textContent = "Trend: -- kg";
+      }
+    }
+
+    // Render past 7 days weight pills
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const w = loadWeightForDate(d);
+
+      const pill = document.createElement("span");
+      pill.className = `weight-pill ${w !== null ? "has-val" : ""}`;
+      const dayLabel = i === 0 ? "Today" : d.toLocaleDateString(undefined, { weekday: "short" });
+      pill.textContent = `${dayLabel}: ${w !== null ? w + "kg" : "--"}`;
+      weightHistoryPills.appendChild(pill);
+    }
+  }
+
+  function syncCalorieGoal() {
+    const isAdaptiveMode = tdeeModeToggle ? tdeeModeToggle.checked : false;
+    const prof = loadBodyProfile();
+    if (!prof) return;
+
+    let targetCalories = 2000;
+    if (isAdaptiveMode) {
+      const adaptiveRes = calculateAdaptiveTDEE();
+      targetCalories = adaptiveRes.adaptiveTDEE;
+    } else {
+      const { tdee } = calculateBMRandTDEE(prof);
+      targetCalories = tdee;
+    }
+
+    const currentGoal = loadGoal();
+    saveGoal({ ...currentGoal, calories: targetCalories });
+    if (typeof renderGoal === "function") renderGoal();
+  }
+
+  if (tdeeModeToggle) {
+    tdeeModeToggle.addEventListener("change", (e) => {
+      const isChecked = e.target.checked;
+      localStorage.setItem("kcal-tdee-mode", isChecked ? "adaptive" : "standard");
+      if (tdeeModeText) {
+        tdeeModeText.textContent = isChecked ? "Adaptive" : "Standard";
+      }
+      syncCalorieGoal();
+    });
+  }
+
+  if (quickWeightForm) {
+    quickWeightForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = Number(quickWeightInput.value);
+      if (!val || val < 20 || val > 300) return;
+
+      saveWeightForDate(new Date(), val);
+
+      // Update weight in body profile if available
+      const prof = loadBodyProfile() || {};
+      prof.weight = val;
+      saveBodyProfile(prof);
+
+      renderWeightTracker();
+      renderBodyProfile();
+      syncCalorieGoal();
+    });
+  }
 
   function renderBodyProfile() {
     const prof = loadBodyProfile();
@@ -136,7 +251,7 @@ export function initBodyProfile(renderGoal) {
     if (settingsAdaptiveValEl) settingsAdaptiveValEl.textContent = `${adaptiveRes.adaptiveTDEE} kcal`;
     if (settingsAdaptiveSubtitleEl) {
       if (adaptiveRes.isEstimate) {
-        settingsAdaptiveSubtitleEl.textContent = `Formula baseline (Log ${3 - adaptiveRes.loggedDays} more days and 2 weight entries for dynamic TDEE)`;
+        settingsAdaptiveSubtitleEl.textContent = `Standard formula active (${adaptiveRes.daysRemaining} days remaining until Adaptive TDEE unlocks)`;
       } else {
         settingsAdaptiveSubtitleEl.textContent = `Based on ${adaptiveRes.loggedDays} log days & ${adaptiveRes.weightChangeKg >= 0 ? "+" : ""}${adaptiveRes.weightChangeKg} kg weight trend`;
       }

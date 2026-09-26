@@ -1,43 +1,34 @@
-/* CSS Variables & Physical Neumorphic System Specs */
+/* CSS Variables & Core System Specs */
 :root {
-  /* Default Theme: Quiet Tactile Soft Neumorphic (Matching Reference Image) */
+  /* Default Theme: Soft Neumorphic */
   --bg: #e2e5e9;
   --surface: #e2e5e9;
-  --surface-alt: #e2e5e9;
-  --surface-elevated: #d8dce2;
-
-  --text: #2d333c;
+  --surface-alt: #d7dbf0;
+  --surface-elevated: #ebf0f5;
+  --text: #2c323b;
   --text-dim: #6c7582;
-  --text-secondary: #4b535e;
+  --text-secondary: #525a66;
 
-  /* Restrained, Muted Accents */
+  --shadow-raised: 4px 4px 10px #c5c9ce, -4px -4px 10px #ffffff;
+  --shadow-inset: inset 2px 2px 5px #c5c9ce, inset -2px -2px 5px #ffffff;
+  --shadow-pressed: inset 3px 3px 6px #bcbfc4, inset -3px -3px 6px #ffffff;
+
   --ios-blue: #3b72b9;
   --ios-green: #3d8b5f;
   --ios-orange: #c87a2a;
   --ios-red: #c94a4a;
-  --ios-purple: #7a5eb8;
-  --ios-teal: #338ba8;
+  --ios-purple: #8b5fb9;
+  --ios-teal: #3b9ab9;
 
   --accent: #3b72b9;
-  --danger: #c94a4a;
-  --border: rgba(255, 255, 255, 0.65);
-  --border-dark: rgba(160, 170, 185, 0.35);
-  --hairline: rgba(160, 170, 185, 0.25);
-  --nav-bg: rgba(226, 229, 233, 0.92);
-
-  /* Subtle, Physical Shadow Levels */
-  --shadow-light: #ffffff;
-  --shadow-dark: #b6becd;
-
-  /* Tight, controlled physical depths */
-  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
-  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
-  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
-
-  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
-  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --danger: var(--ios-red);
+  --border: rgba(255, 255, 255, 0.6);
+  --border-soft: rgba(0, 0, 0, 0.04);
+  --hairline: rgba(0, 0, 0, 0.06);
+  --nav-bg: #e2e5e9;
   --card-shadow: var(--shadow-raised);
+  --radius-card: 16px;
+  --radius-btn: 12px;
 }
 
 html, body {
@@ -55,23 +46,20 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.25s ease, color 0.25s ease;
-  font-size: 14px;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
   width: 100%;
   max-width: 430px;
   margin: 0 auto;
-  padding: 14px 14px 90px;
+  padding: 16px 16px 100px;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
