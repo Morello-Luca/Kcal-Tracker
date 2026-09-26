@@ -380,15 +380,8 @@
         <div class="card-panel neu-reference-card margin-top-sm">
           <div class="neu-card-header">
             <h2>Weight Tracker</h2>
-            <button type="button" class="neu-icon-btn" id="simulate-weight-btn" aria-label="Simulate Data" title="Simulate 14-Day Weight Data">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
+            <span class="weight-trend-badge" id="body-weight-trend-badge">Trend: -- kg</span>
           </div>
-
 
           <!-- Input Row & Scale Log -->
           <form id="quick-weight-form" class="neu-card-footer margin-top-sm">
@@ -397,10 +390,6 @@
             </div>
             <button type="submit" id="quick-weight-save-btn" class="neu-plus-btn" aria-label="Log Weight">+</button>
           </form>
-
-          <div class="weight-summary-row margin-top-xs">
-            <span class="weight-trend-badge" id="body-weight-trend-badge">Trend: -- kg</span>
-          </div>
 
           <!-- 7-Day Static Mini Grid (No Horizontal Scrollbar) -->
           <div class="weight-mini-grid margin-top-sm" id="weight-history-pills"></div>

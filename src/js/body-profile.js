@@ -118,7 +118,7 @@ export function calculateBMRandTDEE(profile) {
   return { bmr: Math.round(bmr), tdee: Math.round(tdee) };
 }
 
-export function initBodyProfile(renderGoal) {
+export function initBodyProfile(renderGoal, renderAppCallback) {
   const bodyProfileForm = document.getElementById("body-profile-form");
   const bodyAgeInput = document.getElementById("body-age");
   const bodyGenderSelect = document.getElementById("body-gender");
@@ -139,7 +139,6 @@ export function initBodyProfile(renderGoal) {
   const tdeeModeText = document.getElementById("tdee-mode-text");
 
   // Load active TDEE mode preference ("standard" or "adaptive")
-  const simulateWeightBtn = document.getElementById("simulate-weight-btn");
 
   function renderWeightTracker() {
     if (!weightHistoryPills) return;
@@ -204,7 +203,11 @@ export function initBodyProfile(renderGoal) {
 
     const currentGoal = loadGoal();
     saveGoal({ ...currentGoal, calories: targetCalories });
-    if (typeof renderGoal === "function") renderGoal();
+    if (typeof renderAppCallback === "function") {
+      renderAppCallback();
+    } else if (typeof renderGoal === "function") {
+      renderGoal();
+    }
   }
 
   if (tdeeModeToggle) {
@@ -283,36 +286,6 @@ export function initBodyProfile(renderGoal) {
     if (bmrResultBox) bmrResultBox.hidden = false;
   }
 
-  if (simulateWeightBtn) {
-    simulateWeightBtn.addEventListener("click", () => {
-      const today = new Date();
-      let baseWeight = 75.0;
-      for (let i = 14; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        // Add small smooth fluctuations
-        const w = Math.round((baseWeight - i * 0.1 + (i % 2 === 0 ? 0.2 : -0.1)) * 10) / 10;
-        saveWeightForDate(d, w);
-
-        // Also seed dummy food entries so calories are logged for those 14 days
-        const k = dateKey(d);
-        const currentLog = loadEntriesForKey(k);
-        if (currentLog.length === 0) {
-          const dummyEntries = [
-            { id: `sim-${i}-1`, description: "Simulated Balanced Meal", calories: 2100, protein_g: 140, carbs_g: 220, fat_g: 65 }
-          ];
-          localStorage.setItem(k, JSON.stringify(dummyEntries));
-        }
-      }
-
-      // Automatically unlock and switch to Adaptive
-      localStorage.setItem("kcal-tdee-mode", "adaptive");
-      renderWeightTracker();
-      renderBodyProfile();
-      syncCalorieGoal();
-      alert("Simulated 14 days of weight & calorie logs! Adaptive TDEE is now unlocked.");
-    });
-  }
 
   if (bodyProfileForm) {
     bodyProfileForm.addEventListener("submit", (e) => {
@@ -340,7 +313,11 @@ export function initBodyProfile(renderGoal) {
       const { tdee } = calculateBMRandTDEE(prof);
       const currentGoal = loadGoal();
       saveGoal({ ...currentGoal, calories: tdee });
-      if (typeof renderGoal === "function") renderGoal();
+      if (typeof renderAppCallback === "function") {
+        renderAppCallback();
+      } else if (typeof renderGoal === "function") {
+        renderGoal();
+      }
       alert(`Daily Calorie Goal set to ${tdee} kcal based on Formula TDEE!`);
     });
   }
@@ -351,7 +328,11 @@ export function initBodyProfile(renderGoal) {
       const adaptiveRes = calculateAdaptiveTDEE();
       const currentGoal = loadGoal();
       saveGoal({ ...currentGoal, calories: adaptiveRes.adaptiveTDEE });
-      if (typeof renderGoal === "function") renderGoal();
+      if (typeof renderAppCallback === "function") {
+        renderAppCallback();
+      } else if (typeof renderGoal === "function") {
+        renderGoal();
+      }
       alert(`Daily Calorie Goal synced to Adaptive TDEE: ${adaptiveRes.adaptiveTDEE} kcal!`);
     });
   }
