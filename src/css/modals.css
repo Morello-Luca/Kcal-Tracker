@@ -220,6 +220,13 @@
 }
 
 /* Verified Food Quantity Adjustment Card Styles */
+.goal-field-label {
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
 .verified-macro-preview {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
