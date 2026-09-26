@@ -1,103 +1,178 @@
-/* Color Themes & Switcher Styles */
+/* Color Themes & Switcher Styles - Tactile Physical Neumorphic Language */
 
-/* Theme: Forest Pastel */
-[data-theme="forest"] {
-  --bg: #0d1b12;
-  --surface: #162a1e;
-  --surface-alt: #223c2c;
-  --surface-elevated: #2f4e3c;
-  --text: #f0f7f2;
-  --text-dim: #7a9c84;
-  --text-secondary: #a3c4ad;
+/* Theme: OLED Midnight (Dark Tactile Neumorphic) */
+[data-theme="oled"] {
+  --bg: #1a1c20;
+  --surface: #1a1c20;
+  --surface-alt: #1a1c20;
+  --surface-elevated: #24272d;
+  --text: #e2e5e9;
+  --text-dim: #848c98;
+  --text-secondary: #a3acb9;
 
-  --ios-blue: #52b788;
-  --ios-green: #74c69d;
-  --ios-orange: #e9d8a6;
-  --ios-red: #e63946;
-  --ios-purple: #95d5b2;
-  --ios-teal: #b7e4c7;
+  --ios-blue: #4d82c2;
+  --ios-green: #48a26d;
+  --ios-orange: #d1883b;
+  --ios-red: #d15858;
+  --ios-purple: #8b6ec2;
+  --ios-teal: #469cb8;
 
   --accent: var(--ios-green);
   --danger: var(--ios-red);
-  --border: rgba(183, 228, 199, 0.1);
-  --hairline: rgba(183, 228, 199, 0.15);
-  --nav-bg: rgba(22, 42, 30, 0.85);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-dark: rgba(0, 0, 0, 0.45);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(26, 28, 32, 0.92);
+
+  --shadow-light: rgba(255, 255, 255, 0.04);
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --card-shadow: var(--shadow-raised);
+}
+
+/* Theme: Forest Pastel */
+[data-theme="forest"] {
+  --bg: #18241c;
+  --surface: #18241c;
+  --surface-alt: #18241c;
+  --surface-elevated: #223227;
+  --text: #e3ebd8;
+  --text-dim: #798c7d;
+  --text-secondary: #9cb0a1;
+
+  --ios-blue: #5ba37d;
+  --ios-green: #67b889;
+  --ios-orange: #cbb274;
+  --ios-red: #c95151;
+  --ios-purple: #86b096;
+  --ios-teal: #82c2a0;
+
+  --accent: var(--ios-green);
+  --danger: var(--ios-red);
+  --border: rgba(255, 255, 255, 0.05);
+  --border-dark: rgba(0, 0, 0, 0.45);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(24, 36, 28, 0.92);
+
+  --shadow-light: rgba(255, 255, 255, 0.04);
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --card-shadow: var(--shadow-raised);
 }
 
 /* Theme: Slate Blue */
 [data-theme="slate"] {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface-alt: #334155;
-  --surface-elevated: #475569;
-  --text: #f8fafc;
-  --text-dim: #94a3b8;
-  --text-secondary: #cbd5e1;
+  --bg: #1c2331;
+  --surface: #1c2331;
+  --surface-alt: #1c2331;
+  --surface-elevated: #263042;
+  --text: #e6ecf5;
+  --text-dim: #7f8c9f;
+  --text-secondary: #a3b2c7;
 
-  --ios-blue: #38bdf8;
-  --ios-green: #34d399;
-  --ios-orange: #fbbf24;
-  --ios-red: #f87171;
-  --ios-purple: #c084fc;
-  --ios-teal: #22d3ee;
+  --ios-blue: #4a82bd;
+  --ios-green: #419f7a;
+  --ios-orange: #cd9346;
+  --ios-red: #c85353;
+  --ios-purple: #9572c4;
+  --ios-teal: #429fbd;
 
   --accent: var(--ios-blue);
   --danger: var(--ios-red);
-  --border: rgba(255, 255, 255, 0.08);
-  --hairline: rgba(255, 255, 255, 0.12);
-  --nav-bg: rgba(30, 41, 59, 0.85);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --border: rgba(255, 255, 255, 0.05);
+  --border-dark: rgba(0, 0, 0, 0.45);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(28, 35, 49, 0.92);
+
+  --shadow-light: rgba(255, 255, 255, 0.04);
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --card-shadow: var(--shadow-raised);
 }
 
 /* Theme: Sunset Rose */
 [data-theme="sunset"] {
-  --bg: #1a0f18;
-  --surface: #2a1827;
-  --surface-alt: #3d243a;
-  --surface-elevated: #52314e;
-  --text: #fdf2f8;
-  --text-dim: #b082a5;
-  --text-secondary: #d4a5cb;
+  --bg: #261a24;
+  --surface: #261a24;
+  --surface-alt: #261a24;
+  --surface-elevated: #332330;
+  --text: #f5e8f2;
+  --text-dim: #997b92;
+  --text-secondary: #bc9cb5;
 
-  --ios-blue: #f472b6;
-  --ios-green: #fb7185;
-  --ios-orange: #f97316;
-  --ios-red: #ef4444;
-  --ios-purple: #e879f9;
-  --ios-teal: #38bdf8;
+  --ios-blue: #b95d8e;
+  --ios-green: #b95d73;
+  --ios-orange: #c27042;
+  --ios-red: #c84e4e;
+  --ios-purple: #b260bf;
+  --ios-teal: #4295bd;
 
   --accent: var(--ios-blue);
   --danger: var(--ios-red);
-  --border: rgba(244, 114, 182, 0.12);
-  --hairline: rgba(244, 114, 182, 0.18);
-  --nav-bg: rgba(42, 24, 39, 0.85);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --border: rgba(255, 255, 255, 0.05);
+  --border-dark: rgba(0, 0, 0, 0.45);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(38, 26, 36, 0.92);
+
+  --shadow-light: rgba(255, 255, 255, 0.04);
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --card-shadow: var(--shadow-raised);
 }
 
 /* Theme: Sage Clean */
 [data-theme="sage"] {
-  --bg: #121816;
-  --surface: #1d2623;
-  --surface-alt: #2a3733;
-  --surface-elevated: #394a45;
-  --text: #f2f7f5;
-  --text-dim: #889e96;
-  --text-secondary: #b1c7bf;
+  --bg: #1c2421;
+  --surface: #1c2421;
+  --surface-alt: #1c2421;
+  --surface-elevated: #26312d;
+  --text: #e6edea;
+  --text-dim: #798e87;
+  --text-secondary: #9cb2ab;
 
-  --ios-blue: #4ade80;
-  --ios-green: #2dd4bf;
-  --ios-orange: #fb923c;
-  --ios-red: #f87171;
-  --ios-purple: #a78bfa;
-  --ios-teal: #38bdf8;
+  --ios-blue: #42a278;
+  --ios-green: #37a892;
+  --ios-orange: #c88242;
+  --ios-red: #c85353;
+  --ios-purple: #8678c2;
+  --ios-teal: #3ba2c4;
 
   --accent: var(--ios-green);
   --danger: var(--ios-red);
-  --border: rgba(255, 255, 255, 0.08);
-  --hairline: rgba(255, 255, 255, 0.12);
-  --nav-bg: rgba(29, 38, 35, 0.85);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --border: rgba(255, 255, 255, 0.05);
+  --border-dark: rgba(0, 0, 0, 0.45);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(28, 36, 33, 0.92);
+
+  --shadow-light: rgba(255, 255, 255, 0.04);
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-raised-sm: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+  --shadow-raised-lg: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-inset-deep: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --shadow-pressed: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --card-shadow: var(--shadow-raised);
 }
 
 /* Theme Selector Grid in Settings */
@@ -113,34 +188,47 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--surface-alt);
-  border: 1.5px solid transparent;
-  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-raised-sm);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   cursor: pointer;
   color: var(--text);
-  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.theme-card:hover {
+  transform: translateY(-1px);
+}
+
+.theme-card:active {
+  box-shadow: var(--shadow-pressed);
+  transform: translateY(0);
 }
 
 .theme-card.active {
   border-color: var(--ios-blue);
-  background: var(--surface-elevated);
+  box-shadow: var(--shadow-inset);
 }
 
 .theme-preview {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.oled-preview { background: linear-gradient(135deg, #000000 50%, #30d158 50%); }
-.forest-preview { background: linear-gradient(135deg, #0d1b12 50%, #74c69d 50%); }
-.slate-preview { background: linear-gradient(135deg, #0f172a 50%, #38bdf8 50%); }
-.sunset-preview { background: linear-gradient(135deg, #1a0f18 50%, #f472b6 50%); }
-.sage-preview { background: linear-gradient(135deg, #121816 50%, #2dd4bf 50%); }
+.neumorphic-preview { background: linear-gradient(135deg, #e2e5e9 50%, #3b72b9 50%); }
+.oled-preview { background: linear-gradient(135deg, #1a1c20 50%, #48a26d 50%); }
+.forest-preview { background: linear-gradient(135deg, #18241c 50%, #67b889 50%); }
+.slate-preview { background: linear-gradient(135deg, #1c2331 50%, #4a82bd 50%); }
+.sunset-preview { background: linear-gradient(135deg, #261a24 50%, #b95d8e 50%); }
+.sage-preview { background: linear-gradient(135deg, #1c2421 50%, #37a892 50%); }
 
 .theme-name {
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
