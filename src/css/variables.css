@@ -9,9 +9,12 @@
   --text-dim: #6c7582;
   --text-secondary: #525a66;
 
-  --shadow-raised: 4px 4px 10px #c5c9ce, -4px -4px 10px #ffffff;
-  --shadow-inset: inset 2px 2px 5px #c5c9ce, inset -2px -2px 5px #ffffff;
-  --shadow-pressed: inset 3px 3px 6px #bcbfc4, inset -3px -3px 6px #ffffff;
+  --shadow-dark: rgba(163, 177, 198, 0.6);
+  --shadow-light: rgba(255, 255, 255, 0.8);
+
+  --shadow-raised: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  --shadow-inset: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --shadow-pressed: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
 
   --ios-blue: #3b72b9;
   --ios-green: #3d8b5f;

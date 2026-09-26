@@ -112,9 +112,9 @@
 }
 
 .mode-btn.active {
-  background: linear-gradient(145deg, #f5f7fa, #d1d5db);
-  color: #1f2937;
-  box-shadow: 3px 3px 7px rgba(163, 177, 198, 0.7), -3px -3px 7px rgba(255, 255, 255, 0.9);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow-raised);
   font-weight: 700;
 }
 

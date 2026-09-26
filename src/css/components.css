@@ -43,9 +43,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #f5f7fa, #d1d5db);
+  background: var(--bg);
   border: 1px solid var(--border-soft);
-  color: #1f2937;
+  color: var(--text);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -53,7 +53,7 @@
   border-radius: 20px;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 3px 3px 6px rgba(163, 177, 198, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-raised);
   transition: all 0.2s ease;
 }
 
