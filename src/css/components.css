@@ -32,7 +32,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .section-title-row h2 {
@@ -122,6 +122,7 @@
   letter-spacing: -0.03em;
   color: var(--text);
   line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .total-label {
@@ -231,6 +232,12 @@
   border-color: rgba(59, 114, 185, 0.5);
 }
 
+.goal-form input:disabled, select:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .goal-form-actions {
   grid-column: 1 / -1;
   display: flex;
@@ -281,7 +288,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .macro-value {
@@ -334,8 +341,8 @@
 .action-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 14px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .action-card {
@@ -377,7 +384,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .water-title {
@@ -395,7 +402,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .water-btn {
@@ -421,7 +428,7 @@
 
 .water-glasses-row {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -439,8 +446,8 @@
 /* Search & Entry Forms */
 .entry-form {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 #food-input, #swap-input {
@@ -488,7 +495,7 @@
   margin-bottom: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .clarify-panel[hidden] { display: none; }
@@ -648,7 +655,7 @@
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .macro-card-header {
@@ -662,6 +669,7 @@
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .macro-card-title {
@@ -744,7 +752,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .fav-item {
@@ -1037,7 +1045,7 @@
 .history-nav-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .history-nav-btn {
@@ -1159,13 +1167,13 @@
 /* Toast Container & Neumorphic Toast Banner */
 .toast-container {
   position: fixed;
-  bottom: 80px;
+  bottom: 84px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 90%;
   max-width: 380px;
   pointer-events: none;

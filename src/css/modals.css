@@ -118,7 +118,7 @@
 .modal-hint {
   font-size: 0.78rem;
   color: var(--text-dim);
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   word-break: break-word;
   line-height: 1.4;
 }
@@ -135,7 +135,7 @@
 #photo-camera .goal-form-actions,
 #photo-preview .goal-form-actions,
 #barcode-confirm .goal-form-actions {
-  margin-top: 6px;
+  margin-top: 8px;
   width: 100%;
 }
 

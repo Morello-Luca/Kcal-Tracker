@@ -5,8 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 12px;
-  padding: 8px 4px 0;
+  margin-bottom: 14px;
+  padding: 10px 6px 0;
 }
 
 .app-header .date {
@@ -36,7 +36,7 @@
 .banner-content {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -147,6 +147,7 @@
 
 .nav-item.active .nav-svg {
   stroke: var(--ios-blue);
+  transform: translateY(-1px);
 }
 
 .nav-label {
