@@ -1,5 +1,5 @@
 /* Vision, Barcode & OCR Camera Lookup Module */
-import { round } from "./storage.js";
+import { round, getPersonalBarcode, savePersonalBarcode } from "./storage.js";
 
 export function initVisionModule(addEntryFromResult) {
   // Barcode elements
@@ -26,6 +26,7 @@ export function initVisionModule(addEntryFromResult) {
   const barcodeUploadCarbsInput = document.getElementById("barcode-upload-carbs");
   const barcodeUploadFatInput = document.getElementById("barcode-upload-fat");
   const barcodeUploadServingInput = document.getElementById("barcode-upload-serving");
+  const barcodeOcrScanBtn = document.getElementById("barcode-ocr-scan-btn");
   const barcodeFallbackEl = document.getElementById("barcode-fallback");
   const barcodeFallbackForm = document.getElementById("barcode-fallback-form");
   const barcodeFallbackInput = document.getElementById("barcode-fallback-input");
@@ -119,6 +120,51 @@ export function initVisionModule(addEntryFromResult) {
     await stopBarcodeScanner();
     if (barcodeReaderEl) barcodeReaderEl.hidden = true;
     if (barcodeStatusEl) barcodeStatusEl.textContent = `Searching databases for barcode ${decodedText}...`;
+
+    // 0. Check Personal Local Barcode Store
+    const localPersonal = getPersonalBarcode(decodedText);
+    if (localPersonal && localPersonal.per100g && localPersonal.per100g.calories > 0) {
+      currentBarcodeProduct = {
+        code: decodedText,
+        name: localPersonal.name,
+        brand: localPersonal.brand || "",
+        per100g: {
+          calories: Number(localPersonal.per100g.calories) || 0,
+          protein: Number(localPersonal.per100g.protein_g ?? localPersonal.per100g.protein) || 0,
+          carbs: Number(localPersonal.per100g.carbs_g ?? localPersonal.per100g.carbs) || 0,
+          fat: Number(localPersonal.per100g.fat_g ?? localPersonal.per100g.fat) || 0,
+        },
+        source: "Personal Barcode Store",
+        confirmations: localPersonal.confirmations || 1,
+        serving_quantity: localPersonal.serving_quantity || 100,
+      };
+
+      const defaultGrams = Number(localPersonal.serving_quantity) > 0 ? Math.round(localPersonal.serving_quantity) : 100;
+
+      if (barcodeProductNameEl) {
+        barcodeProductNameEl.textContent = currentBarcodeProduct.brand
+          ? `${currentBarcodeProduct.name} (${currentBarcodeProduct.brand})`
+          : currentBarcodeProduct.name;
+      }
+
+      if (barcodeSourceTagEl) {
+        barcodeSourceTagEl.textContent = `Source: Personal Barcode Store 👤`;
+      }
+
+      if (barcodePer100gEl) {
+        barcodePer100gEl.textContent = `${Math.round(currentBarcodeProduct.per100g.calories)} kcal / 100g · P ${round(
+          currentBarcodeProduct.per100g.protein
+        )}g · C ${round(currentBarcodeProduct.per100g.carbs)}g · F ${round(currentBarcodeProduct.per100g.fat)}g`;
+      }
+
+      if (barcodeQuantityInput) barcodeQuantityInput.value = defaultGrams;
+      if (barcodeStatusEl) barcodeStatusEl.textContent = "";
+
+      if (barcodeConfirmEl) barcodeConfirmEl.hidden = false;
+      if (barcodeUploadSectionEl) barcodeUploadSectionEl.hidden = true;
+      if (barcodeFallbackEl) barcodeFallbackEl.hidden = true;
+      return;
+    }
 
     try {
       const res = await fetch(`/api/barcode?code=${encodeURIComponent(decodedText)}`);
@@ -285,6 +331,16 @@ export function initVisionModule(addEntryFromResult) {
     });
   }
 
+  if (barcodeOcrScanBtn) {
+    barcodeOcrScanBtn.addEventListener("click", () => {
+      closeBarcodeModal();
+      openPhotoModal();
+      activePhotoMode = "label";
+      if (photoModeLabelBtn) photoModeLabelBtn.classList.add("active");
+      if (photoModeAutoBtn) photoModeAutoBtn.classList.remove("active");
+    });
+  }
+
   if (barcodeUploadForm) {
     barcodeUploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -327,6 +383,21 @@ export function initVisionModule(addEntryFromResult) {
         const factor = serving_quantity / 100;
         const entryName = brand ? `${name} (${brand}) (${serving_quantity}g)` : `${name} (${serving_quantity}g)`;
 
+        // Always save to user's personal barcode store
+        savePersonalBarcode({
+          code,
+          name,
+          brand,
+          per100g: {
+            calories,
+            protein_g,
+            carbs_g,
+            fat_g,
+          },
+          serving_quantity,
+          source: "Personal Barcode Store",
+        });
+
         addEntryFromResult(entryName, {
           calories: calories * factor,
           protein_g: protein_g * factor,
@@ -334,7 +405,7 @@ export function initVisionModule(addEntryFromResult) {
           fat_g: fat_g * factor,
         });
 
-        if (barcodeStatusEl) barcodeStatusEl.textContent = `Uploaded "${name}" to community database and logged!`;
+        if (barcodeStatusEl) barcodeStatusEl.textContent = `Saved "${name}" to personal store & uploaded to community database!`;
         setTimeout(() => {
           closeBarcodeModal();
         }, 1200);
@@ -575,6 +646,17 @@ export function initVisionModule(addEntryFromResult) {
         if (photoEditProtein) photoEditProtein.value = round(result.protein_g) || 0;
         if (photoEditCarbs) photoEditCarbs.value = round(result.carbs_g) || 0;
         if (photoEditFat) photoEditFat.value = round(result.fat_g) || 0;
+
+        // Auto-fill barcode upload form if a barcode upload was in progress
+        if (barcodeUploadCodeInput && barcodeUploadCodeInput.value) {
+          if (barcodeUploadNameInput && !barcodeUploadNameInput.value) {
+            barcodeUploadNameInput.value = result.description || "";
+          }
+          if (barcodeUploadCaloriesInput) barcodeUploadCaloriesInput.value = Math.round(result.calories) || 0;
+          if (barcodeUploadProteinInput) barcodeUploadProteinInput.value = round(result.protein_g) || 0;
+          if (barcodeUploadCarbsInput) barcodeUploadCarbsInput.value = round(result.carbs_g) || 0;
+          if (barcodeUploadFatInput) barcodeUploadFatInput.value = round(result.fat_g) || 0;
+        }
 
         showPhotoPanel(null);
         if (photoTipEl) photoTipEl.hidden = true;
