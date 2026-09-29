@@ -1,0 +1,18 @@
+{
+  "8000500003787": {
+    "code": "8000500003787",
+    "name": "Nutella Hazelnut Spread",
+    "brand": "Ferrero",
+    "per100g": {
+      "calories": 539,
+      "protein_g": 6.3,
+      "carbs_g": 57.5,
+      "fat_g": 30.9
+    },
+    "serving_quantity": 15,
+    "unit": "g",
+    "confirmations": 5,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z"
+  }
+}
