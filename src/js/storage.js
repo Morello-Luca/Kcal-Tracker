@@ -8,6 +8,7 @@ export const GOAL_KEY = "kcal-goal";
 export const BODY_PROFILE_KEY = "kcal-body-profile";
 export const FAVORITES_KEY = "kcal-favorites";
 export const SETTINGS_KEY = "kcal-settings";
+export const USER_BARCODES_KEY = "kcal-user-barcodes";
 
 export const DEFAULT_WATER_GOAL = 8;
 
@@ -202,6 +203,39 @@ export function loadFavorites() {
 
 export function saveFavorites(favs) {
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+
+export function loadPersonalBarcodes() {
+  const raw = localStorage.getItem(USER_BARCODES_KEY);
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) || {};
+  } catch {
+    return {};
+  }
+}
+
+export function getPersonalBarcode(code) {
+  if (!code) return null;
+  const store = loadPersonalBarcodes();
+  return store[code] || null;
+}
+
+export function savePersonalBarcode(product) {
+  if (!product || !product.code) return;
+  const store = loadPersonalBarcodes();
+  store[product.code] = {
+    ...product,
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(USER_BARCODES_KEY, JSON.stringify(store));
+}
+
+export function deletePersonalBarcode(code) {
+  if (!code) return;
+  const store = loadPersonalBarcodes();
+  delete store[code];
+  localStorage.setItem(USER_BARCODES_KEY, JSON.stringify(store));
 }
 
 export function round(n) {

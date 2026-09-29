@@ -28,6 +28,56 @@ function saveCommunityDb(db) {
   } catch (err) {
     console.warn("Could not persist community-barcodes.json to disk (read-only environment):", err);
   }
+
+  // Asynchronous GitHub Repository API sync for persistent database commits on Vercel
+  syncToGitHub(db).catch((err) => {
+    console.warn("GitHub DB Sync Error:", err);
+  });
+}
+
+async function syncToGitHub(db) {
+  const ghToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  const ghRepo = process.env.GITHUB_REPO; // e.g., "username/repo"
+  if (!ghToken || !ghRepo) return;
+
+  try {
+    const filePath = "api/community-barcodes.json";
+    const url = `https://api.github.com/repos/${ghRepo}/contents/${filePath}`;
+
+    // Get current SHA
+    const getRes = await fetch(url, {
+      headers: {
+        Authorization: `token ${ghToken}`,
+        "User-Agent": "KcalTrackerPWA",
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+
+    let sha = null;
+    if (getRes.ok) {
+      const current = await getRes.json();
+      sha = current.sha;
+    }
+
+    const contentBase64 = Buffer.from(JSON.stringify(db, null, 2)).toString("base64");
+
+    await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${ghToken}`,
+        "User-Agent": "KcalTrackerPWA",
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify({
+        message: "chore(db): update community barcodes database",
+        content: contentBase64,
+        sha: sha || undefined,
+      }),
+    });
+  } catch (err) {
+    console.warn("GitHub API commit error:", err);
+  }
 }
 
 async function fetchOffProductV2(code) {
@@ -61,6 +111,42 @@ async function fetchOffProductV2(code) {
     console.warn("OFF V2 lookup error:", err);
     return null;
   }
+}
+
+async function fetchOffRegional(code) {
+  const regions = ["it", "fr", "de", "us", "uk", "es"];
+  for (const reg of regions) {
+    try {
+      const res = await fetch(`https://${reg}.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.status === 1 && data.product) {
+        const prod = data.product;
+        const n = prod.nutriments || {};
+        const cals = Number(n["energy-kcal_100g"]) || Number(n["energy-kcal"]) || 0;
+        if (cals > 0) {
+          return {
+            code,
+            name: prod.product_name || prod.product_name_en || prod.product_name_it || `Product ${code}`,
+            brand: prod.brands || "",
+            per100g: {
+              calories: cals,
+              protein_g: Number(n.proteins_100g) || Number(n.proteins) || 0,
+              carbs_g: Number(n.carbohydrates_100g) || Number(n.carbohydrates) || 0,
+              fat_g: Number(n.fat_100g) || Number(n.fat) || 0,
+            },
+            serving_quantity: Number(prod.serving_quantity) > 0 ? Math.round(Number(prod.serving_quantity)) : 100,
+            unit: "g",
+            source: `Open Food Facts (${reg.toUpperCase()})`,
+            confirmations: 0,
+          };
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return null;
 }
 
 async function fetchUpcItemDb(code) {
@@ -357,7 +443,12 @@ module.exports = async (req, res) => {
       product = await fetchOffSearch(code);
     }
 
-    // 5. Fallback: USDA FoodData Central
+    // 5. Fallback: Regional Open Food Facts Subdomains
+    if (!product) {
+      product = await fetchOffRegional(code);
+    }
+
+    // 6. Fallback: USDA FoodData Central
     if (!product) {
       product = await fetchUsdaGtin(code);
     }
@@ -477,6 +568,12 @@ module.exports = async (req, res) => {
     }
 
     if (action === "moderate") {
+      const adminSecret = process.env.ADMIN_SECRET || process.env.ADMIN_KEY;
+      if (adminSecret && body.adminKey !== adminSecret) {
+        res.status(403).json({ error: "Unauthorized: Invalid admin key." });
+        return;
+      }
+
       const code = (body.code || "").toString().trim();
       const subAction = body.subAction; // "approve", "reject", "apply_edit"
       if (!code || !db[code]) {

@@ -485,31 +485,70 @@
         </div>
         <div class="card-panel-body">
           <div class="theme-selector-grid">
-            <button type="button" class="theme-card active" data-theme="neumorphic">
+            <div class="theme-switch-row">
               <span class="theme-name">Soft Neumorphic</span>
-              <span class="theme-preview neumorphic-preview"></span>
-            </button>
-            <button type="button" class="theme-card" data-theme="oled">
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="neumorphic">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
               <span class="theme-name">OLED Midnight</span>
-              <span class="theme-preview oled-preview"></span>
-            </button>
-            <button type="button" class="theme-card" data-theme="forest">
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="oled">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
               <span class="theme-name">Forest Pastel</span>
-              <span class="theme-preview forest-preview"></span>
-            </button>
-            <button type="button" class="theme-card" data-theme="slate">
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="forest">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
               <span class="theme-name">Slate Blue</span>
-              <span class="theme-preview slate-preview"></span>
-            </button>
-            <button type="button" class="theme-card" data-theme="sunset">
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="slate">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
               <span class="theme-name">Sunset Rose</span>
-              <span class="theme-preview sunset-preview"></span>
-            </button>
-            <button type="button" class="theme-card" data-theme="sage">
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="sunset">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
               <span class="theme-name">Sage Clean</span>
-              <span class="theme-preview sage-preview"></span>
-            </button>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="sage">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div class="card-panel collapsible margin-top">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2>My Personal Barcodes</h2>
+            <p class="panel-subtitle">Private barcodes saved locally on your device for instant offline lookup</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle My Personal Barcodes card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-panel-body">
+          <ul id="personal-barcodes-list" class="community-log-list">
+            <li class="empty-state">No personal barcodes saved yet. Any product you add or edit is stored here.</li>
+          </ul>
         </div>
       </div>
 
@@ -548,7 +587,7 @@
       <div class="card-panel collapsible margin-top">
         <div class="card-panel-header">
           <div class="card-header-titles">
-            <h2>Community Barcode Database</h2>
+            <h2 id="community-title-heading">Community Barcode Database</h2>
             <p class="panel-subtitle">Explore and search shared barcode products uploaded by users</p>
           </div>
           <button type="button" class="card-toggle-btn" aria-label="Toggle Community Barcodes card">
@@ -571,7 +610,7 @@
               <button type="button" class="filter-pill" data-filter="verified">Verified ✓</button>
               <button type="button" class="filter-pill" data-filter="pending">Pending ⚠️</button>
             </div>
-            <button type="button" id="admin-mode-toggle" class="admin-toggle-btn" aria-label="Toggle Admin Reviewer Mode">
+            <button type="button" id="admin-mode-toggle" class="admin-toggle-btn" aria-label="Toggle Admin Reviewer Mode" hidden>
               🛡️ Admin Mode
             </button>
           </div>
@@ -778,7 +817,10 @@
         <div id="barcode-upload-section" class="barcode-upload-card" hidden>
           <div class="barcode-upload-header">
             <h3>Upload & Share Product</h3>
-            <p class="modal-hint">Not in global databases yet? Add it here so everyone can scan it!</p>
+            <p class="modal-hint">Not in global databases yet? Add it here or scan its nutrition label!</p>
+            <button type="button" id="barcode-ocr-scan-btn" class="quick-add-link margin-top-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+              📷 Scan Label with OCR (Auto-fill)
+            </button>
           </div>
           <form id="barcode-upload-form" class="goal-form">
             <div class="macro-edit-grid">

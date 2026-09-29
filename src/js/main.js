@@ -17,6 +17,8 @@ import {
   dateSuffix,
   loadSettings,
   saveSettings,
+  loadPersonalBarcodes,
+  deletePersonalBarcode,
 } from "./storage.js";
 import { initTheme } from "./theme.js";
 import { initBodyProfile } from "./body-profile.js";
@@ -54,6 +56,7 @@ const viewSwap = document.getElementById("view-swap");
 const viewSettings = document.getElementById("view-settings");
 
 // Community Barcodes List Elements
+const personalBarcodesList = document.getElementById("personal-barcodes-list");
 const communitySearchInput = document.getElementById("community-search-input");
 const communitySearchBtn = document.getElementById("community-search-btn");
 const communityBarcodesList = document.getElementById("community-barcodes-list");
@@ -625,6 +628,16 @@ function renderApp() {
 let currentCommunityFilter = "all";
 let isAdminMode = false;
 
+function getAdminKey() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlAdmin = urlParams.get("admin");
+  if (urlAdmin) {
+    localStorage.setItem("kcal-admin-key", urlAdmin);
+    return urlAdmin;
+  }
+  return localStorage.getItem("kcal-admin-key") || "";
+}
+
 function loadVotedBarcodes() {
   try {
     return JSON.parse(localStorage.getItem("kcal-voted-barcodes") || "{}");
@@ -786,30 +799,40 @@ async function renderCommunityBarcodes(searchTerm = "") {
         const adminRow = document.createElement("div");
         adminRow.className = "admin-actions-row";
 
+        const adminKey = getAdminKey();
+
         const approveBtn = document.createElement("button");
         approveBtn.className = "admin-action-btn admin-approve-btn";
         approveBtn.textContent = "✓ Verify & Approve";
         approveBtn.addEventListener("click", async () => {
-          await fetch("/api/barcode", {
+          const res = await fetch("/api/barcode", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "moderate", subAction: "approve", code: prod.code }),
+            body: JSON.stringify({ action: "moderate", subAction: "approve", code: prod.code, adminKey }),
           });
-          showToast(`Approved "${prod.name}" as Verified`);
-          renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+          if (res.ok) {
+            showToast(`Approved "${prod.name}" as Verified`);
+            renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+          } else {
+            showToast("Moderation failed: Invalid admin key", null);
+          }
         });
 
         const rejectBtn = document.createElement("button");
         rejectBtn.className = "admin-action-btn admin-reject-btn";
         rejectBtn.textContent = "✕ Flag / Reject";
         rejectBtn.addEventListener("click", async () => {
-          await fetch("/api/barcode", {
+          const res = await fetch("/api/barcode", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "moderate", subAction: "reject", code: prod.code }),
+            body: JSON.stringify({ action: "moderate", subAction: "reject", code: prod.code, adminKey }),
           });
-          showToast(`Flagged "${prod.name}"`);
-          renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+          if (res.ok) {
+            showToast(`Flagged "${prod.name}"`);
+            renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+          } else {
+            showToast("Moderation failed: Invalid admin key", null);
+          }
         });
 
         adminRow.appendChild(approveBtn);
@@ -821,13 +844,17 @@ async function renderCommunityBarcodes(searchTerm = "") {
           applyBtn.className = "admin-action-btn admin-apply-btn";
           applyBtn.textContent = `Apply Edit ("${edit.name}")`;
           applyBtn.addEventListener("click", async () => {
-            await fetch("/api/barcode", {
+            const res = await fetch("/api/barcode", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "moderate", subAction: "apply_edit", code: prod.code, editId: edit.id }),
+              body: JSON.stringify({ action: "moderate", subAction: "apply_edit", code: prod.code, editId: edit.id, adminKey }),
             });
-            showToast(`Applied edit for "${prod.name}"`);
-            renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+            if (res.ok) {
+              showToast(`Applied edit for "${prod.name}"`);
+              renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+            } else {
+              showToast("Moderation failed: Invalid admin key", null);
+            }
           });
           adminRow.appendChild(applyBtn);
         }
@@ -954,8 +981,31 @@ document.querySelectorAll(".filter-pill").forEach((pill) => {
   });
 });
 
-// Admin Reviewer Mode toggle button handler
+// Admin Reviewer Mode toggle button & secret unlock handler
 const adminModeToggleBtn = document.getElementById("admin-mode-toggle");
+const communityTitleHeading = document.getElementById("community-title-heading");
+
+function checkAdminVisibility() {
+  if (!adminModeToggleBtn) return;
+  const key = getAdminKey();
+  if (key) {
+    adminModeToggleBtn.hidden = false;
+  }
+}
+
+checkAdminVisibility();
+
+if (communityTitleHeading) {
+  communityTitleHeading.addEventListener("dblclick", () => {
+    const key = prompt("Enter Admin Passcode / Secret:");
+    if (key) {
+      localStorage.setItem("kcal-admin-key", key);
+      checkAdminVisibility();
+      showToast("Admin Mode Unlocked");
+    }
+  });
+}
+
 if (adminModeToggleBtn) {
   adminModeToggleBtn.addEventListener("click", () => {
     isAdminMode = !isAdminMode;
@@ -1012,8 +1062,56 @@ function switchNavTab(targetTab) {
     renderFavorites();
   }
   if (targetTab === "settings") {
+    renderPersonalBarcodes();
     renderCommunityBarcodes();
   }
+}
+
+function renderPersonalBarcodes() {
+  if (!personalBarcodesList) return;
+  const barcodes = loadPersonalBarcodes();
+  const list = Object.values(barcodes);
+
+  if (list.length === 0) {
+    personalBarcodesList.innerHTML = `<li class="empty-state">No personal barcodes saved yet. Scanned products uploaded or saved are kept here.</li>`;
+    return;
+  }
+
+  personalBarcodesList.innerHTML = list
+    .map((item) => {
+      const cals = Math.round(item.per100g?.calories || 0);
+      const title = item.brand ? `${item.name} (${item.brand})` : item.name;
+      const macros = `P: ${round(item.per100g?.protein_g || 0)}g · C: ${round(item.per100g?.carbs_g || 0)}g · F: ${round(
+        item.per100g?.fat_g || 0
+      )}g`;
+
+      return `
+        <li class="community-item" data-personal-code="${item.code}">
+          <div class="community-item-details">
+            <div class="community-title-row">
+              <span class="community-code">${item.code}</span>
+              <strong class="community-name">${title}</strong>
+            </div>
+            <p class="community-macros">${cals} kcal / 100g (${macros})</p>
+          </div>
+          <div class="community-actions">
+            <button type="button" class="admin-act-btn delete-personal-btn" data-code="${item.code}">🗑️ Delete</button>
+          </div>
+        </li>
+      `;
+    })
+    .join("");
+
+  personalBarcodesList.querySelectorAll(".delete-personal-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const code = btn.getAttribute("data-code");
+      if (code && confirm(`Delete barcode ${code} from your personal store?`)) {
+        deletePersonalBarcode(code);
+        renderPersonalBarcodes();
+      }
+    });
+  });
 }
 
 if (navTodayBtn) navTodayBtn.addEventListener("click", () => switchNavTab("today"));
