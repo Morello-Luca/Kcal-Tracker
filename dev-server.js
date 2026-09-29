@@ -7,6 +7,7 @@ const path = require("node:path");
 const lookup = require("./api/lookup.js");
 const visionLookup = require("./api/vision-lookup.js");
 const swapSuggestion = require("./api/swap-suggestion.js");
+const barcode = require("./api/barcode.js");
 
 const PORT = process.env.PORT || 3000;
 
@@ -69,6 +70,33 @@ const server = http.createServer(async (req, res) => {
       },
     };
     await swapSuggestion({ query }, shim);
+    return;
+  }
+
+  if (url.pathname === "/api/barcode") {
+    const query = Object.fromEntries(url.searchParams);
+    const shim = {
+      status(code) {
+        res.statusCode = code;
+        return shim;
+      },
+      json(body) {
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify(body));
+      },
+    };
+
+    let parsedBody = {};
+    if (req.method === "POST" || req.method === "PUT") {
+      try {
+        parsedBody = await readJsonBody(req);
+      } catch {
+        shim.status(400).json({ error: "Invalid JSON body." });
+        return;
+      }
+    }
+
+    await barcode({ method: req.method, query, body: parsedBody }, shim);
     return;
   }
 

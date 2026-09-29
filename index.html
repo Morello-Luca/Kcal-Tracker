@@ -141,28 +141,58 @@
           </div>
           <p class="panel-subtitle" id="weekly-budget-range-subtitle">Current week overview</p>
 
-          <div class="weekly-summary-grid">
+          <!-- Stat Summary Pills (Guaranteed Single-Line No Wrap) -->
+          <div class="weekly-summary-grid margin-top-sm">
             <div class="weekly-stat-item">
-              <span class="weekly-stat-val" id="weekly-cals-consumed">0</span>
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-consumed">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
               <span class="weekly-stat-lbl">Consumed</span>
             </div>
             <div class="weekly-stat-item">
-              <span class="weekly-stat-val" id="weekly-cals-budget">0</span>
-              <span class="weekly-stat-lbl">7-Day Budget</span>
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-budget">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
+              <span class="weekly-stat-lbl">Budget</span>
             </div>
             <div class="weekly-stat-item">
-              <span class="weekly-stat-val" id="weekly-cals-remaining">0</span>
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-remaining">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
               <span class="weekly-stat-lbl">Remaining</span>
             </div>
           </div>
 
-          <div class="goal-bar-track margin-top-sm">
-            <div class="goal-bar-fill" id="weekly-budget-bar-fill"></div>
+          <!-- Chart Mode Switch Toggle -->
+          <div class="mode-toggle-group margin-top">
+            <button type="button" class="mode-btn active" id="weekly-view-mode-ring">Radial Ring</button>
+            <button type="button" class="mode-btn" id="weekly-view-mode-pace">Cumulative Pace</button>
           </div>
 
-          <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status"></div>
+          <!-- OPTION 1: Radial Ring Progress & Center Gauge -->
+          <div id="weekly-ring-container" class="weekly-chart-wrapper margin-top-sm">
+            <div class="radial-ring-box">
+              <svg class="radial-ring-svg" viewBox="0 0 200 200">
+                <circle class="ring-bg" cx="100" cy="100" r="80" />
+                <circle class="ring-fill" id="radial-ring-circle" cx="100" cy="100" r="80" />
+              </svg>
+              <div class="radial-center-content">
+                <span class="radial-center-val" id="radial-center-val">0</span>
+                <span class="radial-center-unit">kcal left</span>
+                <span class="radial-center-pct" id="radial-center-pct">0% used</span>
+              </div>
+            </div>
+          </div>
 
-          <div class="trend-chart margin-top" id="flexible-weekly-chart"></div>
+          <!-- OPTION 2: Cumulative Burn-Up / Pace Line Chart -->
+          <div id="weekly-pace-container" class="weekly-chart-wrapper margin-top-sm" hidden>
+            <div class="pace-chart-box" id="pace-chart-box">
+              <!-- SVG generated via JS -->
+            </div>
+          </div>
         </div>
       </div>
 
@@ -469,76 +499,223 @@
 
     <!-- VIEW 6: SETTINGS -->
     <section id="view-settings" class="tab-view" hidden>
-      <div class="card-panel">
-        <h2>App Theme & Appearance</h2>
-        <p class="panel-subtitle">Select an elegant color palette</p>
-        <div class="theme-selector-grid">
-          <button type="button" class="theme-card active" data-theme="neumorphic">
-            <span class="theme-preview neumorphic-preview"></span>
-            <span class="theme-name">Soft Neumorphic</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="oled">
-            <span class="theme-preview oled-preview"></span>
-            <span class="theme-name">OLED Midnight</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="forest">
-            <span class="theme-preview forest-preview"></span>
-            <span class="theme-name">Forest Pastel</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="slate">
-            <span class="theme-preview slate-preview"></span>
-            <span class="theme-name">Slate Blue</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="sunset">
-            <span class="theme-preview sunset-preview"></span>
-            <span class="theme-name">Sunset Rose</span>
-          </button>
-          <button type="button" class="theme-card" data-theme="sage">
-            <span class="theme-preview sage-preview"></span>
-            <span class="theme-name">Sage Clean</span>
+      <div class="card-panel collapsible expanded">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2>App Theme & Appearance</h2>
+            <p class="panel-subtitle">Select an elegant color palette</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle App Theme card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
           </button>
         </div>
-      </div>
-
-
-      <div class="card-panel margin-top">
-        <h2>Week Configuration</h2>
-        <p class="panel-subtitle">Customize start day for weekly budgets and rollover</p>
-        <div class="goal-form">
-          <label class="goal-field goal-field-full">
-            First Day of the Week
-            <select id="start-day-select">
-              <option value="1">Monday</option>
-              <option value="2">Tuesday</option>
-              <option value="3">Wednesday</option>
-              <option value="4">Thursday</option>
-              <option value="5">Friday</option>
-              <option value="6">Saturday</option>
-              <option value="0">Sunday</option>
-            </select>
-          </label>
-        </div>
-      </div>
-
-      <div class="card-panel margin-top">
-        <h2>Privacy & Security</h2>
-        <p class="panel-subtitle">100% Client-Side Local Data Storage</p>
-        <div class="privacy-box">
-          <span class="privacy-icon">🔒</span>
-          <div class="privacy-text">
-            <strong>Private to Your Device</strong>
-            <p>
-              Your nutrition log, body measurements, and settings are stored strictly in your browser's local storage (<code>localStorage</code>).
-              If someone else opens this URL on their own phone or laptop, they see their own fresh data — your data never leaves your device!
-            </p>
+        <div class="card-panel-body">
+          <div class="theme-selector-grid">
+            <div class="theme-switch-row">
+              <span class="theme-name">Soft Neumorphic</span>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="neumorphic">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <span class="theme-name">OLED Midnight</span>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="oled">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <span class="theme-name">Forest Pastel</span>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="forest">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <span class="theme-name">Slate Blue</span>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="slate">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <span class="theme-name">Sunset Rose</span>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="sunset">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <span class="theme-name">Sage Clean</span>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="sage">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <div class="theme-title-group">
+                <span class="theme-color-preview preview-matcha-light"></span>
+                <span class="theme-name">Matcha Light</span>
+              </div>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="matcha-light">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="theme-switch-row">
+              <div class="theme-title-group">
+                <span class="theme-color-preview preview-matcha-dark"></span>
+                <span class="theme-name">Matcha Dark</span>
+              </div>
+              <label class="neu-toggle-switch">
+                <input type="checkbox" name="theme-toggle" data-theme-id="matcha-dark">
+                <span class="neu-toggle-slider"></span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="card-panel margin-top">
-        <h2>Data Export & Backup</h2>
-        <p class="panel-subtitle">Export or backup your local nutrition logs anytime</p>
-        <button type="button" class="export-btn" id="export-data-btn">⬇️ Export my data (JSON)</button>
+      <div class="card-panel collapsible margin-top">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2>My Personal Barcodes</h2>
+            <p class="panel-subtitle">Private barcodes saved locally on your device for instant offline lookup</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle My Personal Barcodes card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-panel-body">
+          <ul id="personal-barcodes-list" class="community-log-list">
+            <li class="empty-state">No personal barcodes saved yet. Any product you add or edit is stored here.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-panel collapsible margin-top">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2>Week Configuration</h2>
+            <p class="panel-subtitle">Customize start day for weekly budgets and rollover</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle Week Configuration card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-panel-body">
+          <div class="goal-form">
+            <label class="goal-field goal-field-full">
+              First Day of the Week
+              <select id="start-day-select">
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wednesday</option>
+                <option value="4">Thursday</option>
+                <option value="5">Friday</option>
+                <option value="6">Saturday</option>
+                <option value="0">Sunday</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel collapsible margin-top">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2 id="community-title-heading">Community Barcode Database</h2>
+            <p class="panel-subtitle">Explore and search shared barcode products uploaded by users</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle Community Barcodes card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-panel-body">
+          <div class="entry-form">
+            <input type="text" id="community-search-input" placeholder="Search by barcode or product name..." autocomplete="off" />
+            <button type="button" id="community-search-btn">Search</button>
+          </div>
+
+          <div class="community-filter-bar">
+            <div class="filter-pills-row">
+              <button type="button" class="filter-pill active" data-filter="all">All</button>
+              <button type="button" class="filter-pill" data-filter="verified">Verified ✓</button>
+              <button type="button" class="filter-pill" data-filter="pending">Pending ⚠️</button>
+            </div>
+            <button type="button" id="admin-mode-toggle" class="admin-toggle-btn" aria-label="Toggle Admin Reviewer Mode" hidden>
+              🛡️ Admin Mode
+            </button>
+          </div>
+
+          <ul id="community-barcodes-list" class="community-log-list margin-top-sm">
+            <li class="empty-state">Loading community barcodes...</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-panel collapsible margin-top">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2>Privacy & Security</h2>
+            <p class="panel-subtitle">100% Client-Side Local Data Storage</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle Privacy card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-panel-body">
+          <div class="privacy-box">
+            <span class="privacy-icon">🔒</span>
+            <div class="privacy-text">
+              <strong>Private to Your Device</strong>
+              <p>
+                Your nutrition log, body measurements, and settings are stored strictly in your browser's local storage (<code>localStorage</code>).
+                If someone else opens this URL on their own phone or laptop, they see their own fresh data — your data never leaves your device!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel collapsible margin-top">
+        <div class="card-panel-header">
+          <div class="card-header-titles">
+            <h2>Data Export & Backup</h2>
+            <p class="panel-subtitle">Export or backup your local nutrition logs anytime</p>
+          </div>
+          <button type="button" class="card-toggle-btn" aria-label="Toggle Data Export card">
+            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="card-panel-body">
+          <button type="button" class="export-btn" id="export-data-btn">⬇️ Export my data (JSON)</button>
+        </div>
       </div>
     </section>
 
@@ -671,10 +848,14 @@
         <p class="modal-status" id="barcode-status"></p>
 
         <div id="barcode-confirm" hidden>
+          <div class="barcode-badge-row">
+            <span class="barcode-source-tag" id="barcode-source-tag">Source: Shared Database</span>
+            <button type="button" class="barcode-confirm-accuracy-btn" id="barcode-confirm-accuracy-btn">Confirm Details</button>
+          </div>
           <p class="modal-result-title" id="barcode-product-name"></p>
           <p class="modal-hint" id="barcode-per-100g"></p>
           <label class="goal-field goal-field-full">
-            Quantity (grams)
+            Quantity (grams/ml)
             <input type="number" id="barcode-quantity-input" min="1" step="1" />
           </label>
           <div class="goal-form-actions">
@@ -683,8 +864,63 @@
           </div>
         </div>
 
+        <div id="barcode-upload-section" class="barcode-upload-card" hidden>
+          <div class="barcode-upload-header">
+            <h3>Upload & Share Product</h3>
+            <p class="modal-hint">Not in global databases yet? Add it here or scan its nutrition label!</p>
+            <button type="button" id="barcode-ocr-scan-btn" class="quick-add-link margin-top-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+              📷 Scan Label with OCR (Auto-fill)
+            </button>
+          </div>
+          <form id="barcode-upload-form" class="goal-form">
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Barcode Number
+                <input type="text" id="barcode-upload-code" required readonly />
+              </label>
+              <label class="goal-field">
+                Product Name
+                <input type="text" id="barcode-upload-name" placeholder="e.g. Protein Bar" required />
+              </label>
+            </div>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Brand (optional)
+                <input type="text" id="barcode-upload-brand" placeholder="e.g. Quest" />
+              </label>
+              <label class="goal-field">
+                Serving Size (g/ml)
+                <input type="number" id="barcode-upload-serving" value="100" min="1" required />
+              </label>
+            </div>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Calories (kcal / 100g)
+                <input type="number" id="barcode-upload-calories" placeholder="e.g. 350" min="0" required />
+              </label>
+              <label class="goal-field">
+                Protein (g / 100g)
+                <input type="number" id="barcode-upload-protein" placeholder="0" min="0" step="0.1" />
+              </label>
+            </div>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Carbs (g / 100g)
+                <input type="number" id="barcode-upload-carbs" placeholder="0" min="0" step="0.1" />
+              </label>
+              <label class="goal-field">
+                Fat (g / 100g)
+                <input type="number" id="barcode-upload-fat" placeholder="0" min="0" step="0.1" />
+              </label>
+            </div>
+            <div class="goal-form-actions margin-top-sm">
+              <button type="submit" id="barcode-upload-submit-btn">Upload & Log Product</button>
+            </div>
+          </form>
+        </div>
+
         <div id="barcode-fallback" hidden>
-          <p class="modal-hint">Type the product name instead:</p>
+          <p class="modal-hint margin-top">Or type product name to search:</p>
           <form id="barcode-fallback-form" class="entry-form">
             <input type="text" id="barcode-fallback-input" placeholder="Product name" autocomplete="off" />
             <button type="submit">Look up</button>

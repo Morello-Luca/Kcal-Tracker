@@ -56,6 +56,72 @@
   --shadow-light: rgba(255, 255, 255, 0.06);
 }
 
+/* Theme: Matcha Light (#E7F5DC Main Light Palette) */
+[data-theme="matcha-light"] {
+  --bg: #E7F5DC;
+  --surface: #E7F5DC;
+  --surface-alt: #d5e7c7;
+  --surface-elevated: #CFE189;
+  --text: #2c381c;
+  --text-dim: #728156;
+  --text-secondary: #88976C;
+
+  --ios-blue: #728156;
+  --ios-green: #88976C;
+  --ios-orange: #d97706;
+  --ios-red: #dc2626;
+  --ios-purple: #98A77C;
+  --ios-teal: #B6C99B;
+
+  --accent: #728156;
+  --danger: #dc2626;
+  --border: rgba(114, 129, 86, 0.15);
+  --border-soft: rgba(114, 129, 86, 0.2);
+  --border-subtle: rgba(114, 129, 86, 0.1);
+  --hairline: rgba(114, 129, 86, 0.18);
+  --nav-bg: rgba(231, 245, 220, 0.88);
+  --card-shadow: 0 8px 24px rgba(114, 129, 86, 0.15);
+
+  --shadow-dark: rgba(114, 129, 86, 0.25);
+  --shadow-light: rgba(255, 255, 255, 0.85);
+  --shadow-inset: inset 2px 2px 5px rgba(114, 129, 86, 0.22), inset -2px -2px 5px rgba(255, 255, 255, 0.85);
+  --shadow-flat: -4px -4px 10px rgba(255, 255, 255, 0.85), 4px 4px 10px rgba(114, 129, 86, 0.22);
+  --shadow-pressed: inset 3px 3px 6px rgba(114, 129, 86, 0.25), inset -3px -3px 6px rgba(255, 255, 255, 0.85);
+}
+
+/* Theme: Matcha Dark (#728156 Main Dark Palette) */
+[data-theme="matcha-dark"] {
+  --bg: #1c2215;
+  --surface: #262e1d;
+  --surface-alt: #323d27;
+  --surface-elevated: #414e33;
+  --text: #E7F5DC;
+  --text-dim: #B6C99B;
+  --text-secondary: #CFE189;
+
+  --ios-blue: #CFE189;
+  --ios-green: #B6C99B;
+  --ios-orange: #fbbf24;
+  --ios-red: #f87171;
+  --ios-purple: #c084fc;
+  --ios-teal: #98A77C;
+
+  --accent: #CFE189;
+  --danger: #f87171;
+  --border: rgba(231, 245, 220, 0.1);
+  --border-soft: rgba(231, 245, 220, 0.15);
+  --border-subtle: rgba(231, 245, 220, 0.06);
+  --hairline: rgba(231, 245, 220, 0.12);
+  --nav-bg: rgba(38, 46, 29, 0.88);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-light: rgba(231, 245, 220, 0.06);
+  --shadow-inset: inset 2px 2px 5px rgba(0, 0, 0, 0.55), inset -2px -2px 5px rgba(231, 245, 220, 0.06);
+  --shadow-flat: -4px -4px 10px rgba(231, 245, 220, 0.06), 4px 4px 10px rgba(0, 0, 0, 0.55);
+  --shadow-pressed: inset 3px 3px 6px rgba(0, 0, 0, 0.55), inset -3px -3px 6px rgba(231, 245, 220, 0.06);
+}
+
 /* Theme: Sunset Rose */
 [data-theme="sunset"] {
   --bg: #1a0f18;
@@ -112,47 +178,54 @@
   --shadow-light: rgba(255, 255, 255, 0.06);
 }
 
-/* Theme Selector Grid in Settings */
+/* Theme Selector Grid in Settings - 2 Column Neumorphic Pill Toggle Switch Grid with Color Preview Circles */
 .theme-selector-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
 }
 
-.theme-card {
+.theme-switch-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--surface-alt);
-  border: 1.5px solid transparent;
+  justify-content: space-between;
+  padding: 6px 8px 6px 12px;
+  background: var(--bg);
+  box-shadow: var(--shadow-inset);
+  border: 1px solid var(--border-soft);
   border-radius: 999px;
-  cursor: pointer;
-  color: var(--text);
   transition: all 0.2s ease;
 }
 
-.theme-card.active {
-  border-color: var(--ios-blue);
-  background: var(--surface-elevated);
+.theme-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.theme-preview {
-  width: 16px;
-  height: 16px;
+.theme-color-preview {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
 }
 
-.oled-preview { background: linear-gradient(135deg, #000000 50%, #30d158 50%); }
-.forest-preview { background: linear-gradient(135deg, #0d1b12 50%, #74c69d 50%); }
-.slate-preview { background: linear-gradient(135deg, #0f172a 50%, #38bdf8 50%); }
-.sunset-preview { background: linear-gradient(135deg, #1a0f18 50%, #f472b6 50%); }
-.sage-preview { background: linear-gradient(135deg, #121816 50%, #2dd4bf 50%); }
+.preview-light { background: #007aff; }
+.preview-forest { background: #74c69d; }
+.preview-slate { background: #38bdf8; }
+.preview-sunset { background: #f472b6; }
+.preview-sage { background: #2dd4bf; }
+.preview-matcha-light { background: #CFE189; border: 1px solid #98A77C; }
+.preview-matcha-dark { background: #728156; }
 
-.theme-name {
-  font-size: 0.82rem;
+.theme-switch-row .theme-name {
+  font-size: 0.8rem;
   font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
