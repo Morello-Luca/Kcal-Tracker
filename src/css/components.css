@@ -1602,35 +1602,208 @@
   font-weight: 600;
 }
 
-/* Weekly Summary Grid */
+/* Weekly Summary Grid & Stat Pills */
 .weekly-summary-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
 }
 
 .weekly-stat-item {
-  background: var(--surface-alt);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised-sm, 3px 3px 6px var(--shadow-dark, rgba(0,0,0,0.1)), -3px -3px 6px var(--shadow-light, rgba(255,255,255,0.7)));
   border-radius: 14px;
-  padding: 10px 8px;
+  padding: 10px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
+  text-align: center;
+  overflow: hidden;
 }
 
-.weekly-stat-val {
-  font-size: 1.15rem;
-  font-weight: 700;
+.weekly-stat-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.weekly-stat-num {
+  font-size: 1.1rem;
+  font-weight: 800;
   color: var(--text);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.weekly-stat-unit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  white-space: nowrap;
 }
 
 .weekly-stat-lbl {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+/* Weekly Chart Container & Radial Ring Gauge */
+.weekly-chart-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  width: 100%;
+}
+
+.weekly-chart-wrapper[hidden] {
+  display: none !important;
+}
+
+.radial-ring-box {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.radial-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.radial-ring-svg circle {
+  fill: none;
+  stroke-width: 16;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease-in-out, stroke 0.3s ease;
+}
+
+.radial-ring-svg .ring-bg {
+  stroke: var(--surface-alt, #d0d4da);
+  filter: drop-shadow(inset 1px 1px 2px rgba(0,0,0,0.15));
+}
+
+.radial-ring-svg .ring-fill {
+  stroke: var(--accent, #007aff);
+  stroke-dasharray: 502.65; /* 2 * PI * 80 */
+  stroke-dashoffset: 502.65;
+}
+
+.radial-ring-svg .ring-fill.over {
+  stroke: var(--color-over, #ff453a);
+}
+
+.radial-center-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.radial-center-val {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.radial-center-unit {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-top: 2px;
+  text-transform: lowercase;
+}
+
+.radial-center-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent, #007aff);
+  margin-top: 6px;
+  background: var(--surface-alt);
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+/* Cumulative Burn-Up / Pace Line Graph */
+.pace-chart-box {
+  width: 100%;
+  min-height: 220px;
+  background: var(--surface-alt);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: var(--shadow-inset-sm, inset 2px 2px 4px rgba(0,0,0,0.08));
+}
+
+.pace-chart-svg {
+  width: 100%;
+  height: 200px;
+  overflow: visible;
+}
+
+.pace-chart-svg .grid-line {
+  stroke: var(--border, rgba(0,0,0,0.08));
+  stroke-width: 1;
+  stroke-dasharray: 3, 3;
+}
+
+.pace-chart-svg .target-line {
+  stroke: var(--text-dim);
+  stroke-width: 2;
+  stroke-dasharray: 4, 4;
+  opacity: 0.7;
+}
+
+.pace-chart-svg .actual-area {
+  fill: url(#pace-area-gradient);
+  opacity: 0.35;
+}
+
+.pace-chart-svg .actual-line {
+  fill: none;
+  stroke: var(--accent, #007aff);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pace-chart-svg .actual-line.over {
+  stroke: var(--color-over, #ff453a);
+}
+
+.pace-chart-svg .dot {
+  fill: var(--surface);
+  stroke: var(--accent, #007aff);
+  stroke-width: 3;
+}
+
+.pace-chart-svg .axis-label {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--text-dim);
+  text-anchor: middle;
 }
 
 .rollover-note-box {

@@ -141,28 +141,61 @@
           </div>
           <p class="panel-subtitle" id="weekly-budget-range-subtitle">Current week overview</p>
 
-          <div class="weekly-summary-grid">
+          <!-- Stat Summary Pills (Guaranteed Single-Line No Wrap) -->
+          <div class="weekly-summary-grid margin-top-sm">
             <div class="weekly-stat-item">
-              <span class="weekly-stat-val" id="weekly-cals-consumed">0</span>
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-consumed">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
               <span class="weekly-stat-lbl">Consumed</span>
             </div>
             <div class="weekly-stat-item">
-              <span class="weekly-stat-val" id="weekly-cals-budget">0</span>
-              <span class="weekly-stat-lbl">7-Day Budget</span>
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-budget">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
+              <span class="weekly-stat-lbl">Budget</span>
             </div>
             <div class="weekly-stat-item">
-              <span class="weekly-stat-val" id="weekly-cals-remaining">0</span>
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-remaining">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
               <span class="weekly-stat-lbl">Remaining</span>
             </div>
           </div>
 
-          <div class="goal-bar-track margin-top-sm">
-            <div class="goal-bar-fill" id="weekly-budget-bar-fill"></div>
+          <!-- Chart Mode Switch Toggle -->
+          <div class="mode-toggle-group margin-top">
+            <button type="button" class="mode-btn active" id="weekly-view-mode-ring">Radial Ring</button>
+            <button type="button" class="mode-btn" id="weekly-view-mode-pace">Cumulative Pace</button>
           </div>
 
-          <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status"></div>
+          <!-- OPTION 1: Radial Ring Progress & Center Gauge -->
+          <div id="weekly-ring-container" class="weekly-chart-wrapper margin-top-sm">
+            <div class="radial-ring-box">
+              <svg class="radial-ring-svg" viewBox="0 0 200 200">
+                <circle class="ring-bg" cx="100" cy="100" r="80" />
+                <circle class="ring-fill" id="radial-ring-circle" cx="100" cy="100" r="80" />
+              </svg>
+              <div class="radial-center-content">
+                <span class="radial-center-val" id="radial-center-val">0</span>
+                <span class="radial-center-unit">kcal left</span>
+                <span class="radial-center-pct" id="radial-center-pct">0% used</span>
+              </div>
+            </div>
+          </div>
 
-          <div class="trend-chart margin-top" id="flexible-weekly-chart"></div>
+          <!-- OPTION 2: Cumulative Burn-Up / Pace Line Chart -->
+          <div id="weekly-pace-container" class="weekly-chart-wrapper margin-top-sm" hidden>
+            <div class="pace-chart-box" id="pace-chart-box">
+              <!-- SVG generated via JS -->
+            </div>
+          </div>
+
+          <!-- Rollover Status Note -->
+          <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status"></div>
         </div>
       </div>
 
