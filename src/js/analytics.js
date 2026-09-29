@@ -100,6 +100,7 @@ export function renderWeeklyBudget() {
     ringPct.textContent = `${usedPct}% used`;
     ringPct.style.color = weekConsumed > weeklyBudget ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)";
   }
+}
 
   // OPTION 2: Cumulative Burn-Up / Pace Line Chart
   renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal);
