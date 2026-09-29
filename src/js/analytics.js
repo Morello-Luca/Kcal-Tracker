@@ -195,14 +195,14 @@ export function renderAnalytics(entries) {
   if (copySelectedDayBtn) {
     copySelectedDayBtn.onclick = () => {
       if (selectedEntries.length === 0) {
-        alert("No entries to copy for this day.");
+        showToast("No entries to copy for this day.");
         return;
       }
       const currentTodayEntries = loadEntriesForKey(todayKey());
       const cloned = selectedEntries.map((item) => ({ ...item, id: crypto.randomUUID() }));
-      localStorage.setItem(todayKey(), JSON.stringify([...currentTodayEntries, ...cloned]));
-      alert(`Copied ${selectedEntries.length} items to Today's log!`);
-      window.location.reload();
+      saveEntries([...currentTodayEntries, ...cloned]);
+      window.dispatchEvent(new CustomEvent("kcal-entry-added"));
+      showToast(`Copied ${selectedEntries.length} items to Today's log!`);
     };
   }
 
@@ -274,6 +274,7 @@ export function renderAnalytics(entries) {
             id: crypto.randomUUID(),
           };
           saveEntries([...currentTodayEntries, newEntry]);
+          window.dispatchEvent(new CustomEvent("kcal-entry-added"));
           showToast(`Copied "${entry.description}" (${Math.round(entry.calories)} kcal) to Today's log!`);
         });
 

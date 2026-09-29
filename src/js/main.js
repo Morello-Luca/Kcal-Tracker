@@ -1089,6 +1089,11 @@ initVisionModule(addEntryFromResult);
 renderDate();
 renderApp();
 
+window.addEventListener("kcal-entry-added", () => {
+  entries = loadEntries();
+  renderApp();
+});
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch((err) => {
