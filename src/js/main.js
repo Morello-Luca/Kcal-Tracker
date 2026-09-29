@@ -622,12 +622,29 @@ function renderApp() {
   renderFavorites();
 }
 
+let currentCommunityFilter = "all";
+let isAdminMode = false;
+
+function loadVotedBarcodes() {
+  try {
+    return JSON.parse(localStorage.getItem("kcal-voted-barcodes") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveVotedBarcode(code, voteType) {
+  const votes = loadVotedBarcodes();
+  votes[code] = voteType;
+  localStorage.setItem("kcal-voted-barcodes", JSON.stringify(votes));
+}
+
 async function renderCommunityBarcodes(searchTerm = "") {
   if (!communityBarcodesList) return;
   communityBarcodesList.innerHTML = `<li class="empty-state">Loading community barcodes...</li>`;
 
   try {
-    const res = await fetch(`/api/barcode?list=true&search=${encodeURIComponent(searchTerm)}`);
+    const res = await fetch(`/api/barcode?list=true&search=${encodeURIComponent(searchTerm)}&filter=${encodeURIComponent(currentCommunityFilter)}`);
     if (!res.ok) throw new Error("Failed to fetch community database.");
     const data = await res.json();
 
@@ -639,15 +656,101 @@ async function renderCommunityBarcodes(searchTerm = "") {
       empty.className = "empty-state";
       empty.textContent = searchTerm
         ? `No community barcodes matching "${searchTerm}".`
-        : "No community barcodes uploaded yet. Scan an unknown barcode to share one!";
+        : "No community barcodes found for this filter.";
       communityBarcodesList.appendChild(empty);
       return;
     }
 
+    const votedMap = loadVotedBarcodes();
+
     products.forEach((prod) => {
       const li = document.createElement("li");
-      li.className = "fav-item";
+      li.className = "community-item";
 
+      const header = document.createElement("div");
+      header.className = "community-item-header";
+
+      // Left Side: Thumb Up / Thumb Down Voting Buttons if not yet voted
+      const hasVoted = Boolean(votedMap[prod.code]);
+      if (!hasVoted) {
+        const voteGroup = document.createElement("div");
+        voteGroup.className = "community-vote-group";
+
+        const thumbUp = document.createElement("button");
+        thumbUp.className = "thumb-btn thumb-up";
+        thumbUp.setAttribute("aria-label", "Thumbs Up");
+        thumbUp.textContent = "👍";
+
+        thumbUp.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          try {
+            await fetch("/api/barcode", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "vote", vote: "up", code: prod.code }),
+            });
+            saveVotedBarcode(prod.code, "up");
+            showToast(`Voted 👍 for "${prod.name}"`);
+            renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+          } catch {
+            showToast("Failed to submit vote", null);
+          }
+        });
+
+        const thumbDown = document.createElement("button");
+        thumbDown.className = "thumb-btn thumb-down";
+        thumbDown.setAttribute("aria-label", "Thumbs Down");
+        thumbDown.textContent = "👎";
+
+        thumbDown.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const existingPanel = li.querySelector(".suggest-edit-panel");
+          if (existingPanel) {
+            existingPanel.hidden = !existingPanel.hidden;
+          } else {
+            const panel = createSuggestEditPanel(prod, li);
+            li.appendChild(panel);
+          }
+        });
+
+        voteGroup.appendChild(thumbUp);
+        voteGroup.appendChild(thumbDown);
+        header.appendChild(voteGroup);
+      }
+
+      // Middle: Product Info
+      const info = document.createElement("div");
+      info.className = "community-info";
+
+      const titleRow = document.createElement("div");
+      titleRow.className = "community-title-row";
+
+      const title = document.createElement("span");
+      title.className = "community-title";
+      title.textContent = prod.brand ? `${prod.name} (${prod.brand})` : prod.name;
+
+      const statusBadge = document.createElement("span");
+      const statusText = prod.status || "verified";
+      statusBadge.className = `community-status-badge ${statusText === "pending_review" ? "pending" : statusText}`;
+      statusBadge.textContent = statusText === "pending_review" ? "Pending" : statusText;
+
+      titleRow.appendChild(title);
+      titleRow.appendChild(statusBadge);
+
+      const cals = prod.per100g?.calories || 0;
+      const prot = prod.per100g?.protein_g || 0;
+      const carbs = prod.per100g?.carbs_g || 0;
+      const fat = prod.per100g?.fat_g || 0;
+
+      const macros = document.createElement("span");
+      macros.className = "community-macros";
+      macros.textContent = `GTIN: ${prod.code} · ${Math.round(cals)} kcal | P ${round(prot)}g · C ${round(carbs)}g · F ${round(fat)}g /100g · 👍 ${prod.upvotes || 0} 👎 ${prod.downvotes || 0}`;
+
+      info.appendChild(titleRow);
+      info.appendChild(macros);
+      header.appendChild(info);
+
+      // Right Side: Log Item Plus Button
       const logBtn = document.createElement("button");
       logBtn.className = "fav-log-btn";
       logBtn.setAttribute("aria-label", "Log product");
@@ -658,16 +761,13 @@ async function renderCommunityBarcodes(searchTerm = "") {
         </svg>
       `;
 
-      logBtn.addEventListener("click", () => {
-        const cals = prod.per100g?.calories || 0;
-        const prot = prod.per100g?.protein_g || 0;
-        const carbs = prod.per100g?.carbs_g || 0;
-        const fat = prod.per100g?.fat_g || 0;
+      logBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
         const serving = prod.serving_quantity || 100;
         const factor = serving / 100;
 
-        const title = prod.brand ? `${prod.name} (${prod.brand}) (${serving}g)` : `${prod.name} (${serving}g)`;
-        addEntryFromResult(title, {
+        const logTitle = prod.brand ? `${prod.name} (${prod.brand}) (${serving}g)` : `${prod.name} (${serving}g)`;
+        addEntryFromResult(logTitle, {
           calories: cals * factor,
           protein_g: prot * factor,
           carbs_g: carbs * factor,
@@ -678,27 +778,191 @@ async function renderCommunityBarcodes(searchTerm = "") {
         showToast(`Logged "${prod.name}" (${Math.round(cals * factor)} kcal)`);
       });
 
-      const info = document.createElement("div");
-      info.className = "fav-info";
+      header.appendChild(logBtn);
+      li.appendChild(header);
 
-      const title = document.createElement("span");
-      title.className = "fav-title";
-      title.textContent = prod.brand ? `${prod.name} (${prod.brand})` : prod.name;
+      // Admin Reviewer Mode Actions Row
+      if (isAdminMode) {
+        const adminRow = document.createElement("div");
+        adminRow.className = "admin-actions-row";
 
-      const macros = document.createElement("span");
-      macros.className = "fav-macros";
-      macros.textContent = `Barcode: ${prod.code} · ${Math.round(prod.per100g?.calories || 0)} kcal/100g · ${prod.confirmations || 0} confirmations`;
+        const approveBtn = document.createElement("button");
+        approveBtn.className = "admin-action-btn admin-approve-btn";
+        approveBtn.textContent = "✓ Verify & Approve";
+        approveBtn.addEventListener("click", async () => {
+          await fetch("/api/barcode", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "moderate", subAction: "approve", code: prod.code }),
+          });
+          showToast(`Approved "${prod.name}" as Verified`);
+          renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+        });
 
-      info.appendChild(title);
-      info.appendChild(macros);
+        const rejectBtn = document.createElement("button");
+        rejectBtn.className = "admin-action-btn admin-reject-btn";
+        rejectBtn.textContent = "✕ Flag / Reject";
+        rejectBtn.addEventListener("click", async () => {
+          await fetch("/api/barcode", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "moderate", subAction: "reject", code: prod.code }),
+          });
+          showToast(`Flagged "${prod.name}"`);
+          renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+        });
 
-      li.appendChild(logBtn);
-      li.appendChild(info);
+        adminRow.appendChild(approveBtn);
+        adminRow.appendChild(rejectBtn);
+
+        if (prod.suggestedEdits && prod.suggestedEdits.length > 0) {
+          const edit = prod.suggestedEdits[0];
+          const applyBtn = document.createElement("button");
+          applyBtn.className = "admin-action-btn admin-apply-btn";
+          applyBtn.textContent = `Apply Edit ("${edit.name}")`;
+          applyBtn.addEventListener("click", async () => {
+            await fetch("/api/barcode", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "moderate", subAction: "apply_edit", code: prod.code, editId: edit.id }),
+            });
+            showToast(`Applied edit for "${prod.name}"`);
+            renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+          });
+          adminRow.appendChild(applyBtn);
+        }
+
+        li.appendChild(adminRow);
+      }
+
       communityBarcodesList.appendChild(li);
     });
   } catch (err) {
     communityBarcodesList.innerHTML = `<li class="empty-state error">Could not load community barcodes.</li>`;
   }
+}
+
+function createSuggestEditPanel(prod, liElement) {
+  const panel = document.createElement("div");
+  panel.className = "suggest-edit-panel";
+
+  const instructions = document.createElement("span");
+  instructions.style.fontSize = "0.75rem";
+  instructions.style.fontWeight = "600";
+  instructions.style.color = "var(--text)";
+  instructions.textContent = "Suggest Correction / Suggerisci Modifica:";
+
+  const grid = document.createElement("div");
+  grid.className = "suggest-edit-grid";
+
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.value = prod.name;
+  nameInput.placeholder = "Product Name";
+
+  const brandInput = document.createElement("input");
+  brandInput.type = "text";
+  brandInput.value = prod.brand || "";
+  brandInput.placeholder = "Brand";
+
+  const calsInput = document.createElement("input");
+  calsInput.type = "number";
+  calsInput.value = Math.round(prod.per100g?.calories || 0);
+  calsInput.placeholder = "kcal/100g";
+
+  const protInput = document.createElement("input");
+  protInput.type = "number";
+  protInput.step = "0.1";
+  protInput.value = prod.per100g?.protein_g || 0;
+  protInput.placeholder = "Protein (g)";
+
+  const carbsInput = document.createElement("input");
+  carbsInput.type = "number";
+  carbsInput.step = "0.1";
+  carbsInput.value = prod.per100g?.carbs_g || 0;
+  carbsInput.placeholder = "Carbs (g)";
+
+  const fatInput = document.createElement("input");
+  fatInput.type = "number";
+  fatInput.step = "0.1";
+  fatInput.value = prod.per100g?.fat_g || 0;
+  fatInput.placeholder = "Fat (g)";
+
+  grid.appendChild(nameInput);
+  grid.appendChild(brandInput);
+  grid.appendChild(calsInput);
+  grid.appendChild(protInput);
+  grid.appendChild(carbsInput);
+  grid.appendChild(fatInput);
+
+  const actions = document.createElement("div");
+  actions.className = "suggest-edit-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "suggest-cancel-btn";
+  cancelBtn.textContent = "Cancel";
+  cancelBtn.addEventListener("click", () => panel.remove());
+
+  const submitBtn = document.createElement("button");
+  submitBtn.className = "suggest-submit-btn";
+  submitBtn.textContent = "Submit Correction";
+  submitBtn.addEventListener("click", async () => {
+    try {
+      await fetch("/api/barcode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "vote",
+          vote: "down",
+          code: prod.code,
+          suggestedEdit: {
+            name: nameInput.value.trim(),
+            brand: brandInput.value.trim(),
+            calories: Number(calsInput.value) || 0,
+            protein_g: Number(protInput.value) || 0,
+            carbs_g: Number(carbsInput.value) || 0,
+            fat_g: Number(fatInput.value) || 0,
+          },
+        }),
+      });
+
+      saveVotedBarcode(prod.code, "down");
+      showToast(`Submitted correction for "${prod.name}"`);
+      renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+    } catch {
+      showToast("Failed to submit correction", null);
+    }
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(submitBtn);
+
+  panel.appendChild(instructions);
+  panel.appendChild(grid);
+  panel.appendChild(actions);
+
+  return panel;
+}
+
+// Filter pill click handlers
+document.querySelectorAll(".filter-pill").forEach((pill) => {
+  pill.addEventListener("click", () => {
+    document.querySelectorAll(".filter-pill").forEach((p) => p.classList.remove("active"));
+    pill.classList.add("active");
+    currentCommunityFilter = pill.getAttribute("data-filter") || "all";
+    renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+  });
+});
+
+// Admin Reviewer Mode toggle button handler
+const adminModeToggleBtn = document.getElementById("admin-mode-toggle");
+if (adminModeToggleBtn) {
+  adminModeToggleBtn.addEventListener("click", () => {
+    isAdminMode = !isAdminMode;
+    adminModeToggleBtn.classList.toggle("active", isAdminMode);
+    adminModeToggleBtn.textContent = isAdminMode ? "🛡️ Admin ON" : "🛡️ Admin Mode";
+    renderCommunityBarcodes(communitySearchInput ? communitySearchInput.value.trim() : "");
+  });
 }
 
 if (communitySearchBtn) {
@@ -1086,9 +1350,25 @@ function initCollapsibleCards() {
     const header = card.querySelector(".card-panel-header");
     if (!header) return;
 
-    header.addEventListener("click", () => {
-      card.classList.toggle("expanded");
+    header.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isExpanded = card.classList.contains("expanded");
+      // Close any other open card if needed or toggle current
+      collapsibleCards.forEach(c => {
+        if (c !== card) c.classList.remove("expanded");
+      });
+      card.classList.toggle("expanded", !isExpanded);
     });
+
+    // Prevent clicks inside card body from triggering document click-outside close
+    card.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  });
+
+  // Click outside to close all open collapsible cards
+  document.addEventListener("click", () => {
+    collapsibleCards.forEach(card => card.classList.remove("expanded"));
   });
 }
 

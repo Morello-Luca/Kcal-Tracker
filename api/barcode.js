@@ -299,8 +299,9 @@ module.exports = async (req, res) => {
   if (method === "GET") {
     const db = loadCommunityDb();
 
-    if (query.list === "true" || query.list === "1" || query.search) {
+    if (query.list === "true" || query.list === "1" || query.search || query.filter) {
       const searchTerm = (query.search || "").trim().toLowerCase();
+      const filter = (query.filter || "all").trim().toLowerCase();
       let list = Object.values(db);
 
       if (searchTerm) {
@@ -312,7 +313,13 @@ module.exports = async (req, res) => {
         );
       }
 
-      list.sort((a, b) => (b.confirmations || 0) - (a.confirmations || 0));
+      if (filter === "verified") {
+        list = list.filter((item) => (item.status || "verified") === "verified");
+      } else if (filter === "pending") {
+        list = list.filter((item) => item.status === "pending_review" || item.status === "flagged" || (item.suggestedEdits && item.suggestedEdits.length > 0));
+      }
+
+      list.sort((a, b) => (b.confirmations || 0) + (b.upvotes || 0) - ((a.confirmations || 0) + (a.upvotes || 0)));
 
       res.status(200).json({ success: true, count: list.length, products: list });
       return;
@@ -428,6 +435,84 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (action === "vote") {
+      const code = (body.code || "").toString().trim();
+      const vote = body.vote; // "up" or "down"
+      if (!code || !db[code]) {
+        res.status(404).json({ error: "Product not found to vote on." });
+        return;
+      }
+
+      const prod = db[code];
+      if (vote === "up") {
+        prod.upvotes = (prod.upvotes || 0) + 1;
+        prod.confirmations = (prod.confirmations || 0) + 1;
+        if (prod.upvotes >= 2 && prod.status !== "flagged") {
+          prod.status = "verified";
+        }
+      } else if (vote === "down") {
+        prod.downvotes = (prod.downvotes || 0) + 1;
+        prod.status = "pending_review";
+
+        if (body.suggestedEdit) {
+          const edit = body.suggestedEdit;
+          prod.suggestedEdits = prod.suggestedEdits || [];
+          prod.suggestedEdits.push({
+            id: "edit-" + Date.now(),
+            name: (edit.name || "").trim(),
+            brand: (edit.brand || "").trim(),
+            calories: Math.max(0, Number(edit.calories) || 0),
+            protein_g: Math.max(0, Number(edit.protein_g) || 0),
+            carbs_g: Math.max(0, Number(edit.carbs_g) || 0),
+            fat_g: Math.max(0, Number(edit.fat_g) || 0),
+            timestamp: new Date().toISOString(),
+          });
+        }
+      }
+
+      prod.updatedAt = new Date().toISOString();
+      saveCommunityDb(db);
+      res.status(200).json({ success: true, product: prod });
+      return;
+    }
+
+    if (action === "moderate") {
+      const code = (body.code || "").toString().trim();
+      const subAction = body.subAction; // "approve", "reject", "apply_edit"
+      if (!code || !db[code]) {
+        res.status(404).json({ error: "Product not found for moderation." });
+        return;
+      }
+
+      const prod = db[code];
+      if (subAction === "approve") {
+        prod.status = "verified";
+        prod.suggestedEdits = [];
+      } else if (subAction === "reject") {
+        prod.status = "flagged";
+      } else if (subAction === "apply_edit") {
+        const editId = body.editId;
+        const targetEdit = (prod.suggestedEdits || []).find((e) => e.id === editId) || body.edit;
+        if (targetEdit) {
+          if (targetEdit.name) prod.name = targetEdit.name;
+          if (targetEdit.brand !== undefined) prod.brand = targetEdit.brand;
+          prod.per100g = {
+            calories: Number(targetEdit.calories) || prod.per100g.calories,
+            protein_g: Number(targetEdit.protein_g) || prod.per100g.protein_g,
+            carbs_g: Number(targetEdit.carbs_g) || prod.per100g.carbs_g,
+            fat_g: Number(targetEdit.fat_g) || prod.per100g.fat_g,
+          };
+          prod.status = "verified";
+          prod.suggestedEdits = [];
+        }
+      }
+
+      prod.updatedAt = new Date().toISOString();
+      saveCommunityDb(db);
+      res.status(200).json({ success: true, product: prod });
+      return;
+    }
+
     if (action === "upload") {
       const code = (body.code || "").toString().trim();
       const name = (body.name || "").toString().trim();
@@ -451,6 +536,10 @@ module.exports = async (req, res) => {
         serving_quantity: Math.max(1, Number(body.serving_quantity) || 100),
         unit: body.unit === "ml" ? "ml" : "g",
         confirmations: existingCount + 1,
+        upvotes: (db[code]?.upvotes || 0) + 1,
+        downvotes: db[code]?.downvotes || 0,
+        status: "verified",
+        suggestedEdits: [],
         createdAt: db[code]?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

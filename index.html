@@ -486,28 +486,28 @@
         <div class="card-panel-body">
           <div class="theme-selector-grid">
             <button type="button" class="theme-card active" data-theme="neumorphic">
-              <span class="theme-preview neumorphic-preview"></span>
               <span class="theme-name">Soft Neumorphic</span>
+              <span class="theme-preview neumorphic-preview"></span>
             </button>
             <button type="button" class="theme-card" data-theme="oled">
-              <span class="theme-preview oled-preview"></span>
               <span class="theme-name">OLED Midnight</span>
+              <span class="theme-preview oled-preview"></span>
             </button>
             <button type="button" class="theme-card" data-theme="forest">
-              <span class="theme-preview forest-preview"></span>
               <span class="theme-name">Forest Pastel</span>
+              <span class="theme-preview forest-preview"></span>
             </button>
             <button type="button" class="theme-card" data-theme="slate">
-              <span class="theme-preview slate-preview"></span>
               <span class="theme-name">Slate Blue</span>
+              <span class="theme-preview slate-preview"></span>
             </button>
             <button type="button" class="theme-card" data-theme="sunset">
-              <span class="theme-preview sunset-preview"></span>
               <span class="theme-name">Sunset Rose</span>
+              <span class="theme-preview sunset-preview"></span>
             </button>
             <button type="button" class="theme-card" data-theme="sage">
-              <span class="theme-preview sage-preview"></span>
               <span class="theme-name">Sage Clean</span>
+              <span class="theme-preview sage-preview"></span>
             </button>
           </div>
         </div>
@@ -564,7 +564,19 @@
             <input type="text" id="community-search-input" placeholder="Search by barcode or product name..." autocomplete="off" />
             <button type="button" id="community-search-btn">Search</button>
           </div>
-          <ul id="community-barcodes-list" class="log-list margin-top-sm">
+
+          <div class="community-filter-bar">
+            <div class="filter-pills-row">
+              <button type="button" class="filter-pill active" data-filter="all">All</button>
+              <button type="button" class="filter-pill" data-filter="verified">Verified ✓</button>
+              <button type="button" class="filter-pill" data-filter="pending">Pending ⚠️</button>
+            </div>
+            <button type="button" id="admin-mode-toggle" class="admin-toggle-btn" aria-label="Toggle Admin Reviewer Mode">
+              🛡️ Admin Mode
+            </button>
+          </div>
+
+          <ul id="community-barcodes-list" class="community-log-list margin-top-sm">
             <li class="empty-state">Loading community barcodes...</li>
           </ul>
         </div>
