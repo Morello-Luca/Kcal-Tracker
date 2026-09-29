@@ -53,6 +53,11 @@ const viewBody = document.getElementById("view-body");
 const viewSwap = document.getElementById("view-swap");
 const viewSettings = document.getElementById("view-settings");
 
+// Community Barcodes List Elements
+const communitySearchInput = document.getElementById("community-search-input");
+const communitySearchBtn = document.getElementById("community-search-btn");
+const communityBarcodesList = document.getElementById("community-barcodes-list");
+
 const quickLogNavBtn = document.getElementById("quick-log-nav-btn");
 const exportDataBtn = document.getElementById("export-data-btn");
 
@@ -617,6 +622,101 @@ function renderApp() {
   renderFavorites();
 }
 
+async function renderCommunityBarcodes(searchTerm = "") {
+  if (!communityBarcodesList) return;
+  communityBarcodesList.innerHTML = `<li class="empty-state">Loading community barcodes...</li>`;
+
+  try {
+    const res = await fetch(`/api/barcode?list=true&search=${encodeURIComponent(searchTerm)}`);
+    if (!res.ok) throw new Error("Failed to fetch community database.");
+    const data = await res.json();
+
+    const products = data.products || [];
+    communityBarcodesList.innerHTML = "";
+
+    if (products.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "empty-state";
+      empty.textContent = searchTerm
+        ? `No community barcodes matching "${searchTerm}".`
+        : "No community barcodes uploaded yet. Scan an unknown barcode to share one!";
+      communityBarcodesList.appendChild(empty);
+      return;
+    }
+
+    products.forEach((prod) => {
+      const li = document.createElement("li");
+      li.className = "fav-item";
+
+      const logBtn = document.createElement("button");
+      logBtn.className = "fav-log-btn";
+      logBtn.setAttribute("aria-label", "Log product");
+      logBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      `;
+
+      logBtn.addEventListener("click", () => {
+        const cals = prod.per100g?.calories || 0;
+        const prot = prod.per100g?.protein_g || 0;
+        const carbs = prod.per100g?.carbs_g || 0;
+        const fat = prod.per100g?.fat_g || 0;
+        const serving = prod.serving_quantity || 100;
+        const factor = serving / 100;
+
+        const title = prod.brand ? `${prod.name} (${prod.brand}) (${serving}g)` : `${prod.name} (${serving}g)`;
+        addEntryFromResult(title, {
+          calories: cals * factor,
+          protein_g: prot * factor,
+          carbs_g: carbs * factor,
+          fat_g: fat * factor,
+        });
+
+        switchNavTab("today");
+        showToast(`Logged "${prod.name}" (${Math.round(cals * factor)} kcal)`);
+      });
+
+      const info = document.createElement("div");
+      info.className = "fav-info";
+
+      const title = document.createElement("span");
+      title.className = "fav-title";
+      title.textContent = prod.brand ? `${prod.name} (${prod.brand})` : prod.name;
+
+      const macros = document.createElement("span");
+      macros.className = "fav-macros";
+      macros.textContent = `Barcode: ${prod.code} · ${Math.round(prod.per100g?.calories || 0)} kcal/100g · ${prod.confirmations || 0} confirmations`;
+
+      info.appendChild(title);
+      info.appendChild(macros);
+
+      li.appendChild(logBtn);
+      li.appendChild(info);
+      communityBarcodesList.appendChild(li);
+    });
+  } catch (err) {
+    communityBarcodesList.innerHTML = `<li class="empty-state error">Could not load community barcodes.</li>`;
+  }
+}
+
+if (communitySearchBtn) {
+  communitySearchBtn.addEventListener("click", () => {
+    const term = communitySearchInput ? communitySearchInput.value.trim() : "";
+    renderCommunityBarcodes(term);
+  });
+}
+
+if (communitySearchInput) {
+  communitySearchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      renderCommunityBarcodes(communitySearchInput.value.trim());
+    }
+  });
+}
+
 function switchNavTab(targetTab) {
   const views = {
     today: viewToday,
@@ -646,6 +746,9 @@ function switchNavTab(targetTab) {
   }
   if (targetTab === "log") {
     renderFavorites();
+  }
+  if (targetTab === "settings") {
+    renderCommunityBarcodes();
   }
 }
 

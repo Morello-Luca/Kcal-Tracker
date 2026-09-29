@@ -10,10 +10,22 @@ export function initVisionModule(addEntryFromResult) {
   const barcodeStatusEl = document.getElementById("barcode-status");
   const barcodeConfirmEl = document.getElementById("barcode-confirm");
   const barcodeProductNameEl = document.getElementById("barcode-product-name");
+  const barcodeSourceTagEl = document.getElementById("barcode-source-tag");
+  const barcodeConfirmAccuracyBtn = document.getElementById("barcode-confirm-accuracy-btn");
   const barcodePer100gEl = document.getElementById("barcode-per-100g");
   const barcodeQuantityInput = document.getElementById("barcode-quantity-input");
   const barcodeAddBtn = document.getElementById("barcode-add-btn");
   const barcodeCancelConfirmBtn = document.getElementById("barcode-cancel-confirm-btn");
+  const barcodeUploadSectionEl = document.getElementById("barcode-upload-section");
+  const barcodeUploadForm = document.getElementById("barcode-upload-form");
+  const barcodeUploadCodeInput = document.getElementById("barcode-upload-code");
+  const barcodeUploadNameInput = document.getElementById("barcode-upload-name");
+  const barcodeUploadBrandInput = document.getElementById("barcode-upload-brand");
+  const barcodeUploadCaloriesInput = document.getElementById("barcode-upload-calories");
+  const barcodeUploadProteinInput = document.getElementById("barcode-upload-protein");
+  const barcodeUploadCarbsInput = document.getElementById("barcode-upload-carbs");
+  const barcodeUploadFatInput = document.getElementById("barcode-upload-fat");
+  const barcodeUploadServingInput = document.getElementById("barcode-upload-serving");
   const barcodeFallbackEl = document.getElementById("barcode-fallback");
   const barcodeFallbackForm = document.getElementById("barcode-fallback-form");
   const barcodeFallbackInput = document.getElementById("barcode-fallback-input");
@@ -67,11 +79,13 @@ export function initVisionModule(addEntryFromResult) {
       : undefined;
 
   function resetBarcodeModal() {
-    barcodeStatusEl.textContent = "";
-    barcodeConfirmEl.hidden = true;
-    barcodeFallbackEl.hidden = true;
-    barcodeReaderEl.hidden = false;
-    barcodeFallbackInput.value = "";
+    if (barcodeStatusEl) barcodeStatusEl.textContent = "";
+    if (barcodeConfirmEl) barcodeConfirmEl.hidden = true;
+    if (barcodeUploadSectionEl) barcodeUploadSectionEl.hidden = true;
+    if (barcodeFallbackEl) barcodeFallbackEl.hidden = true;
+    if (barcodeReaderEl) barcodeReaderEl.hidden = false;
+    if (barcodeFallbackInput) barcodeFallbackInput.value = "";
+    if (barcodeConfirmAccuracyBtn) barcodeConfirmAccuracyBtn.textContent = "Confirm Details";
     currentBarcodeProduct = null;
   }
 
@@ -86,57 +100,94 @@ export function initVisionModule(addEntryFromResult) {
     html5QrCodeInstance = null;
   }
 
+  function showBarcodeUploadSection(code, initialName = "") {
+    if (barcodeConfirmEl) barcodeConfirmEl.hidden = true;
+    if (barcodeUploadSectionEl) barcodeUploadSectionEl.hidden = false;
+    if (barcodeFallbackEl) barcodeFallbackEl.hidden = false;
+
+    if (barcodeUploadCodeInput) barcodeUploadCodeInput.value = code || "";
+    if (barcodeUploadNameInput) barcodeUploadNameInput.value = initialName || "";
+    if (barcodeUploadBrandInput) barcodeUploadBrandInput.value = "";
+    if (barcodeUploadCaloriesInput) barcodeUploadCaloriesInput.value = "";
+    if (barcodeUploadProteinInput) barcodeUploadProteinInput.value = "0";
+    if (barcodeUploadCarbsInput) barcodeUploadCarbsInput.value = "0";
+    if (barcodeUploadFatInput) barcodeUploadFatInput.value = "0";
+    if (barcodeUploadServingInput) barcodeUploadServingInput.value = "100";
+  }
+
   async function onBarcodeDecoded(decodedText) {
     await stopBarcodeScanner();
-    barcodeReaderEl.hidden = true;
-    barcodeStatusEl.textContent = `Looking up barcode ${decodedText}...`;
+    if (barcodeReaderEl) barcodeReaderEl.hidden = true;
+    if (barcodeStatusEl) barcodeStatusEl.textContent = `Searching databases for barcode ${decodedText}...`;
 
     try {
-      const res = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(decodedText)}.json`
-      );
+      const res = await fetch(`/api/barcode?code=${encodeURIComponent(decodedText)}`);
+      if (!res.ok) throw new Error("Barcode search request failed.");
       const data = await res.json();
 
-      if (data.status !== 1 || !data.product) {
-        barcodeStatusEl.textContent = `No product found for barcode ${decodedText}.`;
-        barcodeFallbackEl.hidden = false;
+      if (!data.found || !data.product) {
+        if (barcodeStatusEl) barcodeStatusEl.textContent = `No product found in databases for barcode ${decodedText}.`;
+        showBarcodeUploadSection(decodedText);
         return;
       }
 
       const product = data.product;
-      const n = product.nutriments || {};
-      const per100g = {
-        calories: Number(n["energy-kcal_100g"]) || 0,
-        protein: Number(n.proteins_100g) || 0,
-        carbs: Number(n.carbohydrates_100g) || 0,
-        fat: Number(n.fat_100g) || 0,
-      };
+      const per100g = product.per100g || { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+      const cals = Number(per100g.calories) || 0;
 
-      if (!per100g.calories) {
-        barcodeStatusEl.textContent = "That product doesn't have nutrition data on file.";
-        barcodeFallbackEl.hidden = false;
+      if (!cals) {
+        if (barcodeStatusEl) barcodeStatusEl.textContent = `Barcode ${decodedText} was found but lacks calorie data.`;
+        showBarcodeUploadSection(decodedText, product.name);
         return;
       }
 
       currentBarcodeProduct = {
-        name: product.product_name || `Product ${decodedText}`,
-        per100g,
+        code: decodedText,
+        name: product.name,
+        brand: product.brand || "",
+        per100g: {
+          calories: cals,
+          protein: Number(per100g.protein_g ?? per100g.protein) || 0,
+          carbs: Number(per100g.carbs_g ?? per100g.carbs) || 0,
+          fat: Number(per100g.fat_g ?? per100g.fat) || 0,
+        },
+        source: product.source || "Shared Database",
+        confirmations: product.confirmations || 0,
+        serving_quantity: product.serving_quantity || 100,
       };
 
-      const defaultGrams =
-        Number(product.serving_quantity) > 0 ? Math.round(product.serving_quantity) : 100;
+      const defaultGrams = Number(product.serving_quantity) > 0 ? Math.round(product.serving_quantity) : 100;
 
-      barcodeProductNameEl.textContent = currentBarcodeProduct.name;
-      barcodePer100gEl.textContent = `${Math.round(per100g.calories)} kcal / 100g · P ${round(
-        per100g.protein
-      )}g · C ${round(per100g.carbs)}g · F ${round(per100g.fat)}g`;
-      barcodeQuantityInput.value = defaultGrams;
-      barcodeStatusEl.textContent = "";
-      barcodeConfirmEl.hidden = false;
+      if (barcodeProductNameEl) {
+        barcodeProductNameEl.textContent = currentBarcodeProduct.brand
+          ? `${currentBarcodeProduct.name} (${currentBarcodeProduct.brand})`
+          : currentBarcodeProduct.name;
+      }
+
+      if (barcodeSourceTagEl) {
+        const sourceName = currentBarcodeProduct.source;
+        const confText = typeof currentBarcodeProduct.confirmations === "number" && currentBarcodeProduct.confirmations > 0
+          ? ` · ${currentBarcodeProduct.confirmations} community confirmations`
+          : "";
+        barcodeSourceTagEl.textContent = `Source: ${sourceName}${confText}`;
+      }
+
+      if (barcodePer100gEl) {
+        barcodePer100gEl.textContent = `${Math.round(cals)} kcal / 100g · P ${round(
+          currentBarcodeProduct.per100g.protein
+        )}g · C ${round(currentBarcodeProduct.per100g.carbs)}g · F ${round(currentBarcodeProduct.per100g.fat)}g`;
+      }
+
+      if (barcodeQuantityInput) barcodeQuantityInput.value = defaultGrams;
+      if (barcodeStatusEl) barcodeStatusEl.textContent = "";
+
+      if (barcodeConfirmEl) barcodeConfirmEl.hidden = false;
+      if (barcodeUploadSectionEl) barcodeUploadSectionEl.hidden = true;
+      if (barcodeFallbackEl) barcodeFallbackEl.hidden = true;
     } catch (err) {
-      console.error("Open Food Facts lookup failed:", err);
-      barcodeStatusEl.textContent = "Lookup failed (network issue).";
-      barcodeFallbackEl.hidden = false;
+      console.error("Barcode lookup failed:", err);
+      if (barcodeStatusEl) barcodeStatusEl.textContent = "Database search failed. You can upload this barcode below.";
+      showBarcodeUploadSection(decodedText);
     }
   }
 
@@ -181,14 +232,116 @@ export function initVisionModule(addEntryFromResult) {
       if (!grams || !currentBarcodeProduct) return;
 
       const factor = grams / 100;
-      const { name, per100g } = currentBarcodeProduct;
-      addEntryFromResult(`${name} (${grams}g)`, {
+      const { name, brand, per100g } = currentBarcodeProduct;
+      const label = brand ? `${name} (${brand}) (${grams}g)` : `${name} (${grams}g)`;
+      addEntryFromResult(label, {
         calories: per100g.calories * factor,
         protein_g: per100g.protein * factor,
         carbs_g: per100g.carbs * factor,
         fat_g: per100g.fat * factor,
       });
       closeBarcodeModal();
+    });
+  }
+
+  if (barcodeConfirmAccuracyBtn) {
+    barcodeConfirmAccuracyBtn.addEventListener("click", async () => {
+      if (!currentBarcodeProduct || !currentBarcodeProduct.code) return;
+
+      try {
+        barcodeConfirmAccuracyBtn.disabled = true;
+        barcodeConfirmAccuracyBtn.textContent = "Confirming...";
+
+        const res = await fetch("/api/barcode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "confirm",
+            code: currentBarcodeProduct.code,
+            product: currentBarcodeProduct,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.product && typeof data.product.confirmations === "number") {
+            currentBarcodeProduct.confirmations = data.product.confirmations;
+            if (barcodeSourceTagEl) {
+              barcodeSourceTagEl.textContent = `Source: Community Database · ${data.product.confirmations} community confirmations ✓`;
+            }
+          }
+          barcodeConfirmAccuracyBtn.textContent = "Confirmed ✓";
+        }
+      } catch (err) {
+        console.warn("Confirmation failed:", err);
+      } finally {
+        setTimeout(() => {
+          if (barcodeConfirmAccuracyBtn) {
+            barcodeConfirmAccuracyBtn.disabled = false;
+            barcodeConfirmAccuracyBtn.textContent = "Confirm Details";
+          }
+        }, 2000);
+      }
+    });
+  }
+
+  if (barcodeUploadForm) {
+    barcodeUploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = barcodeUploadCodeInput ? barcodeUploadCodeInput.value.trim() : "";
+      const name = barcodeUploadNameInput ? barcodeUploadNameInput.value.trim() : "";
+      const brand = barcodeUploadBrandInput ? barcodeUploadBrandInput.value.trim() : "";
+      const calories = Number(barcodeUploadCaloriesInput?.value) || 0;
+      const protein_g = Number(barcodeUploadProteinInput?.value) || 0;
+      const carbs_g = Number(barcodeUploadCarbsInput?.value) || 0;
+      const fat_g = Number(barcodeUploadFatInput?.value) || 0;
+      const serving_quantity = Number(barcodeUploadServingInput?.value) || 100;
+
+      if (!code || !name || !calories) {
+        if (barcodeStatusEl) barcodeStatusEl.textContent = "Please fill in barcode number, product name, and calories.";
+        return;
+      }
+
+      if (barcodeStatusEl) barcodeStatusEl.textContent = "Uploading product to shared community database...";
+
+      try {
+        const res = await fetch("/api/barcode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "upload",
+            code,
+            name,
+            brand,
+            calories,
+            protein_g,
+            carbs_g,
+            fat_g,
+            serving_quantity,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed.");
+
+        const factor = serving_quantity / 100;
+        const entryName = brand ? `${name} (${brand}) (${serving_quantity}g)` : `${name} (${serving_quantity}g)`;
+
+        addEntryFromResult(entryName, {
+          calories: calories * factor,
+          protein_g: protein_g * factor,
+          carbs_g: carbs_g * factor,
+          fat_g: fat_g * factor,
+        });
+
+        if (barcodeStatusEl) barcodeStatusEl.textContent = `Uploaded "${name}" to community database and logged!`;
+        setTimeout(() => {
+          closeBarcodeModal();
+        }, 1200);
+      } catch (err) {
+        console.error("Upload error:", err);
+        if (barcodeStatusEl) barcodeStatusEl.textContent = err.message || "Upload failed. Check connection.";
+      }
     });
   }
 

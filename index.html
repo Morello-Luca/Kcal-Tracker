@@ -521,6 +521,18 @@
       </div>
 
       <div class="card-panel margin-top">
+        <h2>Community Barcode Database</h2>
+        <p class="panel-subtitle">Explore and search shared barcode products uploaded by users</p>
+        <div class="entry-form">
+          <input type="text" id="community-search-input" placeholder="Search by barcode or product name..." autocomplete="off" />
+          <button type="button" id="community-search-btn">Search</button>
+        </div>
+        <ul id="community-barcodes-list" class="log-list margin-top-sm">
+          <li class="empty-state">Loading community barcodes...</li>
+        </ul>
+      </div>
+
+      <div class="card-panel margin-top">
         <h2>Privacy & Security</h2>
         <p class="panel-subtitle">100% Client-Side Local Data Storage</p>
         <div class="privacy-box">
@@ -671,10 +683,14 @@
         <p class="modal-status" id="barcode-status"></p>
 
         <div id="barcode-confirm" hidden>
+          <div class="barcode-badge-row">
+            <span class="barcode-source-tag" id="barcode-source-tag">Source: Shared Database</span>
+            <button type="button" class="barcode-confirm-accuracy-btn" id="barcode-confirm-accuracy-btn">Confirm Details</button>
+          </div>
           <p class="modal-result-title" id="barcode-product-name"></p>
           <p class="modal-hint" id="barcode-per-100g"></p>
           <label class="goal-field goal-field-full">
-            Quantity (grams)
+            Quantity (grams/ml)
             <input type="number" id="barcode-quantity-input" min="1" step="1" />
           </label>
           <div class="goal-form-actions">
@@ -683,8 +699,60 @@
           </div>
         </div>
 
+        <div id="barcode-upload-section" class="barcode-upload-card" hidden>
+          <div class="barcode-upload-header">
+            <h3>Upload & Share Product</h3>
+            <p class="modal-hint">Not in global databases yet? Add it here so everyone can scan it!</p>
+          </div>
+          <form id="barcode-upload-form" class="goal-form">
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Barcode Number
+                <input type="text" id="barcode-upload-code" required readonly />
+              </label>
+              <label class="goal-field">
+                Product Name
+                <input type="text" id="barcode-upload-name" placeholder="e.g. Protein Bar" required />
+              </label>
+            </div>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Brand (optional)
+                <input type="text" id="barcode-upload-brand" placeholder="e.g. Quest" />
+              </label>
+              <label class="goal-field">
+                Serving Size (g/ml)
+                <input type="number" id="barcode-upload-serving" value="100" min="1" required />
+              </label>
+            </div>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Calories (kcal / 100g)
+                <input type="number" id="barcode-upload-calories" placeholder="e.g. 350" min="0" required />
+              </label>
+              <label class="goal-field">
+                Protein (g / 100g)
+                <input type="number" id="barcode-upload-protein" placeholder="0" min="0" step="0.1" />
+              </label>
+            </div>
+            <div class="macro-edit-grid">
+              <label class="goal-field">
+                Carbs (g / 100g)
+                <input type="number" id="barcode-upload-carbs" placeholder="0" min="0" step="0.1" />
+              </label>
+              <label class="goal-field">
+                Fat (g / 100g)
+                <input type="number" id="barcode-upload-fat" placeholder="0" min="0" step="0.1" />
+              </label>
+            </div>
+            <div class="goal-form-actions margin-top-sm">
+              <button type="submit" id="barcode-upload-submit-btn">Upload & Log Product</button>
+            </div>
+          </form>
+        </div>
+
         <div id="barcode-fallback" hidden>
-          <p class="modal-hint">Type the product name instead:</p>
+          <p class="modal-hint margin-top">Or type product name to search:</p>
           <form id="barcode-fallback-form" class="entry-form">
             <input type="text" id="barcode-fallback-input" placeholder="Product name" autocomplete="off" />
             <button type="submit">Look up</button>
