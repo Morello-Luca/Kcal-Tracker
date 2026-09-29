@@ -10,11 +10,14 @@ export function renderWeeklyBudget() {
   const weeklyCalsConsumedEl = document.getElementById("weekly-cals-consumed");
   const weeklyCalsBudgetEl = document.getElementById("weekly-cals-budget");
   const weeklyCalsRemainingEl = document.getElementById("weekly-cals-remaining");
-  const weeklyBudgetBarFill = document.getElementById("weekly-budget-bar-fill");
   const weeklyRolloverStatus = document.getElementById("weekly-rollover-status");
   const weeklySubtitle = document.getElementById("weekly-budget-range-subtitle");
-  const flexibleWeeklyChart = document.getElementById("flexible-weekly-chart");
   const weeklyBudgetBadge = document.getElementById("weekly-budget-badge");
+
+  const ringViewBtn = document.getElementById("weekly-view-mode-ring");
+  const paceViewBtn = document.getElementById("weekly-view-mode-pace");
+  const ringContainer = document.getElementById("weekly-ring-container");
+  const paceContainer = document.getElementById("weekly-pace-container");
 
   const settings = loadSettings();
   const goal = loadGoal();
@@ -38,7 +41,9 @@ export function renderWeeklyBudget() {
 
   let weekConsumed = 0;
   const daysData = [];
+  const cumulativeConsumed = [];
 
+  let runningTotal = 0;
   for (let i = 0; i < 7; i++) {
     const d = new Date(weekStartDate);
     d.setDate(weekStartDate.getDate() + i);
@@ -50,6 +55,8 @@ export function renderWeeklyBudget() {
     const isPastOrToday = d <= today || d.toDateString() === today.toDateString();
     if (isPastOrToday) {
       weekConsumed += dayCals;
+      runningTotal += dayCals;
+      cumulativeConsumed.push({ dayIndex: i, total: runningTotal, date: d, dayCals });
     }
 
     daysData.push({ date: d, calories: dayCals, isToday: d.toDateString() === today.toDateString(), isPastOrToday });
@@ -58,17 +65,12 @@ export function renderWeeklyBudget() {
   const remainingWeekly = weeklyBudget - weekConsumed;
   const remainingDays = 7 - daysSinceStart;
 
-  if (weeklyCalsConsumedEl) weeklyCalsConsumedEl.textContent = `${weekConsumed} kcal`;
-  if (weeklyCalsBudgetEl) weeklyCalsBudgetEl.textContent = `${weeklyBudget} kcal`;
+  // Render Stat Summary Numbers
+  if (weeklyCalsConsumedEl) weeklyCalsConsumedEl.textContent = weekConsumed.toLocaleString();
+  if (weeklyCalsBudgetEl) weeklyCalsBudgetEl.textContent = weeklyBudget.toLocaleString();
   if (weeklyCalsRemainingEl) {
-    weeklyCalsRemainingEl.textContent = `${remainingWeekly} kcal`;
+    weeklyCalsRemainingEl.textContent = remainingWeekly.toLocaleString();
     weeklyCalsRemainingEl.style.color = remainingWeekly < 0 ? "var(--color-over, #ff453a)" : "var(--color-primary, #007aff)";
-  }
-
-  if (weeklyBudgetBarFill) {
-    const pct = Math.min(100, (weekConsumed / weeklyBudget) * 100);
-    weeklyBudgetBarFill.style.width = `${pct}%`;
-    weeklyBudgetBarFill.classList.toggle("over", weekConsumed > weeklyBudget);
   }
 
   if (weeklySubtitle) {
@@ -76,6 +78,62 @@ export function renderWeeklyBudget() {
     endDate.setDate(weekStartDate.getDate() + 6);
     const opt = { month: "short", day: "numeric" };
     weeklySubtitle.textContent = `${weekStartDate.toLocaleDateString(undefined, opt)} - ${endDate.toLocaleDateString(undefined, opt)}`;
+  }
+
+  // OPTION 1: Radial Ring Progress & Center Gauge
+  const ringCircle = document.getElementById("radial-ring-circle");
+  const ringVal = document.getElementById("radial-center-val");
+  const ringUnit = document.getElementById("radial-center-unit");
+  const ringPct = document.getElementById("radial-center-pct");
+
+  if (ringCircle && ringVal && ringUnit && ringPct) {
+    const circumference = 2 * Math.PI * 80; // r=80 -> 502.65
+    const ratio = Math.min(1.0, Math.max(0, weekConsumed / weeklyBudget));
+    const offset = circumference * (1 - ratio);
+
+    ringCircle.style.strokeDashoffset = offset;
+    ringCircle.classList.toggle("over", weekConsumed > weeklyBudget);
+
+    ringVal.textContent = Math.abs(remainingWeekly).toLocaleString();
+    ringUnit.textContent = remainingWeekly >= 0 ? "kcal left" : "kcal over budget";
+
+    const usedPct = Math.round((weekConsumed / weeklyBudget) * 100);
+    ringPct.textContent = `${usedPct}% used`;
+    ringPct.style.color = weekConsumed > weeklyBudget ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)";
+  }
+
+  // OPTION 2: Cumulative Burn-Up / Pace Line Chart
+  renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal);
+
+  // Chart Toggle Switch Handling
+  const savedViewMode = localStorage.getItem("kcal-weekly-chart-view") || "ring";
+  if (savedViewMode === "pace") {
+    if (ringViewBtn) ringViewBtn.classList.remove("active");
+    if (paceViewBtn) paceViewBtn.classList.add("active");
+    if (ringContainer) ringContainer.hidden = true;
+    if (paceContainer) paceContainer.hidden = false;
+  } else {
+    if (ringViewBtn) ringViewBtn.classList.add("active");
+    if (paceViewBtn) paceViewBtn.classList.remove("active");
+    if (ringContainer) ringContainer.hidden = false;
+    if (paceContainer) paceContainer.hidden = true;
+  }
+
+  if (ringViewBtn && paceViewBtn) {
+    ringViewBtn.onclick = () => {
+      ringViewBtn.classList.add("active");
+      paceViewBtn.classList.remove("active");
+      if (ringContainer) ringContainer.hidden = false;
+      if (paceContainer) paceContainer.hidden = true;
+      localStorage.setItem("kcal-weekly-chart-view", "ring");
+    };
+    paceViewBtn.onclick = () => {
+      paceViewBtn.classList.add("active");
+      ringViewBtn.classList.remove("active");
+      if (ringContainer) ringContainer.hidden = true;
+      if (paceContainer) paceContainer.hidden = false;
+      localStorage.setItem("kcal-weekly-chart-view", "pace");
+    };
   }
 
   if (weeklyRolloverStatus) {
@@ -94,33 +152,95 @@ export function renderWeeklyBudget() {
       weeklyRolloverStatus.innerHTML = `<strong>🎯 Perfect daily pace!</strong><p>You are right on track with your ${dailyGoal} kcal/day budget.</p>`;
     }
   }
+}
 
-  if (flexibleWeeklyChart) {
-    flexibleWeeklyChart.innerHTML = "";
-    daysData.forEach((item) => {
-      const heightPct = Math.min(100, Math.round((item.calories / (dailyGoal * 1.3)) * 100));
-      const barCol = document.createElement("div");
-      barCol.className = "bar-col";
+function renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal) {
+  const paceBox = document.getElementById("pace-chart-box");
+  if (!paceBox) return;
 
-      const valLabel = document.createElement("span");
-      valLabel.className = "bar-col-val";
-      valLabel.textContent = item.calories > 0 ? item.calories : "";
+  const w = 320;
+  const h = 180;
+  const padL = 35;
+  const padR = 20;
+  const padT = 20;
+  const padB = 30;
 
-      const fill = document.createElement("div");
-      fill.className = `bar-col-fill ${item.isToday ? "active-day" : ""} ${item.calories > dailyGoal ? "over-goal" : ""}`;
-      fill.style.height = `${Math.max(4, heightPct)}%`;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
 
-      const dayName = item.date.toLocaleDateString(undefined, { weekday: "short" });
-      const dayLabel = document.createElement("span");
-      dayLabel.className = "bar-col-label";
-      dayLabel.textContent = item.isToday ? "Today" : dayName;
+  const maxVal = Math.max(weeklyBudget, ...cumulativeConsumed.map((c) => c.total), 100);
 
-      barCol.appendChild(valLabel);
-      barCol.appendChild(fill);
-      barCol.appendChild(dayLabel);
-      flexibleWeeklyChart.appendChild(barCol);
-    });
+  const getX = (index) => padL + (index / 6) * chartW;
+  const getY = (val) => padT + chartH - (val / maxVal) * chartH;
+
+  // Target pace line points
+  const targetStart = { x: getX(0), y: getY(dailyGoal) };
+  const targetEnd = { x: getX(6), y: getY(weeklyBudget) };
+
+  // Actual curve points
+  const actualPoints = cumulativeConsumed.map((c) => ({
+    x: getX(c.dayIndex),
+    y: getY(c.total),
+    val: c.total,
+    dayName: c.date.toLocaleDateString(undefined, { weekday: "short" }),
+  }));
+
+  let actualPathD = "";
+  let areaPathD = "";
+
+  if (actualPoints.length > 0) {
+    actualPathD = `M ${actualPoints[0].x} ${actualPoints[0].y}`;
+    for (let i = 1; i < actualPoints.length; i++) {
+      actualPathD += ` L ${actualPoints[i].x} ${actualPoints[i].y}`;
+    }
+
+    const lastPt = actualPoints[actualPoints.length - 1];
+    areaPathD = `${actualPathD} L ${lastPt.x} ${padT + chartH} L ${actualPoints[0].x} ${padT + chartH} Z`;
   }
+
+  const isOver = cumulativeConsumed.length > 0 && cumulativeConsumed[cumulativeConsumed.length - 1].total > (cumulativeConsumed.length * dailyGoal);
+
+  paceBox.innerHTML = `
+    <svg class="pace-chart-svg" viewBox="0 0 ${w} ${h}">
+      <defs>
+        <linearGradient id="pace-area-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${isOver ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)"}" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="${isOver ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)"}" stop-opacity="0.0"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Horizontal Grid Lines -->
+      <line x1="${padL}" y1="${getY(weeklyBudget / 2)}" x2="${w - padR}" y2="${getY(weeklyBudget / 2)}" class="grid-line" />
+      <line x1="${padL}" y1="${getY(weeklyBudget)}" x2="${w - padR}" y2="${getY(weeklyBudget)}" class="grid-line" />
+
+      <!-- Y Axis Labels -->
+      <text x="${padL - 6}" y="${getY(weeklyBudget) + 4}" class="axis-label" text-anchor="end">${Math.round(weeklyBudget / 1000)}k</text>
+      <text x="${padL - 6}" y="${getY(weeklyBudget / 2) + 4}" class="axis-label" text-anchor="end">${Math.round(weeklyBudget / 2000)}k</text>
+
+      <!-- Target Pace Line (Dotted Reference) -->
+      <line x1="${targetStart.x}" y1="${targetStart.y}" x2="${targetEnd.x}" y2="${targetEnd.y}" class="target-line" />
+
+      <!-- Actual Area Fill & Line -->
+      ${areaPathD ? `<path d="${areaPathD}" class="actual-area" />` : ""}
+      ${actualPathD ? `<path d="${actualPathD}" class="actual-line ${isOver ? "over" : ""}" />` : ""}
+
+      <!-- Data Points -->
+      ${actualPoints
+        .map(
+          (p) => `<circle cx="${p.x}" cy="${p.y}" r="4" class="dot" style="stroke:${isOver ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)"}" />`
+        )
+        .join("")}
+
+      <!-- Day Labels on X Axis -->
+      ${daysData
+        .map((d, i) => {
+          const x = getX(i);
+          const name = d.isToday ? "Today" : d.date.toLocaleDateString(undefined, { weekday: "narrow" });
+          return `<text x="${x}" y="${h - 8}" class="axis-label">${name}</text>`;
+        })
+        .join("")}
+    </svg>
+  `;
 }
 
 export function renderAnalytics(entries) {
