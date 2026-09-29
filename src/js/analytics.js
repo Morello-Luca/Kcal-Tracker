@@ -1,5 +1,6 @@
 /* Analytics & Past History Module */
-import { computeTotals, round, loadGoal, saveGoal, dateKey, loadEntriesForKey, LOG_KEY_PREFIX, todayKey, loadSettings } from "./storage.js";
+import { computeTotals, round, loadGoal, saveGoal, dateKey, loadEntriesForKey, LOG_KEY_PREFIX, todayKey, loadSettings, saveEntries } from "./storage.js";
+import { showToast } from "./main.js";
 import { calculateAdaptiveTDEE } from "./body-profile.js";
 
 let historyWeekOffset = 0; // 0 = Current Week, 1 = Previous Week, etc.
@@ -250,16 +251,42 @@ export function renderAnalytics(entries) {
       [...selectedEntries].reverse().forEach((entry) => {
         const li = document.createElement("li");
         li.className = "history-entry";
+        li.style.display = "flex";
+        li.style.alignItems = "center";
+        li.style.gap = "10px";
         li.style.padding = "6px 0";
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "fav-log-btn";
+        copyBtn.setAttribute("aria-label", "Copy entry to Today's log");
+        copyBtn.title = "Copy to Today's log";
+        copyBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        `;
+
+        copyBtn.addEventListener("click", () => {
+          const currentTodayEntries = loadEntriesForKey(todayKey());
+          const newEntry = {
+            ...entry,
+            id: crypto.randomUUID(),
+          };
+          saveEntries([...currentTodayEntries, newEntry]);
+          showToast(`Copied "${entry.description}" (${Math.round(entry.calories)} kcal) to Today's log!`);
+        });
 
         const desc = document.createElement("span");
         desc.className = "history-entry-desc";
+        desc.style.flex = "1";
         desc.textContent = entry.description;
 
         const cals = document.createElement("span");
         cals.className = "history-entry-cals";
         cals.textContent = `${Math.round(entry.calories)} kcal`;
 
+        li.appendChild(copyBtn);
         li.appendChild(desc);
         li.appendChild(cals);
         selectedDayEntriesList.appendChild(li);
