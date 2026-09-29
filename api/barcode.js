@@ -63,6 +63,129 @@ async function fetchOffProductV2(code) {
   }
 }
 
+async function fetchUpcItemDb(code) {
+  try {
+    const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(code)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.items || data.items.length === 0) return null;
+
+    const item = data.items[0];
+    const name = item.title || item.model || `Product ${code}`;
+    const brand = item.brand || "";
+
+    return {
+      code,
+      name,
+      brand,
+      per100g: {
+        calories: 0,
+        protein_g: 0,
+        carbs_g: 0,
+        fat_g: 0,
+      },
+      serving_quantity: 100,
+      unit: "g",
+      source: "UPC Item DB (Free)",
+      confirmations: 0,
+    };
+  } catch (err) {
+    console.warn("UPC Item DB lookup error:", err);
+    return null;
+  }
+}
+
+async function fetchWikidataGtin(code) {
+  try {
+    const sparql = `SELECT ?item ?itemLabel ?brandLabel WHERE {
+      { ?item wdt:P2399 "${code}". } UNION { ?item wdt:P2398 "${code}". } UNION { ?item wdt:P4012 "${code}". }
+      OPTIONAL { ?item wdt:P1716 ?brand. }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    } LIMIT 1`;
+
+    const res = await fetch(`https://query.wikidata.org/sparql?query=${encodeURIComponent(sparql)}&format=json`, {
+      headers: { "User-Agent": "KcalTrackerPWA/1.0" },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const binding = data?.results?.bindings?.[0];
+    if (!binding || !binding.itemLabel) return null;
+
+    return {
+      code,
+      name: binding.itemLabel.value,
+      brand: binding.brandLabel?.value || "",
+      per100g: { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
+      serving_quantity: 100,
+      unit: "g",
+      source: "Wikidata Open DB",
+      confirmations: 0,
+    };
+  } catch (err) {
+    console.warn("Wikidata GTIN lookup error:", err);
+    return null;
+  }
+}
+
+async function fetchLlmBarcodeLookup(code) {
+  const apiKey = process.env.LLM_API_KEY || process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const baseUrl = process.env.LLM_BASE_URL || "https://api.groq.com/openai/v1";
+    const endpoint = baseUrl.endsWith("/chat/completions") ? baseUrl : baseUrl.replace(/\/+$/, "") + "/chat/completions";
+    const model = process.env.LLM_MODEL || process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+
+    const prompt = `Identify the exact food product for barcode / GTIN / UPC "${code}".
+If you recognize this barcode, provide its product name, brand, serving size in grams, and per 100g calories, protein (g), carbs (g), and fat (g).
+Respond ONLY with a JSON object in this exact shape:
+{"found": true, "name": "...", "brand": "...", "serving_quantity": number, "calories": number, "protein_g": number, "carbs_g": number, "fat_g": number}
+If you do not recognize this barcode number, respond ONLY with:
+{"found": false}`;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.1,
+        response_format: { type: "json_object" },
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content;
+    if (!content) return null;
+
+    const parsed = JSON.parse(content);
+    if (!parsed.found || !parsed.name || !parsed.calories) return null;
+
+    return {
+      code,
+      name: parsed.name,
+      brand: parsed.brand || "",
+      per100g: {
+        calories: Number(parsed.calories) || 0,
+        protein_g: Number(parsed.protein_g) || 0,
+        carbs_g: Number(parsed.carbs_g) || 0,
+        fat_g: Number(parsed.fat_g) || 0,
+      },
+      serving_quantity: Number(parsed.serving_quantity) || 100,
+      unit: "g",
+      source: "AI Barcode Database",
+      confirmations: 1,
+    };
+  } catch (err) {
+    console.warn("LLM Barcode lookup error:", err);
+    return null;
+  }
+}
+
 async function fetchOffProductV0(code) {
   try {
     const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(code)}.json`);
@@ -230,6 +353,21 @@ module.exports = async (req, res) => {
     // 5. Fallback: USDA FoodData Central
     if (!product) {
       product = await fetchUsdaGtin(code);
+    }
+
+    // 6. Fallback: UPC Item DB
+    if (!product) {
+      product = await fetchUpcItemDb(code);
+    }
+
+    // 7. Fallback: Wikidata SPARQL
+    if (!product) {
+      product = await fetchWikidataGtin(code);
+    }
+
+    // 8. Fallback: AI LLM Barcode Knowledge
+    if (!product) {
+      product = await fetchLlmBarcodeLookup(code);
     }
 
     if (product) {
