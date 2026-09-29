@@ -12,7 +12,42 @@
     "serving_quantity": 15,
     "unit": "g",
     "confirmations": 5,
+    "upvotes": 5,
+    "downvotes": 0,
+    "status": "verified",
+    "suggestedEdits": [],
     "createdAt": "2025-01-01T00:00:00.000Z",
     "updatedAt": "2025-01-01T00:00:00.000Z"
+  },
+  "5000159461122": {
+    "code": "5000159461122",
+    "name": "Snickers Chocolate Bar",
+    "brand": "Mars",
+    "per100g": {
+      "calories": 488,
+      "protein_g": 8.6,
+      "carbs_g": 60.0,
+      "fat_g": 24.0
+    },
+    "serving_quantity": 50,
+    "unit": "g",
+    "confirmations": 2,
+    "upvotes": 1,
+    "downvotes": 1,
+    "status": "pending_review",
+    "suggestedEdits": [
+      {
+        "id": "edit-1",
+        "name": "Snickers Bar (Original)",
+        "brand": "Mars",
+        "calories": 483,
+        "protein_g": 8.5,
+        "carbs_g": 60.5,
+        "fat_g": 23.8,
+        "timestamp": "2025-01-02T10:00:00.000Z"
+      }
+    ],
+    "createdAt": "2025-01-02T00:00:00.000Z",
+    "updatedAt": "2025-01-02T10:00:00.000Z"
   }
 }
