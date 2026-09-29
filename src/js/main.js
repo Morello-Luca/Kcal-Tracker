@@ -1080,11 +1080,24 @@ if (todayModeDailyBtn && todayModeWeeklyBtn) {
   });
 }
 
+function initCollapsibleCards() {
+  const collapsibleCards = document.querySelectorAll(".card-panel.collapsible");
+  collapsibleCards.forEach((card) => {
+    const header = card.querySelector(".card-panel-header");
+    if (!header) return;
+
+    header.addEventListener("click", () => {
+      card.classList.toggle("expanded");
+    });
+  });
+}
+
 // Module Initializations
 initTheme();
 initBodyProfile(renderGoal, renderApp);
 modalControllers = initUIModals(entries, addEntryFromResult, renderApp, switchNavTab);
 initVisionModule(addEntryFromResult);
+initCollapsibleCards();
 
 renderDate();
 renderApp();
