@@ -80,30 +80,8 @@ export function renderWeeklyBudget() {
     weeklySubtitle.textContent = `${weekStartDate.toLocaleDateString(undefined, opt)} - ${endDate.toLocaleDateString(undefined, opt)}`;
   }
 
-  // OPTION 1: Radial Ring Progress & Center Gauge
-  const ringCircle = document.getElementById("radial-ring-circle");
-  const ringVal = document.getElementById("radial-center-val");
-  const ringUnit = document.getElementById("radial-center-unit");
-  const ringPct = document.getElementById("radial-center-pct");
-
-  if (ringCircle && ringVal && ringUnit && ringPct) {
-    const r = 80;
-    const circumference = 2 * Math.PI * r; // ~502.65
-    const ratio = Math.min(1.0, Math.max(0, weekConsumed / weeklyBudget));
-    const offset = circumference * (1 - ratio);
-
-    ringCircle.setAttribute("stroke-dasharray", `${circumference.toFixed(2)}`);
-    ringCircle.style.strokeDasharray = `${circumference.toFixed(2)}`;
-    ringCircle.style.strokeDashoffset = `${offset.toFixed(2)}`;
-    ringCircle.classList.toggle("over", weekConsumed > weeklyBudget);
-
-    ringVal.textContent = Math.abs(remainingWeekly).toLocaleString();
-    ringUnit.textContent = remainingWeekly >= 0 ? "kcal left" : "kcal over budget";
-
-    const usedPct = Math.round((weekConsumed / weeklyBudget) * 100);
-    ringPct.textContent = `${usedPct}% used`;
-    ringPct.style.color = weekConsumed > weeklyBudget ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)";
-  }
+  // OPTION 1: Thermostat Arc Radial Gauge
+  renderThermostatGauge(weekConsumed, weeklyBudget, daysSinceStart);
 
   // OPTION 2: Cumulative Burn-Up / Pace Line Chart
   renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal);
@@ -143,6 +121,97 @@ export function renderWeeklyBudget() {
     weeklyRolloverStatus.innerHTML = "";
     weeklyRolloverStatus.hidden = true;
   }
+}
+
+function renderThermostatGauge(weekConsumed, weeklyBudget, daysSinceStart) {
+  const svg = document.getElementById("thermostat-gauge-svg");
+  const valEl = document.getElementById("radial-center-val");
+  const labelEl = document.getElementById("radial-center-unit");
+  const avgEl = document.getElementById("radial-center-daily-avg");
+
+  if (!svg) return;
+
+  const usedPct = Math.max(0, Math.round((weekConsumed / weeklyBudget) * 100));
+  const isOver = weekConsumed > weeklyBudget;
+
+  if (valEl) {
+    valEl.textContent = `${usedPct}%`;
+    valEl.style.color = isOver ? "var(--danger, #ff453a)" : "var(--text)";
+  }
+  if (labelEl) {
+    labelEl.textContent = isOver ? "Over Budget" : "Consumed";
+  }
+  if (avgEl) {
+    const activeDays = Math.max(1, daysSinceStart + 1);
+    const avg = Math.round(weekConsumed / activeDays);
+    avgEl.textContent = `${avg.toLocaleString()} kcal/d avg`;
+  }
+
+  const cx = 110;
+  const cy = 115;
+  const rOuter = 92;
+  const rInner = 80;
+  const totalTicks = 45;
+
+  // Calculate active tick count
+  const fillRatio = Math.min(1.0, usedPct / 100);
+  const activeTicksCount = Math.round(fillRatio * totalTicks);
+
+  let ticksSvg = "";
+  for (let i = 0; i <= totalTicks; i++) {
+    const fraction = i / totalTicks;
+    // Angle from 180 deg (left) to 0 deg (right)
+    const angleRad = Math.PI - fraction * Math.PI;
+
+    const x1 = cx + rInner * Math.cos(angleRad);
+    const y1 = cy - rInner * Math.sin(angleRad);
+    const x2 = cx + rOuter * Math.cos(angleRad);
+    const y2 = cy - rOuter * Math.sin(angleRad);
+
+    const isActive = i <= activeTicksCount && activeTicksCount > 0;
+    const tickClass = isActive ? (isOver ? "gauge-tick active over" : "gauge-tick active") : "gauge-tick";
+
+    ticksSvg += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="${tickClass}" />`;
+  }
+
+  // Inner dotted arc
+  const rDot = 68;
+  const dDotArc = `M ${cx - rDot} ${cy} A ${rDot} ${rDot} 0 0 1 ${cx + rDot} ${cy}`;
+
+  // Needle position
+  const needleFraction = Math.min(1.0, usedPct / 100);
+  const needleRad = Math.PI - needleFraction * Math.PI;
+
+  const needleR1 = 68;
+  const needleR2 = 96;
+
+  const nx1 = cx + needleR1 * Math.cos(needleRad);
+  const ny1 = cy - needleR1 * Math.sin(needleRad);
+  const nx2 = cx + needleR2 * Math.cos(needleRad);
+  const ny2 = cy - needleR2 * Math.sin(needleRad);
+
+  const needleCircleR = 98;
+  const ncx = cx + needleCircleR * Math.cos(needleRad);
+  const ncy = cy - needleCircleR * Math.sin(needleRad);
+
+  svg.innerHTML = `
+    <!-- Radial Tick Marks -->
+    <g class="gauge-ticks-group">
+      ${ticksSvg}
+    </g>
+
+    <!-- Inner Dotted Arc -->
+    <path d="${dDotArc}" class="gauge-inner-dotted" />
+
+    <!-- Scale Percentage Labels -->
+    <text x="${cx - 68}" y="${cy + 14}" class="gauge-scale-text">0%</text>
+    <text x="${cx}" y="${cy - 52}" class="gauge-scale-text">50%</text>
+    <text x="${cx + 68}" y="${cy + 14}" class="gauge-scale-text">100%</text>
+
+    <!-- Needle Line & Circular Pointer Tip -->
+    <line x1="${nx1.toFixed(1)}" y1="${ny1.toFixed(1)}" x2="${nx2.toFixed(1)}" y2="${ny2.toFixed(1)}" class="gauge-needle-line" />
+    <circle cx="${ncx.toFixed(1)}" cy="${ncy.toFixed(1)}" r="3" class="gauge-needle-tip" />
+  `;
 }
 
 function renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal) {

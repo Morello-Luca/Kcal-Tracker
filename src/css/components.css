@@ -1655,13 +1655,13 @@
   margin-top: 2px;
 }
 
-/* Weekly Chart Container & Radial Ring Gauge */
+/* Weekly Chart Container & Thermostat Arc Gauge */
 .weekly-chart-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 0;
+  padding: 8px 0 4px;
   width: 100%;
 }
 
@@ -1669,51 +1669,77 @@
   display: none !important;
 }
 
-.radial-ring-box {
+.thermostat-gauge-box {
   position: relative;
-  width: 210px;
-  height: 210px;
+  width: 240px;
+  height: 155px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
 }
 
-.radial-ring-svg {
+.thermostat-gauge-svg {
   width: 100%;
   height: 100%;
-  transform: rotate(-90deg);
   overflow: visible;
 }
 
-.radial-ring-svg circle {
-  fill: none;
-  stroke-width: 16;
+/* Gauge SVG Elements */
+.gauge-tick {
+  stroke: var(--text-muted, #c2c7ce);
+  stroke-width: 2.2;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.8s ease-in-out, stroke 0.3s ease;
+  opacity: 0.35;
+  transition: stroke 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
 }
 
-.radial-ring-svg .ring-bg {
-  stroke: var(--surface-alt, #d0d4da);
-  filter: drop-shadow(inset 1px 1px 2px rgba(0,0,0,0.15));
+.gauge-tick.active {
+  stroke: var(--text, #111827);
+  opacity: 0.95;
+  stroke-width: 2.8;
 }
 
-.radial-ring-svg .ring-fill {
-  stroke: var(--accent, #007aff);
-  stroke-dasharray: 502.65; /* 2 * PI * 80 */
-  stroke-dashoffset: 502.65;
-  transform-origin: center;
+.gauge-tick.over {
+  stroke: var(--danger, #ff453a);
+  opacity: 0.95;
+  stroke-width: 2.8;
 }
 
-.radial-ring-svg .ring-fill.over {
-  stroke: var(--color-over, #ff453a);
+.gauge-inner-dotted {
+  fill: none;
+  stroke: var(--text-dim, #8e8e93);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
+  opacity: 0.5;
 }
 
-.radial-center-content {
+.gauge-needle-line {
+  stroke: var(--text, #111827);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gauge-needle-tip {
+  fill: var(--bg, #e2e5e9);
+  stroke: var(--text, #111827);
+  stroke-width: 2.5;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gauge-scale-text {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--text-dim, #8e8e93);
+  text-anchor: middle;
+}
+
+.thermostat-center-content {
   position: absolute;
-  top: 50%;
+  bottom: 8px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1722,30 +1748,56 @@
   pointer-events: none;
 }
 
-.radial-center-val {
-  font-size: 1.7rem;
+.thermostat-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.thermostat-center-val {
+  font-size: 2.3rem;
   font-weight: 800;
   color: var(--text);
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
-.radial-center-unit {
-  font-size: 0.78rem;
+.thermostat-center-label {
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-dim);
-  margin-top: 2px;
-  text-transform: lowercase;
+  margin-top: 3px;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
 }
 
-.radial-center-pct {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent, #007aff);
-  margin-top: 6px;
-  background: var(--surface-alt);
-  padding: 3px 8px;
-  border-radius: 12px;
+.thermostat-center-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Thinner Subtle Mode Toggle Group (Sleek height, full width, single line text) */
+.mode-toggle-group-subtle {
+  width: 100%;
+  max-width: 100%;
+  margin: 12px 0 0 0;
+  padding: 3px;
+  border-radius: 20px;
+  display: flex;
+  gap: 4px;
+}
+
+.mode-btn-subtle {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border-radius: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Cumulative Burn-Up / Pace Line Graph */
