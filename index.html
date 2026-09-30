@@ -166,35 +166,18 @@
             </div>
           </div>
 
-          <!-- OPTION 1: Radial Ring Progress & Center Gauge -->
+          <!-- OPTION 1: Thermostat Arc Radial Gauge -->
           <div id="weekly-ring-container" class="weekly-chart-wrapper margin-top-sm">
-            <div class="radial-ring-box">
-              <svg class="radial-ring-svg" viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="var(--accent, #007aff)" />
-                    <stop offset="100%" stop-color="#34c759" />
-                  </linearGradient>
-                  <linearGradient id="ringOverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#ff9500" />
-                    <stop offset="100%" stop-color="var(--color-over, #ff453a)" />
-                  </linearGradient>
-                  <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-                <circle class="ring-bg" cx="100" cy="100" r="80" />
-                <circle class="ring-track-dots" cx="100" cy="100" r="80" />
-                <circle class="ring-fill" id="radial-ring-circle" cx="100" cy="100" r="80" />
+            <div class="thermostat-gauge-box">
+              <svg class="thermostat-gauge-svg" id="thermostat-gauge-svg" viewBox="0 0 220 145">
+                <!-- Dynamic ticks, needle, and inner arc generated via JS -->
               </svg>
-              <div class="radial-center-content">
-                <span class="radial-center-val" id="radial-center-val">0</span>
-                <span class="radial-center-unit" id="radial-center-unit">kcal left</span>
-                <div class="radial-center-meta-row margin-top-xs">
-                  <span class="radial-center-pct" id="radial-center-pct">0% used</span>
-                  <span class="radial-center-sub" id="radial-center-daily-avg">0 kcal/d avg</span>
+              <div class="thermostat-center-content">
+                <div class="thermostat-val-row">
+                  <span class="thermostat-center-val" id="radial-center-val">0%</span>
                 </div>
+                <span class="thermostat-center-label" id="radial-center-unit">Consumed</span>
+                <span class="thermostat-center-sub" id="radial-center-daily-avg">0 kcal/d avg</span>
               </div>
             </div>
           </div>

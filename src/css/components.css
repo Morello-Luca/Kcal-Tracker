@@ -1655,13 +1655,13 @@
   margin-top: 2px;
 }
 
-/* Weekly Chart Container & Radial Ring Gauge */
+/* Weekly Chart Container & Thermostat Arc Gauge */
 .weekly-chart-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 0;
+  padding: 8px 0 4px;
   width: 100%;
 }
 
@@ -1669,60 +1669,77 @@
   display: none !important;
 }
 
-.radial-ring-box {
+.thermostat-gauge-box {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 240px;
+  height: 155px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 8px auto;
+  margin: 0 auto;
 }
 
-.radial-ring-svg {
+.thermostat-gauge-svg {
   width: 100%;
   height: 100%;
-  transform: rotate(-90deg);
   overflow: visible;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.06));
 }
 
-.radial-ring-svg circle {
-  fill: none;
-  stroke-width: 15;
+/* Gauge SVG Elements */
+.gauge-tick {
+  stroke: var(--text-muted, #c2c7ce);
+  stroke-width: 2.2;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
+  opacity: 0.35;
+  transition: stroke 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
 }
 
-.radial-ring-svg .ring-bg {
-  stroke: var(--surface-alt, #d0d4da);
-  opacity: 0.65;
+.gauge-tick.active {
+  stroke: var(--text, #111827);
+  opacity: 0.95;
+  stroke-width: 2.8;
 }
 
-.radial-ring-svg .ring-track-dots {
-  stroke: var(--text-dim, rgba(0,0,0,0.15));
-  stroke-width: 2;
-  stroke-dasharray: 2 8;
-  opacity: 0.4;
+.gauge-tick.over {
+  stroke: var(--danger, #ff453a);
+  opacity: 0.95;
+  stroke-width: 2.8;
 }
 
-.radial-ring-svg .ring-fill {
-  stroke: url(#ringGradient);
-  stroke-dasharray: 502.65; /* 2 * PI * 80 */
-  stroke-dashoffset: 502.65;
-  transform-origin: center;
-  filter: url(#ringGlow);
+.gauge-inner-dotted {
+  fill: none;
+  stroke: var(--text-dim, #8e8e93);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
+  opacity: 0.5;
 }
 
-.radial-ring-svg .ring-fill.over {
-  stroke: url(#ringOverGradient);
+.gauge-needle-line {
+  stroke: var(--text, #111827);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.radial-center-content {
+.gauge-needle-tip {
+  fill: var(--bg, #e2e5e9);
+  stroke: var(--text, #111827);
+  stroke-width: 2.5;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gauge-scale-text {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--text-dim, #8e8e93);
+  text-anchor: middle;
+}
+
+.thermostat-center-content {
   position: absolute;
-  top: 50%;
+  bottom: 8px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1731,48 +1748,34 @@
   pointer-events: none;
 }
 
-.radial-center-val {
-  font-size: 2.1rem;
+.thermostat-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.thermostat-center-val {
+  font-size: 2.3rem;
   font-weight: 800;
   color: var(--text);
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
-.radial-center-unit {
+.thermostat-center-label {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-dim);
-  margin-top: 4px;
-  text-transform: lowercase;
-  letter-spacing: 0.02em;
+  margin-top: 3px;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
 }
 
-.radial-center-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.radial-center-pct {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent, #007aff);
-  background: var(--surface-alt);
-  padding: 3px 8px;
-  border-radius: 12px;
-  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.08), inset -1px -1px 2px rgba(255,255,255,0.7);
-}
-
-.radial-center-sub {
-  font-size: 0.72rem;
+.thermostat-center-sub {
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-dim);
-  background: var(--surface-alt);
-  padding: 3px 8px;
-  border-radius: 12px;
-  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.08), inset -1px -1px 2px rgba(255,255,255,0.7);
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 /* Thinner Subtle Mode Toggle Group (Sleek height, full width, single line text) */
