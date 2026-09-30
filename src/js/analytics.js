@@ -10,6 +10,7 @@ export function renderWeeklyBudget() {
   const weeklyCalsConsumedEl = document.getElementById("weekly-cals-consumed");
   const weeklyCalsBudgetEl = document.getElementById("weekly-cals-budget");
   const weeklyCalsRemainingEl = document.getElementById("weekly-cals-remaining");
+  const weeklyRolloverStatus = document.getElementById("weekly-rollover-status");
   const weeklySubtitle = document.getElementById("weekly-budget-range-subtitle");
   const weeklyBudgetBadge = document.getElementById("weekly-budget-badge");
 
@@ -100,7 +101,6 @@ export function renderWeeklyBudget() {
     ringPct.textContent = `${usedPct}% used`;
     ringPct.style.color = weekConsumed > weeklyBudget ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)";
   }
-}
 
   // OPTION 2: Cumulative Burn-Up / Pace Line Chart
   renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal);
@@ -136,6 +136,22 @@ export function renderWeeklyBudget() {
     };
   }
 
+  if (weeklyRolloverStatus) {
+    const pastDaysCount = daysSinceStart;
+    const expectedPaceSoFar = pastDaysCount * dailyGoal;
+    const rolloverAmount = expectedPaceSoFar - (weekConsumed - (daysData.find((d) => d.isToday)?.calories || 0));
+
+    if (rolloverAmount > 0) {
+      const remainingDailyAvg = remainingDays > 0 ? Math.round(remainingWeekly / remainingDays) : dailyGoal;
+      weeklyRolloverStatus.innerHTML = `<strong>✨ ${rolloverAmount} kcal saved so far!</strong><p>Rolled over to remaining ${remainingDays} day(s). Adjusted target: <strong>${remainingDailyAvg} kcal/day</strong>.</p>`;
+    } else if (rolloverAmount < 0) {
+      const overBy = Math.abs(rolloverAmount);
+      const remainingDailyAvg = remainingDays > 0 ? Math.max(0, Math.round(remainingWeekly / remainingDays)) : dailyGoal;
+      weeklyRolloverStatus.innerHTML = `<strong>⚠️ ${overBy} kcal over baseline pace.</strong><p>To stay on weekly budget, target <strong>${remainingDailyAvg} kcal/day</strong> for remaining ${remainingDays} day(s).</p>`;
+    } else {
+      weeklyRolloverStatus.innerHTML = `<strong>🎯 Perfect daily pace!</strong><p>You are right on track with your ${dailyGoal} kcal/day budget.</p>`;
+    }
+  }
 }
 
 function renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal) {
