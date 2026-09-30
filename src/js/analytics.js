@@ -306,15 +306,39 @@ function renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, d
 export function renderAnalytics(entries) {
   renderWeeklyBudget();
 
-  const macroPartP = document.getElementById("macro-part-p");
-  const macroPartC = document.getElementById("macro-part-c");
-  const macroPartF = document.getElementById("macro-part-f");
-  const legendPText = document.getElementById("legend-p-text");
-  const legendCText = document.getElementById("legend-c-text");
-  const legendFText = document.getElementById("legend-f-text");
+  const settings = loadSettings();
+  const enabledMicros = settings.enabledMicros || {
+    protein: true,
+    carbs: true,
+    fat: true,
+    fiber: false,
+    sugar: false,
+    sodium: false,
+    potassium: false,
+  };
+
+  const stackedTrack = document.getElementById("analytics-stacked-track");
+
+  const cardProtein = document.getElementById("macro-card-protein");
+  const cardCarbs = document.getElementById("macro-card-carbs");
+  const cardFat = document.getElementById("macro-card-fat");
+  const cardFiber = document.getElementById("micro-card-fiber");
+  const cardSugar = document.getElementById("micro-card-sugar");
+  const cardSodium = document.getElementById("micro-card-sodium");
+  const cardPotassium = document.getElementById("micro-card-potassium");
+
   const analyticsProteinVal = document.getElementById("analytics-protein-val");
   const analyticsCarbsVal = document.getElementById("analytics-carbs-val");
   const analyticsFatVal = document.getElementById("analytics-fat-val");
+  const valFiber = document.getElementById("analytics-fiber-val");
+  const valSugar = document.getElementById("analytics-sugar-val");
+  const valSodium = document.getElementById("analytics-sodium-val");
+  const valPotassium = document.getElementById("analytics-potassium-val");
+
+  const legendPText = document.getElementById("legend-p-text");
+  const legendCText = document.getElementById("legend-c-text");
+  const legendFText = document.getElementById("legend-f-text");
+
   const weeklyChart = document.getElementById("weekly-chart");
   const selectedDayTitle = document.getElementById("analytics-selected-day-title");
   const selectedDayEntriesList = document.getElementById("analytics-selected-day-entries");
@@ -387,73 +411,70 @@ export function renderAnalytics(entries) {
   }
 
   const totals = computeTotals(selectedEntries);
-  const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
 
-  if (selectedDayTitle) {
-    selectedDayTitle.textContent = isSelectedToday ? "Today's Macro Breakdown" : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
-  }
+  // Show / Hide individual macro/micro cards based on settings
+  if (cardProtein) cardProtein.hidden = enabledMicros.protein === false;
+  if (cardCarbs) cardCarbs.hidden = enabledMicros.carbs === false;
+  if (cardFat) cardFat.hidden = enabledMicros.fat === false;
+  if (cardFiber) cardFiber.hidden = !enabledMicros.fiber;
+  if (cardSugar) cardSugar.hidden = !enabledMicros.sugar;
+  if (cardSodium) cardSodium.hidden = !enabledMicros.sodium;
+  if (cardPotassium) cardPotassium.hidden = !enabledMicros.potassium;
 
   if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;
   if (analyticsCarbsVal) analyticsCarbsVal.textContent = `${round(totals.carbs)}g`;
   if (analyticsFatVal) analyticsFatVal.textContent = `${round(totals.fat)}g`;
+  if (valFiber) valFiber.textContent = `${round(totals.fiber)}g`;
+  if (valSugar) valSugar.textContent = `${round(totals.sugar)}g`;
+  if (valSodium) valSodium.textContent = `${round(totals.sodium)}mg`;
+  if (valPotassium) valPotassium.textContent = `${round(totals.potassium)}mg`;
 
-  if (totalMacroGrams > 0) {
-    const pctP = Math.round((totals.protein / totalMacroGrams) * 100);
-    const pctC = Math.round((totals.carbs / totalMacroGrams) * 100);
-    const pctF = Math.round((totals.fat / totalMacroGrams) * 100);
+  // Calculate percentages and render horizontal stacked track for enabled main macros (P, C, F)
+  const mainMacroGrams =
+    (enabledMicros.protein !== false ? totals.protein : 0) +
+    (enabledMicros.carbs !== false ? totals.carbs : 0) +
+    (enabledMicros.fat !== false ? totals.fat : 0);
 
-    if (macroPartP) macroPartP.style.width = `${pctP}%`;
-    if (macroPartC) macroPartC.style.width = `${pctC}%`;
-    if (macroPartF) macroPartF.style.width = `${pctF}%`;
+  if (stackedTrack) {
+    stackedTrack.innerHTML = "";
+    if (mainMacroGrams > 0) {
+      if (enabledMicros.protein !== false && totals.protein > 0) {
+        const pctP = Math.round((totals.protein / mainMacroGrams) * 100);
+        const divP = document.createElement("div");
+        divP.className = "macro-stacked-fill p-part";
+        divP.style.width = `${pctP}%`;
+        stackedTrack.appendChild(divP);
+        if (legendPText) legendPText.textContent = `${pctP}%`;
+      } else if (legendPText) {
+        legendPText.textContent = "0%";
+      }
 
-    if (legendPText) legendPText.textContent = `${pctP}%`;
-    if (legendCText) legendCText.textContent = `${pctC}%`;
-    if (legendFText) legendFText.textContent = `${pctF}%`;
-  } else {
-    if (macroPartP) macroPartP.style.width = "0%";
-    if (macroPartC) macroPartC.style.width = "0%";
-    if (macroPartF) macroPartF.style.width = "0%";
-    if (legendPText) legendPText.textContent = "0%";
-    if (legendCText) legendCText.textContent = "0%";
-    if (legendFText) legendFText.textContent = "0%";
-  }
+      if (enabledMicros.carbs !== false && totals.carbs > 0) {
+        const pctC = Math.round((totals.carbs / mainMacroGrams) * 100);
+        const divC = document.createElement("div");
+        divC.className = "macro-stacked-fill c-part";
+        divC.style.width = `${pctC}%`;
+        stackedTrack.appendChild(divC);
+        if (legendCText) legendCText.textContent = `${pctC}%`;
+      } else if (legendCText) {
+        legendCText.textContent = "0%";
+      }
 
-  // Render Dynamic Micronutrients Cards
-  const settings = loadSettings();
-  const enabledMicros = settings.enabledMicros || {};
-
-  const microsRow = document.getElementById("analytics-micros-row");
-  const cardFiber = document.getElementById("micro-card-fiber");
-  const cardSugar = document.getElementById("micro-card-sugar");
-  const cardSodium = document.getElementById("micro-card-sodium");
-  const cardPotassium = document.getElementById("micro-card-potassium");
-
-  const valFiber = document.getElementById("analytics-fiber-val");
-  const valSugar = document.getElementById("analytics-sugar-val");
-  const valSodium = document.getElementById("analytics-sodium-val");
-  const valPotassium = document.getElementById("analytics-potassium-val");
-
-  const anyMicroEnabled = Boolean(enabledMicros.fiber || enabledMicros.sugar || enabledMicros.sodium || enabledMicros.potassium);
-
-  if (microsRow) {
-    microsRow.hidden = !anyMicroEnabled;
-  }
-
-  if (cardFiber) {
-    cardFiber.hidden = !enabledMicros.fiber;
-    if (valFiber) valFiber.textContent = `${round(totals.fiber)}g`;
-  }
-  if (cardSugar) {
-    cardSugar.hidden = !enabledMicros.sugar;
-    if (valSugar) valSugar.textContent = `${round(totals.sugar)}g`;
-  }
-  if (cardSodium) {
-    cardSodium.hidden = !enabledMicros.sodium;
-    if (valSodium) valSodium.textContent = `${round(totals.sodium)}mg`;
-  }
-  if (cardPotassium) {
-    cardPotassium.hidden = !enabledMicros.potassium;
-    if (valPotassium) valPotassium.textContent = `${round(totals.potassium)}mg`;
+      if (enabledMicros.fat !== false && totals.fat > 0) {
+        const pctF = Math.round((totals.fat / mainMacroGrams) * 100);
+        const divF = document.createElement("div");
+        divF.className = "macro-stacked-fill f-part";
+        divF.style.width = `${pctF}%`;
+        stackedTrack.appendChild(divF);
+        if (legendFText) legendFText.textContent = `${pctF}%`;
+      } else if (legendFText) {
+        legendFText.textContent = "0%";
+      }
+    } else {
+      if (legendPText) legendPText.textContent = "0%";
+      if (legendCText) legendCText.textContent = "0%";
+      if (legendFText) legendFText.textContent = "0%";
+    }
   }
 
   // Selected Day Items List
@@ -539,23 +560,39 @@ export function renderAnalytics(entries) {
     fill.className = `bar-col-fill ${index === selectedDayInWeek ? "active-day" : ""}`;
     fill.style.height = `${Math.max(6, heightPct)}%`;
 
-    const dayMacroGrams = dayTotals.protein + dayTotals.carbs + dayTotals.fat;
-    if (dayMacroGrams > 0) {
-      const pSegment = document.createElement("div");
-      pSegment.className = "macro-stack-p";
-      pSegment.style.height = `${(dayTotals.protein / dayMacroGrams) * 100}%`;
+    // Stacked segments for enabled macros with color coding
+    const macroSegments = [];
+    if (enabledMicros.protein !== false && dayTotals.protein > 0) {
+      macroSegments.push({ type: "p", val: dayTotals.protein, className: "macro-stack-p" });
+    }
+    if (enabledMicros.carbs !== false && dayTotals.carbs > 0) {
+      macroSegments.push({ type: "c", val: dayTotals.carbs, className: "macro-stack-c" });
+    }
+    if (enabledMicros.fat !== false && dayTotals.fat > 0) {
+      macroSegments.push({ type: "f", val: dayTotals.fat, className: "macro-stack-f" });
+    }
+    if (enabledMicros.fiber && dayTotals.fiber > 0) {
+      macroSegments.push({ type: "fiber", val: dayTotals.fiber, className: "macro-stack-fiber" });
+    }
+    if (enabledMicros.sugar && dayTotals.sugar > 0) {
+      macroSegments.push({ type: "sugar", val: dayTotals.sugar, className: "macro-stack-sugar" });
+    }
+    if (enabledMicros.sodium && dayTotals.sodium > 0) {
+      macroSegments.push({ type: "sodium", val: dayTotals.sodium / 100, className: "macro-stack-sodium" }); // normalized mg
+    }
+    if (enabledMicros.potassium && dayTotals.potassium > 0) {
+      macroSegments.push({ type: "potassium", val: dayTotals.potassium / 100, className: "macro-stack-potassium" }); // normalized mg
+    }
 
-      const cSegment = document.createElement("div");
-      cSegment.className = "macro-stack-c";
-      cSegment.style.height = `${(dayTotals.carbs / dayMacroGrams) * 100}%`;
+    const totalSegmentVal = macroSegments.reduce((sum, s) => sum + s.val, 0);
 
-      const fSegment = document.createElement("div");
-      fSegment.className = "macro-stack-f";
-      fSegment.style.height = `${(dayTotals.fat / dayMacroGrams) * 100}%`;
-
-      fill.appendChild(pSegment);
-      fill.appendChild(cSegment);
-      fill.appendChild(fSegment);
+    if (totalSegmentVal > 0) {
+      macroSegments.forEach((seg) => {
+        const segDiv = document.createElement("div");
+        segDiv.className = seg.className;
+        segDiv.style.height = `${(seg.val / totalSegmentVal) * 100}%`;
+        fill.appendChild(segDiv);
+      });
     }
 
     fill.addEventListener("click", () => {

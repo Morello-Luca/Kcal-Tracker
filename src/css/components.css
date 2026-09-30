@@ -1082,19 +1082,17 @@
   border-radius: 2px;
 }
 
-.p-part, .p-color { background: var(--ios-green); }
-.c-part, .c-color { background: var(--ios-blue); }
-.f-part, .f-color { background: var(--ios-orange); }
+.p-part, .p-color { background: var(--ios-green, #34c759); }
+.c-part, .c-color { background: var(--ios-blue, #007aff); }
+.f-part, .f-color { background: var(--ios-orange, #ff9500); }
+.fiber-part, .fiber-color { background: #af52de; }
+.sugar-part, .sugar-color { background: #ff2d55; }
+.sodium-part, .sodium-color { background: #30b0c7; }
+.potassium-part, .potassium-color { background: #ffcc00; }
 
 .macro-cards-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.micro-cards-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 10px;
 }
 
@@ -1174,6 +1172,10 @@
 .macro-stack-p { background: var(--ios-green, #34c759); }
 .macro-stack-c { background: var(--ios-blue, #007aff); }
 .macro-stack-f { background: var(--ios-orange, #ff9500); }
+.macro-stack-fiber { background: #af52de; }
+.macro-stack-sugar { background: #ff2d55; }
+.macro-stack-sodium { background: #30b0c7; }
+.macro-stack-potassium { background: #ffcc00; }
 
 .bar-col-fill.active-day { outline: 2px solid var(--accent); }
 

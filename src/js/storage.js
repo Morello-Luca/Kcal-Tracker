@@ -13,17 +13,29 @@ export const USER_BARCODES_KEY = "kcal-user-barcodes";
 export const DEFAULT_WATER_GOAL = 8;
 
 export function loadSettings() {
+  const defaultEnabledMicros = {
+    protein: true,
+    carbs: true,
+    fat: true,
+    fiber: false,
+    sugar: false,
+    sodium: false,
+    potassium: false,
+  };
   const raw = localStorage.getItem(SETTINGS_KEY);
-  if (!raw) return { weekStartDay: 1, adaptiveTDEEEnabled: true, enabledMicros: {} }; // 1 = Monday, 0 = Sunday
+  if (!raw) return { weekStartDay: 1, adaptiveTDEEEnabled: true, enabledMicros: defaultEnabledMicros }; // 1 = Monday, 0 = Sunday
   try {
     const parsed = JSON.parse(raw);
     return {
       weekStartDay: typeof parsed.weekStartDay === "number" ? parsed.weekStartDay : 1,
       adaptiveTDEEEnabled: parsed.adaptiveTDEEEnabled !== false,
-      enabledMicros: parsed.enabledMicros && typeof parsed.enabledMicros === "object" ? parsed.enabledMicros : {},
+      enabledMicros: {
+        ...defaultEnabledMicros,
+        ...(parsed.enabledMicros && typeof parsed.enabledMicros === "object" ? parsed.enabledMicros : {}),
+      },
     };
   } catch {
-    return { weekStartDay: 1, adaptiveTDEEEnabled: true, enabledMicros: {} };
+    return { weekStartDay: 1, adaptiveTDEEEnabled: true, enabledMicros: defaultEnabledMicros };
   }
 }
 
