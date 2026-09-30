@@ -1442,40 +1442,11 @@ if (todayModeDailyBtn && todayModeWeeklyBtn) {
   });
 }
 
-function initCollapsibleCards() {
-  const collapsibleCards = document.querySelectorAll(".card-panel.collapsible");
-  collapsibleCards.forEach((card) => {
-    const header = card.querySelector(".card-panel-header");
-    if (!header) return;
-
-    header.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isExpanded = card.classList.contains("expanded");
-      // Close any other open card if needed or toggle current
-      collapsibleCards.forEach(c => {
-        if (c !== card) c.classList.remove("expanded");
-      });
-      card.classList.toggle("expanded", !isExpanded);
-    });
-
-    // Prevent clicks inside card body from triggering document click-outside close
-    card.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  });
-
-  // Click outside to close all open collapsible cards
-  document.addEventListener("click", () => {
-    collapsibleCards.forEach(card => card.classList.remove("expanded"));
-  });
-}
-
 // Module Initializations
 initTheme();
 initBodyProfile(renderGoal, renderApp);
 modalControllers = initUIModals(entries, addEntryFromResult, renderApp, switchNavTab);
 initVisionModule(addEntryFromResult);
-initCollapsibleCards();
 
 renderDate();
 renderApp();

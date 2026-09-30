@@ -499,223 +499,145 @@
 
     <!-- VIEW 6: SETTINGS -->
     <section id="view-settings" class="tab-view" hidden>
-      <div class="card-panel collapsible expanded">
-        <div class="card-panel-header">
-          <div class="card-header-titles">
-            <h2>App Theme & Appearance</h2>
-            <p class="panel-subtitle">Select an elegant color palette</p>
+      <div class="card-panel">
+        <h2>App Theme & Appearance</h2>
+        <p class="panel-subtitle">Select an elegant color palette</p>
+        <div class="theme-selector-grid">
+          <div class="theme-switch-row">
+            <span class="theme-name">Soft Neumorphic</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="neumorphic">
+              <span class="neu-toggle-slider"></span>
+            </label>
           </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle App Theme card">
-            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="7" x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
-          </button>
-        </div>
-        <div class="card-panel-body">
-          <div class="theme-selector-grid">
-            <div class="theme-switch-row">
-              <span class="theme-name">Soft Neumorphic</span>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="neumorphic">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <span class="theme-name">OLED Midnight</span>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="oled">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <span class="theme-name">Forest Pastel</span>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="forest">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <span class="theme-name">Slate Blue</span>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="slate">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <span class="theme-name">Sunset Rose</span>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="sunset">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <span class="theme-name">Sage Clean</span>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="sage">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="theme-color-preview preview-matcha-light"></span>
-                <span class="theme-name">Matcha Light</span>
-              </div>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="matcha-light">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="theme-color-preview preview-matcha-dark"></span>
-                <span class="theme-name">Matcha Dark</span>
-              </div>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" name="theme-toggle" data-theme-id="matcha-dark">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
+          <div class="theme-switch-row">
+            <span class="theme-name">OLED Midnight</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="oled">
+              <span class="neu-toggle-slider"></span>
+            </label>
           </div>
-        </div>
-      </div>
-
-      <div class="card-panel collapsible margin-top">
-        <div class="card-panel-header">
-          <div class="card-header-titles">
-            <h2>My Personal Barcodes</h2>
-            <p class="panel-subtitle">Private barcodes saved locally on your device for instant offline lookup</p>
+          <div class="theme-switch-row">
+            <span class="theme-name">Forest Pastel</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="forest">
+              <span class="neu-toggle-slider"></span>
+            </label>
           </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle My Personal Barcodes card">
-            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="7" x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
-          </button>
-        </div>
-        <div class="card-panel-body">
-          <ul id="personal-barcodes-list" class="community-log-list">
-            <li class="empty-state">No personal barcodes saved yet. Any product you add or edit is stored here.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="card-panel collapsible margin-top">
-        <div class="card-panel-header">
-          <div class="card-header-titles">
-            <h2>Week Configuration</h2>
-            <p class="panel-subtitle">Customize start day for weekly budgets and rollover</p>
+          <div class="theme-switch-row">
+            <span class="theme-name">Slate Blue</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="slate">
+              <span class="neu-toggle-slider"></span>
+            </label>
           </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle Week Configuration card">
-            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="7" x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
-          </button>
-        </div>
-        <div class="card-panel-body">
-          <div class="goal-form">
-            <label class="goal-field goal-field-full">
-              First Day of the Week
-              <select id="start-day-select">
-                <option value="1">Monday</option>
-                <option value="2">Tuesday</option>
-                <option value="3">Wednesday</option>
-                <option value="4">Thursday</option>
-                <option value="5">Friday</option>
-                <option value="6">Saturday</option>
-                <option value="0">Sunday</option>
-              </select>
+          <div class="theme-switch-row">
+            <span class="theme-name">Sunset Rose</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="sunset">
+              <span class="neu-toggle-slider"></span>
+            </label>
+          </div>
+          <div class="theme-switch-row">
+            <span class="theme-name">Sage Clean</span>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="sage">
+              <span class="neu-toggle-slider"></span>
+            </label>
+          </div>
+          <div class="theme-switch-row">
+            <div class="theme-title-group">
+              <span class="theme-color-preview preview-matcha-light"></span>
+              <span class="theme-name">Matcha Light</span>
+            </div>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="matcha-light">
+              <span class="neu-toggle-slider"></span>
+            </label>
+          </div>
+          <div class="theme-switch-row">
+            <div class="theme-title-group">
+              <span class="theme-color-preview preview-matcha-dark"></span>
+              <span class="theme-name">Matcha Dark</span>
+            </div>
+            <label class="neu-toggle-switch">
+              <input type="checkbox" name="theme-toggle" data-theme-id="matcha-dark">
+              <span class="neu-toggle-slider"></span>
             </label>
           </div>
         </div>
       </div>
 
-      <div class="card-panel collapsible margin-top">
-        <div class="card-panel-header">
-          <div class="card-header-titles">
-            <h2 id="community-title-heading">Community Barcode Database</h2>
-            <p class="panel-subtitle">Explore and search shared barcode products uploaded by users</p>
-          </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle Community Barcodes card">
-            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="7" x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
-          </button>
-        </div>
-        <div class="card-panel-body">
-          <div class="entry-form">
-            <input type="text" id="community-search-input" placeholder="Search by barcode or product name..." autocomplete="off" />
-            <button type="button" id="community-search-btn">Search</button>
-          </div>
+      <div class="card-panel margin-top">
+        <h2>My Personal Barcodes</h2>
+        <p class="panel-subtitle">Private barcodes saved locally on your device for instant offline lookup</p>
+        <ul id="personal-barcodes-list" class="community-log-list">
+          <li class="empty-state">No personal barcodes saved yet. Any product you add or edit is stored here.</li>
+        </ul>
+      </div>
 
-          <div class="community-filter-bar">
-            <div class="filter-pills-row">
-              <button type="button" class="filter-pill active" data-filter="all">All</button>
-              <button type="button" class="filter-pill" data-filter="verified">Verified ✓</button>
-              <button type="button" class="filter-pill" data-filter="pending">Pending ⚠️</button>
-            </div>
-            <button type="button" id="admin-mode-toggle" class="admin-toggle-btn" aria-label="Toggle Admin Reviewer Mode" hidden>
-              🛡️ Admin Mode
-            </button>
-          </div>
-
-          <ul id="community-barcodes-list" class="community-log-list margin-top-sm">
-            <li class="empty-state">Loading community barcodes...</li>
-          </ul>
+      <div class="card-panel margin-top">
+        <h2>Week Configuration</h2>
+        <p class="panel-subtitle">Customize start day for weekly budgets and rollover</p>
+        <div class="goal-form">
+          <label class="goal-field goal-field-full">
+            First Day of the Week
+            <select id="start-day-select">
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+              <option value="0">Sunday</option>
+            </select>
+          </label>
         </div>
       </div>
 
-      <div class="card-panel collapsible margin-top">
-        <div class="card-panel-header">
-          <div class="card-header-titles">
-            <h2>Privacy & Security</h2>
-            <p class="panel-subtitle">100% Client-Side Local Data Storage</p>
+      <div class="card-panel margin-top">
+        <h2 id="community-title-heading">Community Barcode Database</h2>
+        <p class="panel-subtitle">Explore and search shared barcode products uploaded by users</p>
+        <div class="entry-form">
+          <input type="text" id="community-search-input" placeholder="Search by barcode or product name..." autocomplete="off" />
+          <button type="button" id="community-search-btn">Search</button>
+        </div>
+
+        <div class="community-filter-bar">
+          <div class="filter-pills-row">
+            <button type="button" class="filter-pill active" data-filter="all">All</button>
+            <button type="button" class="filter-pill" data-filter="verified">Verified ✓</button>
+            <button type="button" class="filter-pill" data-filter="pending">Pending ⚠️</button>
           </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle Privacy card">
-            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="7" x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
+          <button type="button" id="admin-mode-toggle" class="admin-toggle-btn" aria-label="Toggle Admin Reviewer Mode" hidden>
+            🛡️ Admin Mode
           </button>
         </div>
-        <div class="card-panel-body">
-          <div class="privacy-box">
-            <span class="privacy-icon">🔒</span>
-            <div class="privacy-text">
-              <strong>Private to Your Device</strong>
-              <p>
-                Your nutrition log, body measurements, and settings are stored strictly in your browser's local storage (<code>localStorage</code>).
-                If someone else opens this URL on their own phone or laptop, they see their own fresh data — your data never leaves your device!
-              </p>
-            </div>
+
+        <ul id="community-barcodes-list" class="community-log-list margin-top-sm">
+          <li class="empty-state">Loading community barcodes...</li>
+        </ul>
+      </div>
+
+      <div class="card-panel margin-top">
+        <h2>Privacy & Security</h2>
+        <p class="panel-subtitle">100% Client-Side Local Data Storage</p>
+        <div class="privacy-box">
+          <span class="privacy-icon">🔒</span>
+          <div class="privacy-text">
+            <strong>Private to Your Device</strong>
+            <p>
+              Your nutrition log, body measurements, and settings are stored strictly in your browser's local storage (<code>localStorage</code>).
+              If someone else opens this URL on their own phone or laptop, they see their own fresh data — your data never leaves your device!
+            </p>
           </div>
         </div>
       </div>
 
-      <div class="card-panel collapsible margin-top">
-        <div class="card-panel-header">
-          <div class="card-header-titles">
-            <h2>Data Export & Backup</h2>
-            <p class="panel-subtitle">Export or backup your local nutrition logs anytime</p>
-          </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle Data Export card">
-            <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="7" x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
-          </button>
-        </div>
-        <div class="card-panel-body">
-          <button type="button" class="export-btn" id="export-data-btn">⬇️ Export my data (JSON)</button>
-        </div>
+      <div class="card-panel margin-top">
+        <h2>Data Export & Backup</h2>
+        <p class="panel-subtitle">Export or backup your local nutrition logs anytime</p>
+        <button type="button" class="export-btn" id="export-data-btn">⬇️ Export my data (JSON)</button>
       </div>
     </section>
 
