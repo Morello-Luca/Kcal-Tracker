@@ -166,17 +166,26 @@
             </div>
           </div>
 
-          <!-- Chart Mode Switch Toggle -->
-          <div class="mode-toggle-group margin-top">
-            <button type="button" class="mode-btn active" id="weekly-view-mode-ring">Radial Ring</button>
-            <button type="button" class="mode-btn" id="weekly-view-mode-pace">Cumulative Pace</button>
-          </div>
-
           <!-- OPTION 1: Radial Ring Progress & Center Gauge -->
           <div id="weekly-ring-container" class="weekly-chart-wrapper margin-top-sm">
             <div class="radial-ring-box">
               <svg class="radial-ring-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--accent, #007aff)" />
+                    <stop offset="100%" stop-color="#34c759" />
+                  </linearGradient>
+                  <linearGradient id="ringOverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff9500" />
+                    <stop offset="100%" stop-color="var(--color-over, #ff453a)" />
+                  </linearGradient>
+                  <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
                 <circle class="ring-bg" cx="100" cy="100" r="80" />
+                <circle class="ring-track-dots" cx="100" cy="100" r="80" />
                 <circle class="ring-fill" id="radial-ring-circle" cx="100" cy="100" r="80" />
               </svg>
               <div class="radial-center-content">
@@ -192,6 +201,12 @@
             <div class="pace-chart-box" id="pace-chart-box">
               <!-- SVG generated via JS -->
             </div>
+          </div>
+
+          <!-- Chart Mode Switch Toggle (Thinner / Placed Below Chart) -->
+          <div class="mode-toggle-group mode-toggle-group-subtle margin-top-sm">
+            <button type="button" class="mode-btn mode-btn-subtle active" id="weekly-view-mode-ring">Radial Ring</button>
+            <button type="button" class="mode-btn mode-btn-subtle" id="weekly-view-mode-pace">Cumulative Pace</button>
           </div>
 
           <!-- Rollover Status Note -->
