@@ -140,20 +140,8 @@ export function renderWeeklyBudget() {
   }
 
   if (weeklyRolloverStatus) {
-    const pastDaysCount = daysSinceStart;
-    const expectedPaceSoFar = pastDaysCount * dailyGoal;
-    const rolloverAmount = expectedPaceSoFar - (weekConsumed - (daysData.find((d) => d.isToday)?.calories || 0));
-
-    if (rolloverAmount > 0) {
-      const remainingDailyAvg = remainingDays > 0 ? Math.round(remainingWeekly / remainingDays) : dailyGoal;
-      weeklyRolloverStatus.innerHTML = `<strong>✨ ${rolloverAmount} kcal saved so far!</strong><p>Rolled over to remaining ${remainingDays} day(s). Adjusted target: <strong>${remainingDailyAvg} kcal/day</strong>.</p>`;
-    } else if (rolloverAmount < 0) {
-      const overBy = Math.abs(rolloverAmount);
-      const remainingDailyAvg = remainingDays > 0 ? Math.max(0, Math.round(remainingWeekly / remainingDays)) : dailyGoal;
-      weeklyRolloverStatus.innerHTML = `<p>Flexible budget target: <strong>${remainingDailyAvg} kcal/day</strong> for remaining ${remainingDays} day(s).</p>`;
-    } else {
-      weeklyRolloverStatus.innerHTML = `<strong>🎯 Perfect daily pace!</strong><p>You are right on track with your ${dailyGoal} kcal/day budget.</p>`;
-    }
+    weeklyRolloverStatus.innerHTML = "";
+    weeklyRolloverStatus.hidden = true;
   }
 }
 
