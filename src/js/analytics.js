@@ -418,6 +418,44 @@ export function renderAnalytics(entries) {
     if (legendFText) legendFText.textContent = "0%";
   }
 
+  // Render Dynamic Micronutrients Cards
+  const settings = loadSettings();
+  const enabledMicros = settings.enabledMicros || {};
+
+  const microsRow = document.getElementById("analytics-micros-row");
+  const cardFiber = document.getElementById("micro-card-fiber");
+  const cardSugar = document.getElementById("micro-card-sugar");
+  const cardSodium = document.getElementById("micro-card-sodium");
+  const cardPotassium = document.getElementById("micro-card-potassium");
+
+  const valFiber = document.getElementById("analytics-fiber-val");
+  const valSugar = document.getElementById("analytics-sugar-val");
+  const valSodium = document.getElementById("analytics-sodium-val");
+  const valPotassium = document.getElementById("analytics-potassium-val");
+
+  const anyMicroEnabled = Boolean(enabledMicros.fiber || enabledMicros.sugar || enabledMicros.sodium || enabledMicros.potassium);
+
+  if (microsRow) {
+    microsRow.hidden = !anyMicroEnabled;
+  }
+
+  if (cardFiber) {
+    cardFiber.hidden = !enabledMicros.fiber;
+    if (valFiber) valFiber.textContent = `${round(totals.fiber)}g`;
+  }
+  if (cardSugar) {
+    cardSugar.hidden = !enabledMicros.sugar;
+    if (valSugar) valSugar.textContent = `${round(totals.sugar)}g`;
+  }
+  if (cardSodium) {
+    cardSodium.hidden = !enabledMicros.sodium;
+    if (valSodium) valSodium.textContent = `${round(totals.sodium)}mg`;
+  }
+  if (cardPotassium) {
+    cardPotassium.hidden = !enabledMicros.potassium;
+    if (valPotassium) valPotassium.textContent = `${round(totals.potassium)}mg`;
+  }
+
   // Selected Day Items List
   if (selectedDayEntriesList) {
     selectedDayEntriesList.innerHTML = "";
