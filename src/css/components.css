@@ -1702,6 +1702,7 @@
   stroke: var(--accent, #007aff);
   stroke-dasharray: 502.65; /* 2 * PI * 80 */
   stroke-dashoffset: 502.65;
+  transform-origin: center;
 }
 
 .radial-ring-svg .ring-fill.over {

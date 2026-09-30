@@ -87,11 +87,14 @@ export function renderWeeklyBudget() {
   const ringPct = document.getElementById("radial-center-pct");
 
   if (ringCircle && ringVal && ringUnit && ringPct) {
-    const circumference = 2 * Math.PI * 80; // r=80 -> 502.65
+    const r = 80;
+    const circumference = 2 * Math.PI * r; // ~502.65
     const ratio = Math.min(1.0, Math.max(0, weekConsumed / weeklyBudget));
     const offset = circumference * (1 - ratio);
 
-    ringCircle.style.strokeDashoffset = offset;
+    ringCircle.setAttribute("stroke-dasharray", `${circumference.toFixed(2)}`);
+    ringCircle.style.strokeDasharray = `${circumference.toFixed(2)}`;
+    ringCircle.style.strokeDashoffset = `${offset.toFixed(2)}`;
     ringCircle.classList.toggle("over", weekConsumed > weeklyBudget);
 
     ringVal.textContent = Math.abs(remainingWeekly).toLocaleString();
@@ -137,20 +140,8 @@ export function renderWeeklyBudget() {
   }
 
   if (weeklyRolloverStatus) {
-    const pastDaysCount = daysSinceStart;
-    const expectedPaceSoFar = pastDaysCount * dailyGoal;
-    const rolloverAmount = expectedPaceSoFar - (weekConsumed - (daysData.find((d) => d.isToday)?.calories || 0));
-
-    if (rolloverAmount > 0) {
-      const remainingDailyAvg = remainingDays > 0 ? Math.round(remainingWeekly / remainingDays) : dailyGoal;
-      weeklyRolloverStatus.innerHTML = `<strong>✨ ${rolloverAmount} kcal saved so far!</strong><p>Rolled over to remaining ${remainingDays} day(s). Adjusted target: <strong>${remainingDailyAvg} kcal/day</strong>.</p>`;
-    } else if (rolloverAmount < 0) {
-      const overBy = Math.abs(rolloverAmount);
-      const remainingDailyAvg = remainingDays > 0 ? Math.max(0, Math.round(remainingWeekly / remainingDays)) : dailyGoal;
-      weeklyRolloverStatus.innerHTML = `<strong>⚠️ ${overBy} kcal over baseline pace.</strong><p>To stay on weekly budget, target <strong>${remainingDailyAvg} kcal/day</strong> for remaining ${remainingDays} day(s).</p>`;
-    } else {
-      weeklyRolloverStatus.innerHTML = `<strong>🎯 Perfect daily pace!</strong><p>You are right on track with your ${dailyGoal} kcal/day budget.</p>`;
-    }
+    weeklyRolloverStatus.innerHTML = "";
+    weeklyRolloverStatus.hidden = true;
   }
 }
 
