@@ -85,6 +85,7 @@ export function renderWeeklyBudget() {
   const ringVal = document.getElementById("radial-center-val");
   const ringUnit = document.getElementById("radial-center-unit");
   const ringPct = document.getElementById("radial-center-pct");
+  const ringDailyAvg = document.getElementById("radial-center-daily-avg");
 
   if (ringCircle && ringVal && ringUnit && ringPct) {
     const r = 80;
@@ -103,6 +104,12 @@ export function renderWeeklyBudget() {
     const usedPct = Math.round((weekConsumed / weeklyBudget) * 100);
     ringPct.textContent = `${usedPct}% used`;
     ringPct.style.color = weekConsumed > weeklyBudget ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)";
+
+    if (ringDailyAvg) {
+      const activeDaysSoFar = Math.max(1, daysSinceStart + 1);
+      const currentAvg = Math.round(weekConsumed / activeDaysSoFar);
+      ringDailyAvg.textContent = `${currentAvg.toLocaleString()} kcal/d avg`;
+    }
   }
 
   // OPTION 2: Cumulative Burn-Up / Pace Line Chart
