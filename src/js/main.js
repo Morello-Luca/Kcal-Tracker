@@ -1442,6 +1442,24 @@ if (todayModeDailyBtn && todayModeWeeklyBtn) {
   });
 }
 
+function initMicronutrientsSettings() {
+  const settings = loadSettings();
+  const enabledMicros = settings.enabledMicros || {};
+
+  ["fiber", "sugar", "sodium", "potassium"].forEach((key) => {
+    const toggle = document.getElementById(`micro-toggle-${key}`);
+    if (toggle) {
+      toggle.checked = Boolean(enabledMicros[key]);
+      toggle.addEventListener("change", (e) => {
+        const currentSettings = loadSettings();
+        const updated = { ...(currentSettings.enabledMicros || {}), [key]: e.target.checked };
+        saveSettings({ enabledMicros: updated });
+        renderAnalytics(entries);
+      });
+    }
+  });
+}
+
 function initCollapsibleCards() {
   const collapsibleCards = document.querySelectorAll(".card-panel.collapsible");
   collapsibleCards.forEach((card) => {
@@ -1476,6 +1494,7 @@ initBodyProfile(renderGoal, renderApp);
 modalControllers = initUIModals(entries, addEntryFromResult, renderApp, switchNavTab);
 initVisionModule(addEntryFromResult);
 initCollapsibleCards();
+initMicronutrientsSettings();
 
 renderDate();
 renderApp();
