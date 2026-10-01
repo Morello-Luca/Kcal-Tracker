@@ -38,12 +38,6 @@
 
     <!-- VIEW 1: TODAY -->
     <section id="view-today" class="tab-view">
-      <!-- Segmented View Mode Toggle: Daily vs Weekly -->
-      <div class="mode-toggle-group margin-bottom-sm">
-        <button type="button" class="mode-btn active" id="today-mode-daily">Daily Overview</button>
-        <button type="button" class="mode-btn" id="today-mode-weekly">Weekly Budget</button>
-      </div>
-
       <!-- DAILY OVERVIEW CONTAINER -->
       <div id="today-daily-container">
         <section class="totals" id="totals">
@@ -132,73 +126,6 @@
         </section>
       </div>
 
-      <!-- WEEKLY BUDGET CONTAINER -->
-      <div id="today-weekly-container" hidden>
-        <div class="card-panel">
-          <div class="section-title-row">
-            <h2>Weekly Calorie Budget</h2>
-            <span class="badge-pill" id="weekly-budget-badge">Flexible</span>
-          </div>
-          <p class="panel-subtitle" id="weekly-budget-range-subtitle">Current week overview</p>
-
-          <!-- Stat Summary Pills (Guaranteed Single-Line No Wrap) -->
-          <div class="weekly-summary-grid margin-top-sm">
-            <div class="weekly-stat-item">
-              <div class="weekly-stat-num-row">
-                <span class="weekly-stat-num" id="weekly-cals-consumed">0</span>
-                <span class="weekly-stat-unit">kcal</span>
-              </div>
-              <span class="weekly-stat-lbl">Consumed</span>
-            </div>
-            <div class="weekly-stat-item">
-              <div class="weekly-stat-num-row">
-                <span class="weekly-stat-num" id="weekly-cals-budget">0</span>
-                <span class="weekly-stat-unit">kcal</span>
-              </div>
-              <span class="weekly-stat-lbl">Budget</span>
-            </div>
-            <div class="weekly-stat-item">
-              <div class="weekly-stat-num-row">
-                <span class="weekly-stat-num" id="weekly-cals-remaining">0</span>
-                <span class="weekly-stat-unit">kcal</span>
-              </div>
-              <span class="weekly-stat-lbl">Remaining</span>
-            </div>
-          </div>
-
-          <!-- OPTION 1: Thermostat Arc Radial Gauge -->
-          <div id="weekly-ring-container" class="weekly-chart-wrapper margin-top-sm">
-            <div class="thermostat-gauge-box">
-              <svg class="thermostat-gauge-svg" id="thermostat-gauge-svg" viewBox="0 0 220 145">
-                <!-- Dynamic ticks, needle, and inner arc generated via JS -->
-              </svg>
-              <div class="thermostat-center-content">
-                <div class="thermostat-val-row">
-                  <span class="thermostat-center-val" id="radial-center-val">0%</span>
-                </div>
-                <span class="thermostat-center-label" id="radial-center-unit">Consumed</span>
-                <span class="thermostat-center-sub" id="radial-center-daily-avg">0 kcal/d avg</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- OPTION 2: Cumulative Burn-Up / Pace Line Chart -->
-          <div id="weekly-pace-container" class="weekly-chart-wrapper margin-top-sm" hidden>
-            <div class="pace-chart-box" id="pace-chart-box">
-              <!-- SVG generated via JS -->
-            </div>
-          </div>
-
-          <!-- Chart Mode Switch Toggle (Thinner / Placed Below Chart) -->
-          <div class="mode-toggle-group mode-toggle-group-subtle margin-top-sm">
-            <button type="button" class="mode-btn mode-btn-subtle active" id="weekly-view-mode-ring">Radial Ring</button>
-            <button type="button" class="mode-btn mode-btn-subtle" id="weekly-view-mode-pace">Cumulative Pace</button>
-          </div>
-
-          <!-- Rollover Status Note -->
-          <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status"></div>
-        </div>
-      </div>
 
       <!-- Water Tracker Card Widget -->
       <div class="water-card">
@@ -318,8 +245,76 @@
 
     <!-- VIEW 3: ANALYTICS -->
     <section id="view-analytics" class="tab-view" hidden>
+      <!-- WEEKLY CALORIE BUDGET DASHBOARD -->
+      <div id="today-weekly-container">
+        <div class="card-panel">
+          <div class="section-title-row">
+            <h2>Weekly Calorie Budget</h2>
+            <span class="badge-pill" id="weekly-budget-badge">Flexible</span>
+          </div>
+          <p class="panel-subtitle" id="weekly-budget-range-subtitle">Current week overview</p>
+
+          <!-- Stat Summary Pills -->
+          <div class="weekly-summary-grid margin-top-sm">
+            <div class="weekly-stat-item">
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-consumed">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
+              <span class="weekly-stat-lbl">Consumed</span>
+            </div>
+            <div class="weekly-stat-item">
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-budget">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
+              <span class="weekly-stat-lbl">Budget</span>
+            </div>
+            <div class="weekly-stat-item">
+              <div class="weekly-stat-num-row">
+                <span class="weekly-stat-num" id="weekly-cals-remaining">0</span>
+                <span class="weekly-stat-unit">kcal</span>
+              </div>
+              <span class="weekly-stat-lbl">Remaining</span>
+            </div>
+          </div>
+
+          <!-- OPTION 1: Thermostat Arc Radial Gauge -->
+          <div id="weekly-ring-container" class="weekly-chart-wrapper margin-top-sm">
+            <div class="thermostat-gauge-box">
+              <svg class="thermostat-gauge-svg" id="thermostat-gauge-svg" viewBox="0 0 220 145">
+                <!-- Dynamic ticks, needle, and inner arc generated via JS -->
+              </svg>
+              <div class="thermostat-center-content">
+                <div class="thermostat-val-row">
+                  <span class="thermostat-center-val" id="radial-center-val">0%</span>
+                </div>
+                <span class="thermostat-center-label" id="radial-center-unit">Consumed</span>
+                <span class="thermostat-center-sub" id="radial-center-daily-avg">0 kcal/d avg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- OPTION 2: Cumulative Burn-Up / Pace Line Chart -->
+          <div id="weekly-pace-container" class="weekly-chart-wrapper margin-top-sm" hidden>
+            <div class="pace-chart-box" id="pace-chart-box">
+              <!-- SVG generated via JS -->
+            </div>
+          </div>
+
+          <!-- Chart Mode Switch Toggle -->
+          <div class="mode-toggle-group mode-toggle-group-subtle margin-top-sm">
+            <button type="button" class="mode-btn mode-btn-subtle active" id="weekly-view-mode-ring">Radial Ring</button>
+            <button type="button" class="mode-btn mode-btn-subtle" id="weekly-view-mode-pace">Cumulative Pace</button>
+          </div>
+
+          <!-- Rollover Status Note -->
+          <div class="rollover-note-box margin-top-sm" id="weekly-rollover-status"></div>
+        </div>
+      </div>
+
       <!-- Dynamic Sliding Macro Trend & History Chart -->
-      <div class="card-panel">
+      <div class="card-panel margin-top">
         <div class="section-title-row">
           <h2>Macro Trends & History</h2>
           <div class="history-nav-controls">
