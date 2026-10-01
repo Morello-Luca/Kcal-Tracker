@@ -80,27 +80,8 @@ export function renderWeeklyBudget() {
     weeklySubtitle.textContent = `${weekStartDate.toLocaleDateString(undefined, opt)} - ${endDate.toLocaleDateString(undefined, opt)}`;
   }
 
-  // OPTION 1: Radial Ring Progress & Center Gauge
-  const ringCircle = document.getElementById("radial-ring-circle");
-  const ringVal = document.getElementById("radial-center-val");
-  const ringUnit = document.getElementById("radial-center-unit");
-  const ringPct = document.getElementById("radial-center-pct");
-
-  if (ringCircle && ringVal && ringUnit && ringPct) {
-    const circumference = 2 * Math.PI * 80; // r=80 -> 502.65
-    const ratio = Math.min(1.0, Math.max(0, weekConsumed / weeklyBudget));
-    const offset = circumference * (1 - ratio);
-
-    ringCircle.style.strokeDashoffset = offset;
-    ringCircle.classList.toggle("over", weekConsumed > weeklyBudget);
-
-    ringVal.textContent = Math.abs(remainingWeekly).toLocaleString();
-    ringUnit.textContent = remainingWeekly >= 0 ? "kcal left" : "kcal over budget";
-
-    const usedPct = Math.round((weekConsumed / weeklyBudget) * 100);
-    ringPct.textContent = `${usedPct}% used`;
-    ringPct.style.color = weekConsumed > weeklyBudget ? "var(--color-over, #ff453a)" : "var(--accent, #007aff)";
-  }
+  // OPTION 1: Thermostat Arc Radial Gauge
+  renderThermostatGauge(weekConsumed, weeklyBudget, daysSinceStart);
 
   // OPTION 2: Cumulative Burn-Up / Pace Line Chart
   renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal);
@@ -137,21 +118,100 @@ export function renderWeeklyBudget() {
   }
 
   if (weeklyRolloverStatus) {
-    const pastDaysCount = daysSinceStart;
-    const expectedPaceSoFar = pastDaysCount * dailyGoal;
-    const rolloverAmount = expectedPaceSoFar - (weekConsumed - (daysData.find((d) => d.isToday)?.calories || 0));
-
-    if (rolloverAmount > 0) {
-      const remainingDailyAvg = remainingDays > 0 ? Math.round(remainingWeekly / remainingDays) : dailyGoal;
-      weeklyRolloverStatus.innerHTML = `<strong>✨ ${rolloverAmount} kcal saved so far!</strong><p>Rolled over to remaining ${remainingDays} day(s). Adjusted target: <strong>${remainingDailyAvg} kcal/day</strong>.</p>`;
-    } else if (rolloverAmount < 0) {
-      const overBy = Math.abs(rolloverAmount);
-      const remainingDailyAvg = remainingDays > 0 ? Math.max(0, Math.round(remainingWeekly / remainingDays)) : dailyGoal;
-      weeklyRolloverStatus.innerHTML = `<strong>⚠️ ${overBy} kcal over baseline pace.</strong><p>To stay on weekly budget, target <strong>${remainingDailyAvg} kcal/day</strong> for remaining ${remainingDays} day(s).</p>`;
-    } else {
-      weeklyRolloverStatus.innerHTML = `<strong>🎯 Perfect daily pace!</strong><p>You are right on track with your ${dailyGoal} kcal/day budget.</p>`;
-    }
+    weeklyRolloverStatus.innerHTML = "";
+    weeklyRolloverStatus.hidden = true;
   }
+}
+
+function renderThermostatGauge(weekConsumed, weeklyBudget, daysSinceStart) {
+  const svg = document.getElementById("thermostat-gauge-svg");
+  const valEl = document.getElementById("radial-center-val");
+  const labelEl = document.getElementById("radial-center-unit");
+  const avgEl = document.getElementById("radial-center-daily-avg");
+
+  if (!svg) return;
+
+  const usedPct = Math.max(0, Math.round((weekConsumed / weeklyBudget) * 100));
+  const isOver = weekConsumed > weeklyBudget;
+
+  if (valEl) {
+    valEl.textContent = `${usedPct}%`;
+    valEl.style.color = isOver ? "var(--danger, #ff453a)" : "var(--text)";
+  }
+  if (labelEl) {
+    labelEl.textContent = isOver ? "Over Budget" : "Consumed";
+  }
+  if (avgEl) {
+    const activeDays = Math.max(1, daysSinceStart + 1);
+    const avg = Math.round(weekConsumed / activeDays);
+    avgEl.textContent = `${avg.toLocaleString()} kcal/d avg`;
+  }
+
+  const cx = 110;
+  const cy = 115;
+  const rOuter = 92;
+  const rInner = 80;
+  const totalTicks = 45;
+
+  // Calculate active tick count
+  const fillRatio = Math.min(1.0, usedPct / 100);
+  const activeTicksCount = Math.round(fillRatio * totalTicks);
+
+  let ticksSvg = "";
+  for (let i = 0; i <= totalTicks; i++) {
+    const fraction = i / totalTicks;
+    // Angle from 180 deg (left) to 0 deg (right)
+    const angleRad = Math.PI - fraction * Math.PI;
+
+    const x1 = cx + rInner * Math.cos(angleRad);
+    const y1 = cy - rInner * Math.sin(angleRad);
+    const x2 = cx + rOuter * Math.cos(angleRad);
+    const y2 = cy - rOuter * Math.sin(angleRad);
+
+    const isActive = i <= activeTicksCount && activeTicksCount > 0;
+    const tickClass = isActive ? (isOver ? "gauge-tick active over" : "gauge-tick active") : "gauge-tick";
+
+    ticksSvg += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="${tickClass}" />`;
+  }
+
+  // Inner dotted arc
+  const rDot = 68;
+  const dDotArc = `M ${cx - rDot} ${cy} A ${rDot} ${rDot} 0 0 1 ${cx + rDot} ${cy}`;
+
+  // Needle position
+  const needleFraction = Math.min(1.0, usedPct / 100);
+  const needleRad = Math.PI - needleFraction * Math.PI;
+
+  const needleR1 = 68;
+  const needleR2 = 96;
+
+  const nx1 = cx + needleR1 * Math.cos(needleRad);
+  const ny1 = cy - needleR1 * Math.sin(needleRad);
+  const nx2 = cx + needleR2 * Math.cos(needleRad);
+  const ny2 = cy - needleR2 * Math.sin(needleRad);
+
+  const needleCircleR = 98;
+  const ncx = cx + needleCircleR * Math.cos(needleRad);
+  const ncy = cy - needleCircleR * Math.sin(needleRad);
+
+  svg.innerHTML = `
+    <!-- Radial Tick Marks -->
+    <g class="gauge-ticks-group">
+      ${ticksSvg}
+    </g>
+
+    <!-- Inner Dotted Arc -->
+    <path d="${dDotArc}" class="gauge-inner-dotted" />
+
+    <!-- Scale Percentage Labels -->
+    <text x="${cx - 68}" y="${cy + 14}" class="gauge-scale-text">0%</text>
+    <text x="${cx}" y="${cy - 52}" class="gauge-scale-text">50%</text>
+    <text x="${cx + 68}" y="${cy + 14}" class="gauge-scale-text">100%</text>
+
+    <!-- Needle Line & Circular Pointer Tip -->
+    <line x1="${nx1.toFixed(1)}" y1="${ny1.toFixed(1)}" x2="${nx2.toFixed(1)}" y2="${ny2.toFixed(1)}" class="gauge-needle-line" />
+    <circle cx="${ncx.toFixed(1)}" cy="${ncy.toFixed(1)}" r="3" class="gauge-needle-tip" />
+  `;
 }
 
 function renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, dailyGoal) {
@@ -246,15 +306,39 @@ function renderCumulativePaceChart(daysData, cumulativeConsumed, weeklyBudget, d
 export function renderAnalytics(entries) {
   renderWeeklyBudget();
 
-  const macroPartP = document.getElementById("macro-part-p");
-  const macroPartC = document.getElementById("macro-part-c");
-  const macroPartF = document.getElementById("macro-part-f");
-  const legendPText = document.getElementById("legend-p-text");
-  const legendCText = document.getElementById("legend-c-text");
-  const legendFText = document.getElementById("legend-f-text");
+  const settings = loadSettings();
+  const enabledMicros = settings.enabledMicros || {
+    protein: true,
+    carbs: true,
+    fat: true,
+    fiber: false,
+    sugar: false,
+    sodium: false,
+    potassium: false,
+  };
+
+  const stackedTrack = document.getElementById("analytics-stacked-track");
+
+  const cardProtein = document.getElementById("macro-card-protein");
+  const cardCarbs = document.getElementById("macro-card-carbs");
+  const cardFat = document.getElementById("macro-card-fat");
+  const cardFiber = document.getElementById("micro-card-fiber");
+  const cardSugar = document.getElementById("micro-card-sugar");
+  const cardSodium = document.getElementById("micro-card-sodium");
+  const cardPotassium = document.getElementById("micro-card-potassium");
+
   const analyticsProteinVal = document.getElementById("analytics-protein-val");
   const analyticsCarbsVal = document.getElementById("analytics-carbs-val");
   const analyticsFatVal = document.getElementById("analytics-fat-val");
+  const valFiber = document.getElementById("analytics-fiber-val");
+  const valSugar = document.getElementById("analytics-sugar-val");
+  const valSodium = document.getElementById("analytics-sodium-val");
+  const valPotassium = document.getElementById("analytics-potassium-val");
+
+  const legendPText = document.getElementById("legend-p-text");
+  const legendCText = document.getElementById("legend-c-text");
+  const legendFText = document.getElementById("legend-f-text");
+
   const weeklyChart = document.getElementById("weekly-chart");
   const selectedDayTitle = document.getElementById("analytics-selected-day-title");
   const selectedDayEntriesList = document.getElementById("analytics-selected-day-entries");
@@ -327,35 +411,98 @@ export function renderAnalytics(entries) {
   }
 
   const totals = computeTotals(selectedEntries);
-  const totalMacroGrams = totals.protein + totals.carbs + totals.fat;
 
-  if (selectedDayTitle) {
-    selectedDayTitle.textContent = isSelectedToday ? "Today's Macro Breakdown" : `${selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} Breakdown`;
+  // Show / Hide individual macro/micro cards based on settings
+  if (cardProtein) {
+    const isShow = enabledMicros.protein !== false;
+    cardProtein.hidden = !isShow;
+    cardProtein.style.display = isShow ? "" : "none";
+  }
+  if (cardCarbs) {
+    const isShow = enabledMicros.carbs !== false;
+    cardCarbs.hidden = !isShow;
+    cardCarbs.style.display = isShow ? "" : "none";
+  }
+  if (cardFat) {
+    const isShow = enabledMicros.fat !== false;
+    cardFat.hidden = !isShow;
+    cardFat.style.display = isShow ? "" : "none";
+  }
+  if (cardFiber) {
+    const isShow = Boolean(enabledMicros.fiber);
+    cardFiber.hidden = !isShow;
+    cardFiber.style.display = isShow ? "" : "none";
+  }
+  if (cardSugar) {
+    const isShow = Boolean(enabledMicros.sugar);
+    cardSugar.hidden = !isShow;
+    cardSugar.style.display = isShow ? "" : "none";
+  }
+  if (cardSodium) {
+    const isShow = Boolean(enabledMicros.sodium);
+    cardSodium.hidden = !isShow;
+    cardSodium.style.display = isShow ? "" : "none";
+  }
+  if (cardPotassium) {
+    const isShow = Boolean(enabledMicros.potassium);
+    cardPotassium.hidden = !isShow;
+    cardPotassium.style.display = isShow ? "" : "none";
   }
 
   if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;
   if (analyticsCarbsVal) analyticsCarbsVal.textContent = `${round(totals.carbs)}g`;
   if (analyticsFatVal) analyticsFatVal.textContent = `${round(totals.fat)}g`;
+  if (valFiber) valFiber.textContent = `${round(totals.fiber)}g`;
+  if (valSugar) valSugar.textContent = `${round(totals.sugar)}g`;
+  if (valSodium) valSodium.textContent = `${round(totals.sodium)}mg`;
+  if (valPotassium) valPotassium.textContent = `${round(totals.potassium)}mg`;
 
-  if (totalMacroGrams > 0) {
-    const pctP = Math.round((totals.protein / totalMacroGrams) * 100);
-    const pctC = Math.round((totals.carbs / totalMacroGrams) * 100);
-    const pctF = Math.round((totals.fat / totalMacroGrams) * 100);
+  // Calculate percentages and render horizontal stacked track for enabled main macros (P, C, F)
+  const mainMacroGrams =
+    (enabledMicros.protein !== false ? totals.protein : 0) +
+    (enabledMicros.carbs !== false ? totals.carbs : 0) +
+    (enabledMicros.fat !== false ? totals.fat : 0);
 
-    if (macroPartP) macroPartP.style.width = `${pctP}%`;
-    if (macroPartC) macroPartC.style.width = `${pctC}%`;
-    if (macroPartF) macroPartF.style.width = `${pctF}%`;
+  if (stackedTrack) {
+    stackedTrack.innerHTML = "";
+    if (mainMacroGrams > 0) {
+      if (enabledMicros.protein !== false && totals.protein > 0) {
+        const pctP = Math.round((totals.protein / mainMacroGrams) * 100);
+        const divP = document.createElement("div");
+        divP.className = "macro-stacked-fill p-part";
+        divP.style.width = `${pctP}%`;
+        stackedTrack.appendChild(divP);
+        if (legendPText) legendPText.textContent = `${pctP}%`;
+      } else if (legendPText) {
+        legendPText.textContent = "0%";
+      }
 
-    if (legendPText) legendPText.textContent = `${pctP}%`;
-    if (legendCText) legendCText.textContent = `${pctC}%`;
-    if (legendFText) legendFText.textContent = `${pctF}%`;
-  } else {
-    if (macroPartP) macroPartP.style.width = "0%";
-    if (macroPartC) macroPartC.style.width = "0%";
-    if (macroPartF) macroPartF.style.width = "0%";
-    if (legendPText) legendPText.textContent = "0%";
-    if (legendCText) legendCText.textContent = "0%";
-    if (legendFText) legendFText.textContent = "0%";
+      if (enabledMicros.carbs !== false && totals.carbs > 0) {
+        const pctC = Math.round((totals.carbs / mainMacroGrams) * 100);
+        const divC = document.createElement("div");
+        divC.className = "macro-stacked-fill c-part";
+        divC.style.width = `${pctC}%`;
+        stackedTrack.appendChild(divC);
+        if (legendCText) legendCText.textContent = `${pctC}%`;
+      } else if (legendCText) {
+        legendCText.textContent = "0%";
+      }
+
+      if (enabledMicros.fat !== false && totals.fat > 0) {
+        const pctF = Math.round((totals.fat / mainMacroGrams) * 100);
+        const divF = document.createElement("div");
+        divF.className = "macro-stacked-fill f-part";
+        divF.style.width = `${pctF}%`;
+        stackedTrack.appendChild(divF);
+        if (legendFText) legendFText.textContent = `${pctF}%`;
+      } else if (legendFText) {
+        legendFText.textContent = "0%";
+      }
+    } else {
+      if (legendPText) legendPText.textContent = "0%";
+      if (legendCText) legendCText.textContent = "0%";
+      if (legendFText) legendFText.textContent = "0%";
+    }
   }
 
   // Selected Day Items List
@@ -441,23 +588,39 @@ export function renderAnalytics(entries) {
     fill.className = `bar-col-fill ${index === selectedDayInWeek ? "active-day" : ""}`;
     fill.style.height = `${Math.max(6, heightPct)}%`;
 
-    const dayMacroGrams = dayTotals.protein + dayTotals.carbs + dayTotals.fat;
-    if (dayMacroGrams > 0) {
-      const pSegment = document.createElement("div");
-      pSegment.className = "macro-stack-p";
-      pSegment.style.height = `${(dayTotals.protein / dayMacroGrams) * 100}%`;
+    // Stacked segments for enabled macros with color coding
+    const macroSegments = [];
+    if (enabledMicros.protein !== false && dayTotals.protein > 0) {
+      macroSegments.push({ type: "p", val: dayTotals.protein, className: "macro-stack-p" });
+    }
+    if (enabledMicros.carbs !== false && dayTotals.carbs > 0) {
+      macroSegments.push({ type: "c", val: dayTotals.carbs, className: "macro-stack-c" });
+    }
+    if (enabledMicros.fat !== false && dayTotals.fat > 0) {
+      macroSegments.push({ type: "f", val: dayTotals.fat, className: "macro-stack-f" });
+    }
+    if (enabledMicros.fiber && dayTotals.fiber > 0) {
+      macroSegments.push({ type: "fiber", val: dayTotals.fiber, className: "macro-stack-fiber" });
+    }
+    if (enabledMicros.sugar && dayTotals.sugar > 0) {
+      macroSegments.push({ type: "sugar", val: dayTotals.sugar, className: "macro-stack-sugar" });
+    }
+    if (enabledMicros.sodium && dayTotals.sodium > 0) {
+      macroSegments.push({ type: "sodium", val: dayTotals.sodium / 100, className: "macro-stack-sodium" }); // normalized mg
+    }
+    if (enabledMicros.potassium && dayTotals.potassium > 0) {
+      macroSegments.push({ type: "potassium", val: dayTotals.potassium / 100, className: "macro-stack-potassium" }); // normalized mg
+    }
 
-      const cSegment = document.createElement("div");
-      cSegment.className = "macro-stack-c";
-      cSegment.style.height = `${(dayTotals.carbs / dayMacroGrams) * 100}%`;
+    const totalSegmentVal = macroSegments.reduce((sum, s) => sum + s.val, 0);
 
-      const fSegment = document.createElement("div");
-      fSegment.className = "macro-stack-f";
-      fSegment.style.height = `${(dayTotals.fat / dayMacroGrams) * 100}%`;
-
-      fill.appendChild(pSegment);
-      fill.appendChild(cSegment);
-      fill.appendChild(fSegment);
+    if (totalSegmentVal > 0) {
+      macroSegments.forEach((seg) => {
+        const segDiv = document.createElement("div");
+        segDiv.className = seg.className;
+        segDiv.style.height = `${(seg.val / totalSegmentVal) * 100}%`;
+        fill.appendChild(segDiv);
+      });
     }
 
     fill.addEventListener("click", () => {

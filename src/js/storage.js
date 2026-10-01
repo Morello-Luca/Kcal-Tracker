@@ -13,16 +13,29 @@ export const USER_BARCODES_KEY = "kcal-user-barcodes";
 export const DEFAULT_WATER_GOAL = 8;
 
 export function loadSettings() {
+  const defaultEnabledMicros = {
+    protein: true,
+    carbs: true,
+    fat: true,
+    fiber: false,
+    sugar: false,
+    sodium: false,
+    potassium: false,
+  };
   const raw = localStorage.getItem(SETTINGS_KEY);
-  if (!raw) return { weekStartDay: 1, adaptiveTDEEEnabled: true }; // 1 = Monday, 0 = Sunday
+  if (!raw) return { weekStartDay: 1, adaptiveTDEEEnabled: true, enabledMicros: defaultEnabledMicros }; // 1 = Monday, 0 = Sunday
   try {
     const parsed = JSON.parse(raw);
     return {
       weekStartDay: typeof parsed.weekStartDay === "number" ? parsed.weekStartDay : 1,
       adaptiveTDEEEnabled: parsed.adaptiveTDEEEnabled !== false,
+      enabledMicros: {
+        ...defaultEnabledMicros,
+        ...(parsed.enabledMicros && typeof parsed.enabledMicros === "object" ? parsed.enabledMicros : {}),
+      },
     };
   } catch {
-    return { weekStartDay: 1, adaptiveTDEEEnabled: true };
+    return { weekStartDay: 1, adaptiveTDEEEnabled: true, enabledMicros: defaultEnabledMicros };
   }
 }
 
@@ -141,13 +154,17 @@ export function saveEntries(entries) {
 export function computeTotals(list) {
   return list.reduce(
     (acc, e) => {
-      acc.calories += e.calories;
-      acc.protein += e.protein_g;
-      acc.carbs += e.carbs_g;
-      acc.fat += e.fat_g;
+      acc.calories += e.calories || 0;
+      acc.protein += e.protein_g || 0;
+      acc.carbs += e.carbs_g || 0;
+      acc.fat += e.fat_g || 0;
+      acc.fiber += e.fiber_g || e.fiber || 0;
+      acc.sugar += e.sugar_g || e.sugar || e.sugars_g || e.sugars || 0;
+      acc.sodium += e.sodium_mg || e.sodium || 0;
+      acc.potassium += e.potassium_mg || e.potassium || 0;
       return acc;
     },
-    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, sodium: 0, potassium: 0 }
   );
 }
 
