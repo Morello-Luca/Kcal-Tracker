@@ -121,6 +121,45 @@ export function renderWeeklyBudget() {
     weeklyRolloverStatus.innerHTML = "";
     weeklyRolloverStatus.hidden = true;
   }
+
+  // Inner dotted arc
+  const rDot = 68;
+  const dDotArc = `M ${cx - rDot} ${cy} A ${rDot} ${rDot} 0 0 1 ${cx + rDot} ${cy}`;
+
+  // Needle position
+  const needleFraction = Math.min(1.0, usedPct / 100);
+  const needleRad = Math.PI - needleFraction * Math.PI;
+
+  const needleR1 = 68;
+  const needleR2 = 96;
+
+  const nx1 = cx + needleR1 * Math.cos(needleRad);
+  const ny1 = cy - needleR1 * Math.sin(needleRad);
+  const nx2 = cx + needleR2 * Math.cos(needleRad);
+  const ny2 = cy - needleR2 * Math.sin(needleRad);
+
+  const needleCircleR = 98;
+  const ncx = cx + needleCircleR * Math.cos(needleRad);
+  const ncy = cy - needleCircleR * Math.sin(needleRad);
+
+  svg.innerHTML = `
+    <!-- Radial Tick Marks -->
+    <g class="gauge-ticks-group">
+      ${ticksSvg}
+    </g>
+
+    <!-- Inner Dotted Arc -->
+    <path d="${dDotArc}" class="gauge-inner-dotted" />
+
+    <!-- Scale Percentage Labels -->
+    <text x="${cx - 68}" y="${cy + 14}" class="gauge-scale-text">0%</text>
+    <text x="${cx}" y="${cy - 52}" class="gauge-scale-text">50%</text>
+    <text x="${cx + 68}" y="${cy + 14}" class="gauge-scale-text">100%</text>
+
+    <!-- Needle Line & Circular Pointer Tip -->
+    <line x1="${nx1.toFixed(1)}" y1="${ny1.toFixed(1)}" x2="${nx2.toFixed(1)}" y2="${ny2.toFixed(1)}" class="gauge-needle-line" />
+    <circle cx="${ncx.toFixed(1)}" cy="${ncy.toFixed(1)}" r="3" class="gauge-needle-tip" />
+  `;
 }
 
 function renderThermostatGauge(weekConsumed, weeklyBudget, daysSinceStart) {
