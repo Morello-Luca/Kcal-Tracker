@@ -1092,12 +1092,6 @@
   gap: 10px;
 }
 
-.micro-cards-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 10px;
-}
-
 .macro-card-item {
   background: var(--surface-alt);
   border-radius: 14px;
