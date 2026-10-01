@@ -334,10 +334,14 @@
         </div>
         <p class="panel-subtitle" id="analytics-selected-day-subtitle">Macronutrient distribution and logged items</p>
 
-        <div class="macro-stacked-track" id="analytics-stacked-track"></div>
+        <div class="macro-stacked-track">
+          <div class="macro-stacked-fill p-part" id="macro-part-p"></div>
+          <div class="macro-stacked-fill c-part" id="macro-part-c"></div>
+          <div class="macro-stacked-fill f-part" id="macro-part-f"></div>
+        </div>
 
-        <div class="macro-cards-row" id="analytics-macros-row">
-          <div class="macro-card-item" id="macro-card-protein">
+        <div class="macro-cards-row">
+          <div class="macro-card-item">
             <div class="macro-card-header">
               <span class="macro-badge p-color"></span>
               <span class="macro-card-title">Protein</span>
@@ -345,7 +349,7 @@
             <strong class="macro-card-val" id="analytics-protein-val">0g</strong>
             <span class="macro-card-pct" id="legend-p-text">0%</span>
           </div>
-          <div class="macro-card-item" id="macro-card-carbs">
+          <div class="macro-card-item">
             <div class="macro-card-header">
               <span class="macro-badge c-color"></span>
               <span class="macro-card-title">Carbs</span>
@@ -353,7 +357,7 @@
             <strong class="macro-card-val" id="analytics-carbs-val">0g</strong>
             <span class="macro-card-pct" id="legend-c-text">0%</span>
           </div>
-          <div class="macro-card-item" id="macro-card-fat">
+          <div class="macro-card-item">
             <div class="macro-card-header">
               <span class="macro-badge f-color"></span>
               <span class="macro-card-title">Fat</span>
@@ -361,32 +365,24 @@
             <strong class="macro-card-val" id="analytics-fat-val">0g</strong>
             <span class="macro-card-pct" id="legend-f-text">0%</span>
           </div>
+        </div>
+
+        <!-- Dynamic Micronutrient Cards Row -->
+        <div class="micro-cards-row margin-top-sm" id="analytics-micros-row" hidden>
           <div class="macro-card-item" id="micro-card-fiber" hidden>
-            <div class="macro-card-header">
-              <span class="macro-badge fiber-color"></span>
-              <span class="macro-card-title">Fiber</span>
-            </div>
+            <span class="macro-card-title">Fiber</span>
             <strong class="macro-card-val" id="analytics-fiber-val">0g</strong>
           </div>
           <div class="macro-card-item" id="micro-card-sugar" hidden>
-            <div class="macro-card-header">
-              <span class="macro-badge sugar-color"></span>
-              <span class="macro-card-title">Sugars</span>
-            </div>
+            <span class="macro-card-title">Sugars</span>
             <strong class="macro-card-val" id="analytics-sugar-val">0g</strong>
           </div>
           <div class="macro-card-item" id="micro-card-sodium" hidden>
-            <div class="macro-card-header">
-              <span class="macro-badge sodium-color"></span>
-              <span class="macro-card-title">Sodium</span>
-            </div>
+            <span class="macro-card-title">Sodium</span>
             <strong class="macro-card-val" id="analytics-sodium-val">0mg</strong>
           </div>
           <div class="macro-card-item" id="micro-card-potassium" hidden>
-            <div class="macro-card-header">
-              <span class="macro-badge potassium-color"></span>
-              <span class="macro-card-title">Potassium</span>
-            </div>
+            <span class="macro-card-title">Potassium</span>
             <strong class="macro-card-val" id="analytics-potassium-val">0mg</strong>
           </div>
         </div>
@@ -607,10 +603,10 @@
       <div class="card-panel collapsible margin-top">
         <div class="card-panel-header">
           <div class="card-header-titles">
-            <h2>Macros & Micronutrients</h2>
-            <p class="panel-subtitle">Select macros & micronutrients to show or hide in the Analytics tab</p>
+            <h2>Micronutrients & Fiber</h2>
+            <p class="panel-subtitle">Select extra micronutrients to track in the Analytics tab</p>
           </div>
-          <button type="button" class="card-toggle-btn" aria-label="Toggle Macros & Micronutrients card">
+          <button type="button" class="card-toggle-btn" aria-label="Toggle Micronutrients card">
             <svg class="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="4" y1="7" x2="20" y2="7"/>
               <line x1="4" y1="12" x2="20" y2="12"/>
@@ -621,70 +617,28 @@
         <div class="card-panel-body">
           <div class="theme-selector-grid">
             <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge p-color"></span>
-                <span class="theme-name">Protein (g)</span>
-              </div>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" id="micro-toggle-protein" data-micro="protein">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge c-color"></span>
-                <span class="theme-name">Carbs (g)</span>
-              </div>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" id="micro-toggle-carbs" data-micro="carbs">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge f-color"></span>
-                <span class="theme-name">Fat (g)</span>
-              </div>
-              <label class="neu-toggle-switch">
-                <input type="checkbox" id="micro-toggle-fat" data-micro="fat">
-                <span class="neu-toggle-slider"></span>
-              </label>
-            </div>
-            <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge fiber-color"></span>
-                <span class="theme-name">Fiber (g)</span>
-              </div>
+              <span class="theme-name">Fiber (g)</span>
               <label class="neu-toggle-switch">
                 <input type="checkbox" id="micro-toggle-fiber" data-micro="fiber">
                 <span class="neu-toggle-slider"></span>
               </label>
             </div>
             <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge sugar-color"></span>
-                <span class="theme-name">Sugars (g)</span>
-              </div>
+              <span class="theme-name">Sugars (g)</span>
               <label class="neu-toggle-switch">
                 <input type="checkbox" id="micro-toggle-sugar" data-micro="sugar">
                 <span class="neu-toggle-slider"></span>
               </label>
             </div>
             <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge sodium-color"></span>
-                <span class="theme-name">Sodium (mg)</span>
-              </div>
+              <span class="theme-name">Sodium (mg)</span>
               <label class="neu-toggle-switch">
                 <input type="checkbox" id="micro-toggle-sodium" data-micro="sodium">
                 <span class="neu-toggle-slider"></span>
               </label>
             </div>
             <div class="theme-switch-row">
-              <div class="theme-title-group">
-                <span class="macro-badge potassium-color"></span>
-                <span class="theme-name">Potassium (mg)</span>
-              </div>
+              <span class="theme-name">Potassium (mg)</span>
               <label class="neu-toggle-switch">
                 <input type="checkbox" id="micro-toggle-potassium" data-micro="potassium">
                 <span class="neu-toggle-slider"></span>

@@ -1424,10 +1424,10 @@ function initMicronutrientsSettings() {
   const settings = loadSettings();
   const enabledMicros = settings.enabledMicros || {};
 
-  ["protein", "carbs", "fat", "fiber", "sugar", "sodium", "potassium"].forEach((key) => {
+  ["fiber", "sugar", "sodium", "potassium"].forEach((key) => {
     const toggle = document.getElementById(`micro-toggle-${key}`);
     if (toggle) {
-      toggle.checked = enabledMicros[key] !== false;
+      toggle.checked = Boolean(enabledMicros[key]);
       toggle.addEventListener("change", (e) => {
         const currentSettings = loadSettings();
         const updated = { ...(currentSettings.enabledMicros || {}), [key]: e.target.checked };
