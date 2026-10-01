@@ -121,6 +121,45 @@ export function renderWeeklyBudget() {
     weeklyRolloverStatus.innerHTML = "";
     weeklyRolloverStatus.hidden = true;
   }
+
+  // Inner dotted arc
+  const rDot = 68;
+  const dDotArc = `M ${cx - rDot} ${cy} A ${rDot} ${rDot} 0 0 1 ${cx + rDot} ${cy}`;
+
+  // Needle position
+  const needleFraction = Math.min(1.0, usedPct / 100);
+  const needleRad = Math.PI - needleFraction * Math.PI;
+
+  const needleR1 = 68;
+  const needleR2 = 96;
+
+  const nx1 = cx + needleR1 * Math.cos(needleRad);
+  const ny1 = cy - needleR1 * Math.sin(needleRad);
+  const nx2 = cx + needleR2 * Math.cos(needleRad);
+  const ny2 = cy - needleR2 * Math.sin(needleRad);
+
+  const needleCircleR = 98;
+  const ncx = cx + needleCircleR * Math.cos(needleRad);
+  const ncy = cy - needleCircleR * Math.sin(needleRad);
+
+  svg.innerHTML = `
+    <!-- Radial Tick Marks -->
+    <g class="gauge-ticks-group">
+      ${ticksSvg}
+    </g>
+
+    <!-- Inner Dotted Arc -->
+    <path d="${dDotArc}" class="gauge-inner-dotted" />
+
+    <!-- Scale Percentage Labels -->
+    <text x="${cx - 68}" y="${cy + 14}" class="gauge-scale-text">0%</text>
+    <text x="${cx}" y="${cy - 52}" class="gauge-scale-text">50%</text>
+    <text x="${cx + 68}" y="${cy + 14}" class="gauge-scale-text">100%</text>
+
+    <!-- Needle Line & Circular Pointer Tip -->
+    <line x1="${nx1.toFixed(1)}" y1="${ny1.toFixed(1)}" x2="${nx2.toFixed(1)}" y2="${ny2.toFixed(1)}" class="gauge-needle-line" />
+    <circle cx="${ncx.toFixed(1)}" cy="${ncy.toFixed(1)}" r="3" class="gauge-needle-tip" />
+  `;
 }
 
 function renderThermostatGauge(weekConsumed, weeklyBudget, daysSinceStart) {
@@ -413,13 +452,41 @@ export function renderAnalytics(entries) {
   const totals = computeTotals(selectedEntries);
 
   // Show / Hide individual macro/micro cards based on settings
-  if (cardProtein) cardProtein.hidden = enabledMicros.protein === false;
-  if (cardCarbs) cardCarbs.hidden = enabledMicros.carbs === false;
-  if (cardFat) cardFat.hidden = enabledMicros.fat === false;
-  if (cardFiber) cardFiber.hidden = !enabledMicros.fiber;
-  if (cardSugar) cardSugar.hidden = !enabledMicros.sugar;
-  if (cardSodium) cardSodium.hidden = !enabledMicros.sodium;
-  if (cardPotassium) cardPotassium.hidden = !enabledMicros.potassium;
+  if (cardProtein) {
+    const isShow = enabledMicros.protein !== false;
+    cardProtein.hidden = !isShow;
+    cardProtein.style.display = isShow ? "" : "none";
+  }
+  if (cardCarbs) {
+    const isShow = enabledMicros.carbs !== false;
+    cardCarbs.hidden = !isShow;
+    cardCarbs.style.display = isShow ? "" : "none";
+  }
+  if (cardFat) {
+    const isShow = enabledMicros.fat !== false;
+    cardFat.hidden = !isShow;
+    cardFat.style.display = isShow ? "" : "none";
+  }
+  if (cardFiber) {
+    const isShow = Boolean(enabledMicros.fiber);
+    cardFiber.hidden = !isShow;
+    cardFiber.style.display = isShow ? "" : "none";
+  }
+  if (cardSugar) {
+    const isShow = Boolean(enabledMicros.sugar);
+    cardSugar.hidden = !isShow;
+    cardSugar.style.display = isShow ? "" : "none";
+  }
+  if (cardSodium) {
+    const isShow = Boolean(enabledMicros.sodium);
+    cardSodium.hidden = !isShow;
+    cardSodium.style.display = isShow ? "" : "none";
+  }
+  if (cardPotassium) {
+    const isShow = Boolean(enabledMicros.potassium);
+    cardPotassium.hidden = !isShow;
+    cardPotassium.style.display = isShow ? "" : "none";
+  }
 
   if (analyticsProteinVal) analyticsProteinVal.textContent = `${round(totals.protein)}g`;
   if (analyticsCarbsVal) analyticsCarbsVal.textContent = `${round(totals.carbs)}g`;

@@ -1105,6 +1105,10 @@
   gap: 2px;
 }
 
+.macro-card-item[hidden] {
+  display: none !important;
+}
+
 .macro-card-header {
   display: flex;
   align-items: center;
